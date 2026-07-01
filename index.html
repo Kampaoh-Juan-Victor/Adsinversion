@@ -28,6 +28,11 @@
   header h1 span { color: var(--accent); }
   .meta-info { color: var(--muted); font-size: 12px; }
   .meta-info strong { color: var(--text); }
+  .refresh-btn { padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); font-size: 12px; cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+  .refresh-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--surface); }
+  .refresh-btn.loading { color: var(--accent); opacity: 0.7; }
+  .refresh-btn.loading::before { content: '⟳'; display: inline-block; animation: spin 1s linear infinite; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
   /* ── Period bar ── */
   .period-bar { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 10px 32px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -158,9 +163,12 @@
 
 <header>
   <h1>Kampaoh &middot; <span>Inversi&oacute;n Publicitaria</span></h1>
-  <div class="meta-info">
-    Per&iacute;odo: <strong id="period"></strong> &nbsp;&middot;&nbsp;
-    Actualizado: <strong id="updated"></strong>
+  <div style="display: flex; align-items: center; gap: 20px;">
+    <div class="meta-info">
+      Per&iacute;odo: <strong id="period"></strong> &nbsp;&middot;&nbsp;
+      Actualizado: <strong id="updated"></strong>
+    </div>
+    <button class="refresh-btn" id="refresh-btn" title="Recarga los datos del servidor">🔄 Refrescar</button>
   </div>
 </header>
 
@@ -422,8 +430,11 @@ var PRESET_RANGES = {
   last_month:   function(){ return {from:firstOfMonth(-1), to:lastOfLastMonth()}; },
 };
 
-// ── Histórico precargado mensual (ene 2025 – may 2026) ───────────────────────
+// ── Histórico precargado mensual (oct 2024 – may 2026) ───────────────────────
 var HIST_DATA = [
+  {from:"2024-10-01",to:"2024-10-31",meta:2477,google:1579,tiktok:0,        label:"Octubre 2024"},
+  {from:"2024-11-01",to:"2024-11-30",meta:2175,google:744,tiktok:0,         label:"Noviembre 2024"},
+  {from:"2024-12-01",to:"2024-12-31",meta:7482,google:1597,tiktok:0,        label:"Diciembre 2024"},
   {from:"2025-01-01",to:"2025-01-31",meta:17950,google:3677,tiktok:372,    label:"Enero 2025"},
   {from:"2025-02-01",to:"2025-02-28",meta:17782,google:7265,tiktok:160,    label:"Febrero 2025"},
   {from:"2025-03-01",to:"2025-03-31",meta:21535,google:9477,tiktok:349,    label:"Marzo 2025"},
@@ -1494,6 +1505,62 @@ function renderYoY(){
 
 renderMensualChart();
 renderYoY();
+
+// ── Botón de refrescar ──
+document.getElementById("refresh-btn").onclick = function() {
+  var btn = this;
+  var origText = btn.innerHTML;
+  btn.classList.add("loading");
+  btn.disabled = true;
+  btn.innerHTML = "⟳ Actualizando...";
+
+  // Primero intentamos conectar al servidor local (node server.js)
+  var es = null;
+  try {
+    es = new EventSource("/refresh");
+  } catch(e) {
+    // Servidor no disponible: recarga solo los JSONs existentes
+    reloadJSON(btn, origText);
+    return;
+  }
+
+  es.onmessage = function(ev) {
+    var msg = JSON.parse(ev.data);
+    if (msg.status === "done") {
+      es.close();
+      reloadJSON(btn, origText);
+    } else if (msg.status === "error") {
+      es.close();
+      btn.classList.remove("loading");
+      btn.disabled = false;
+      btn.innerHTML = origText;
+      alert("Error al actualizar datos desde Porter.");
+    }
+  };
+
+  es.onerror = function() {
+    es.close();
+    // Servidor no disponible: al menos recarga los JSONs del disco
+    reloadJSON(btn, origText);
+  };
+
+  function reloadJSON(btn, origText) {
+    Promise.all([
+      fetch("data.json?t=" + Date.now()).then(r => r.json()).then(d => { rawData = d; }),
+      fetch("ga4-data.json?t=" + Date.now()).then(r => r.json()).then(d => { rawGA4 = d; }),
+      fetch("campaigns-data.json?t=" + Date.now()).then(r => r.json()).then(d => { rawCampaigns = d; })
+    ]).then(function() {
+      renderDashboard();
+      btn.classList.remove("loading");
+      btn.disabled = false;
+      btn.innerHTML = origText;
+    }).catch(function() {
+      btn.classList.remove("loading");
+      btn.disabled = false;
+      btn.innerHTML = origText;
+    });
+  }
+};
 </script>
 </body>
 </html>

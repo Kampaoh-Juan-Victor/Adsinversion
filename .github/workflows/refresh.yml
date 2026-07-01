@@ -1,0 +1,69 @@
+name: Refresh Dashboard Data
+
+on:
+  schedule:
+    - cron: '0 23 * * *'   # 1:00 AM Madrid (UTC+2) — con retraso habitual de 6-9h llega a las 7-10 AM
+    - cron: '0 10 * * *'   # 12:00 Madrid — backup por si el nocturno llega tarde o falla
+  workflow_dispatch:        # Permite lanzarlo manualmente desde GitHub
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Write GA4 credentials
+        run: echo '${{ secrets.GA4_CREDENTIALS }}' > ga4-credentials.json
+
+      - name: Refresh GA4 data
+        continue-on-error: true
+        run: node ga4-refresh.js
+
+      - name: Refresh Meta data
+        continue-on-error: true
+        env:
+          META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+          META_AD_ACCOUNT_ID: ${{ secrets.META_AD_ACCOUNT_ID }}
+        run: node meta-refresh.js
+
+      - name: Refresh Google Ads data
+        continue-on-error: true
+        env:
+          GOOGLE_ADS_DEVELOPER_TOKEN: ${{ secrets.GOOGLE_ADS_DEVELOPER_TOKEN }}
+          GOOGLE_ADS_CLIENT_CUSTOMER_ID: ${{ secrets.GOOGLE_ADS_CLIENT_CUSTOMER_ID }}
+          GOOGLE_ADS_CLIENT_ID: ${{ secrets.GOOGLE_ADS_CLIENT_ID }}
+          GOOGLE_ADS_CLIENT_SECRET: ${{ secrets.GOOGLE_ADS_CLIENT_SECRET }}
+          GOOGLE_ADS_REFRESH_TOKEN: ${{ secrets.GOOGLE_ADS_REFRESH_TOKEN }}
+        run: node google-ads-refresh.js
+
+      - name: Refresh TikTok data
+        continue-on-error: true
+        env:
+          TIKTOK_ACCESS_TOKEN: ${{ secrets.TIKTOK_ACCESS_TOKEN }}
+          TIKTOK_ADVERTISER_ID: ${{ secrets.TIKTOK_ADVERTISER_ID }}
+        run: node tiktok-refresh.js
+
+      - name: Commit and push updated data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git stash
+          git pull --rebase origin main
+          git stash pop || true
+          git add ga4-data.json meta-data.json data.json campaigns-data.json gads-data.json tiktok-data.json
+          git diff --staged --quiet || git commit -m "chore: refresh dashboard data $(date -u +%Y-%m-%d)"
+          git push

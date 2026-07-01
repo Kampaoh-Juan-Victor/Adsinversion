@@ -75,8 +75,8 @@ Consulta Portermetrics para el día ${dateStr} y escribe el resultado en el fich
    Cuentas: act_2068744546681151 (España) y act_3652417178310478 (Francia).
    El campo de gasto es facebook_ads_spend (string numérico). Convierte a float para sumar.
 
-2. TikTok Ads Kampaoh1221 (id: 7044164688510255106, sourceUserId: tiktok-ads-victorarias@kampaoh.com)
-   Campos: date, adgroup_name, spend. Mismo rango.
+2. TikTok Ads Kampaoh1221 (id: 704407781510483251)
+   Campos: date, adset_name, amount_spent. Mismo rango.
 
 3. Google Ads (SIN PMAX) — Adwords Kampaoh (id: 4052984517-4052984517, sourceUserId: google-ads-103062776159609254731)
    Campos: date, google_ads_campaign_name, google_ads_ad_group_name, google_ads_cost_micros. Mismo rango.
