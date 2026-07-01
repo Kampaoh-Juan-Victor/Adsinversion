@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kampaoh · GA4 Propiedades</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+@media print {
+  body { background: #fff !important; color: #000 !important; font-size: 11px; }
+  header, nav, .period-bar, .kpi-row, .charts-row, footer, #btn-pdf, .sort-hint, .table-header h3 + * { display: none !important; }
+  .table-header { border-bottom: 2px solid #ccc; padding: 8px 0; }
+  .table-header h3 { color: #000 !important; font-size: 13px; }
+  .table-card { border: none !important; box-shadow: none !important; }
+  #print-meta { display: block !important; font-size: 11px; color: #555; margin-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { border: 1px solid #ddd !important; padding: 5px 8px !important; color: #000 !important; background: #fff !important; font-size: 10px; }
+  th { background: #f5f5f5 !important; font-weight: 700; }
+  tr:hover td { background: #fff !important; }
+}
+</style>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222536;
+    --border: #2e3149;
+    --text: #e8eaf0;
+    --muted: #7b7f9e;
+    --accent: #6366f1;
+    --views: #6366f1;
+    --cart: #f59e0b;
+    --checkout: #10b981;
+    --purchases: #22c55e;
+    --danger: #ef4444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; }
+
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  header h1 { font-size: 18px; font-weight: 700; }
+  header h1 span { color: var(--accent); }
+  .meta-info { color: var(--muted); font-size: 12px; }
+  .meta-info strong { color: var(--text); }
+
+  nav { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; gap: 0; }
+  .nav-link { padding: 10px 18px; font-size: 12px; font-weight: 600; color: var(--muted); text-decoration: none; border-bottom: 2px solid transparent; }
+  .nav-link.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .nav-link:hover { color: var(--text); }
+
+  .period-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 32px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .period-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-right: 4px; }
+  .period-btn { padding: 5px 13px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; transition: all .15s; }
+  .period-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .period-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  .date-sep { color: var(--border); font-size: 16px; margin: 0 2px; }
+  .date-input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 4px 8px; font-size: 12px; cursor: pointer; }
+  .date-input:focus { outline: none; border-color: var(--accent); }
+  .delay-note { margin-left: auto; font-size: 11px; color: var(--muted); }
+
+  main { padding: 24px 32px 32px; max-width: 1400px; margin: 0 auto; }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 24px; }
+  .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; border-top: 3px solid; }
+  .kpi.kpi-views { border-top-color: var(--views); }
+  .kpi.kpi-cart { border-top-color: var(--cart); }
+  .kpi.kpi-checkout { border-top-color: var(--checkout); }
+  .kpi.kpi-purchases { border-top-color: var(--purchases); }
+  .kpi .label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 7px; }
+  .kpi .value { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+  .kpi.kpi-views .value { color: var(--views); }
+  .kpi.kpi-cart .value { color: var(--cart); }
+  .kpi.kpi-checkout .value { color: var(--checkout); }
+  .kpi.kpi-purchases .value { color: var(--purchases); }
+  .kpi .sub { color: var(--muted); font-size: 11px; margin-top: 3px; }
+  .kpi .delta { font-size: 12px; font-weight: 600; margin-top: 5px; }
+  .yoy-up   { color: #22c55e; }
+  .yoy-down { color: #ef4444; }
+  .yoy-neu  { color: var(--muted); }
+
+  .charts-row { display: grid; grid-template-columns: 1fr 320px; gap: 20px; margin-bottom: 24px; }
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+  .chart-card h3 { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 16px; }
+
+  .table-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .table-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+  .table-header h3 { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; }
+  .sort-hint { font-size: 11px; color: var(--muted); margin-left: auto; }
+
+  table { width: 100%; border-collapse: collapse; }
+  th { padding: 9px 14px; text-align: right; font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; background: var(--surface2); border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; white-space: nowrap; }
+  th:first-child { text-align: left; }
+  th .sort-arrow { margin-left: 4px; opacity: 0.4; }
+  th.sorted .sort-arrow { opacity: 1; color: var(--accent); }
+  th:hover { color: var(--text); }
+  td { padding: 9px 14px; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.04); font-variant-numeric: tabular-nums; font-size: 13px; }
+  td:first-child { text-align: left; font-weight: 600; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.025); }
+  .tfoot-row td { font-weight: 700; background: var(--surface2); border-top: 1px solid var(--border); }
+
+  .views-val { color: var(--views); }
+  .cart-val { color: var(--cart); }
+  .checkout-val { color: var(--checkout); }
+  .purchase-val { color: var(--purchases); }
+  .pct-val { color: var(--muted); font-size: 11px; }
+
+  .funnel-item { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+  .funnel-label { display: flex; justify-content: space-between; font-size: 12px; }
+  .funnel-label span:first-child { font-weight: 600; }
+  .funnel-bar-bg { background: var(--surface2); border-radius: 4px; height: 8px; overflow: hidden; }
+  .funnel-bar { height: 100%; border-radius: 4px; transition: width .3s; }
+  .funnel-pct { font-size: 11px; color: var(--muted); }
+
+  footer { text-align: center; padding: 20px; color: var(--muted); font-size: 11px; border-top: 1px solid var(--border); margin-top: 28px; }
+
+  @media (max-width: 900px) {
+    .kpi-row { grid-template-columns: repeat(2,1fr); }
+    .charts-row { grid-template-columns: 1fr; }
+    main { padding: 16px; }
+    .delay-note { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Kampaoh &middot; <span>Propiedades Vistas</span></h1>
+  <div class="meta-info">GA4 &middot; Actualizado: <strong id="updated"></strong> &nbsp;&middot;&nbsp; Máx. disponible: <strong id="date-max"></strong></div>
+</header>
+
+<nav>
+  <a href="index.html" class="nav-link">Inversión Publicitaria</a>
+  <a href="objetivos.html" class="nav-link">Por objetivo</a>
+  <a href="ga4.html" class="nav-link active">Propiedades Vistas · GA4</a>
+  <a href="google.html" class="nav-link">Google Ads · Optimización</a>
+</nav>
+
+<div class="period-bar">
+  <span class="period-label">Período</span>
+  <button class="period-btn" id="btn-7">Ult. 7 días</button>
+  <button class="period-btn active" id="btn-30">Ult. 30 días</button>
+  <button class="period-btn" id="btn-mes">Este mes</button>
+  <button class="period-btn" id="btn-ant">Mes anterior</button>
+  <span class="period-label" style="margin-left:12px">Personalizado</span>
+  <input type="date" id="date-from" class="date-input">
+  <span class="date-sep">→</span>
+  <input type="date" id="date-to" class="date-input">
+  <span class="delay-note">⏱ GA4 tiene retraso de 2 días · último dato: <strong id="delay-note-max"></strong></span>
+</div>
+
+<main>
+  <div class="kpi-row">
+    <div class="kpi kpi-views">
+      <div class="label">Vistas de propiedad</div>
+      <div class="value" id="kpi-views">—</div>
+      <div class="sub" id="kpi-views-sub">view_item</div>
+      <div class="delta" id="kpi-views-delta"></div>
+    </div>
+    <div class="kpi kpi-purchases">
+      <div class="label">Reservas completadas</div>
+      <div class="value" id="kpi-purchases">—</div>
+      <div class="sub" id="kpi-purchases-sub">purchase</div>
+      <div class="delta" id="kpi-purchases-delta"></div>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-card">
+      <h3>Top 15 propiedades · vistas</h3>
+      <canvas id="chartTop" style="max-height:400px"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Embudo de conversión</h3>
+      <div id="funnel"></div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <h3>Detalle por propiedad</h3>
+      <div id="print-meta" style="display:none"></div>
+      <span class="sort-hint">Haz clic en una columna para ordenar</span>
+      <button id="btn-pdf" onclick="downloadPDF()" style="margin-left:auto;padding:5px 14px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;letter-spacing:0.4px" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⬇ Descargar PDF</button>
+    </div>
+    <table>
+      <thead id="thead"></thead>
+      <tbody id="tbody"></tbody>
+      <tfoot id="tfoot"></tfoot>
+    </table>
+  </div>
+</main>
+<footer>Kampaoh &middot; Datos Google Analytics 4 &middot; <a href="https://analytics.google.com" target="_blank" style="color:var(--accent)">Abrir GA4</a></footer>
+
+
+
+<script>
+fetch('ga4-data.json').then(function(r){return r.json();}).then(function(data){
+  var GA4_ROWS = data.rows;
+  var GA4_DATE_MAX = data.updated;
+  var _d = GA4_DATE_MAX.split('-');
+  var GA4_UPDATED = _d[2]+'/'+_d[1]+'/'+_d[0];
+  (function() {
+  var MAX_DATE = GA4_DATE_MAX;
+
+  // Set header info
+  document.getElementById("updated").textContent = GA4_UPDATED;
+  document.getElementById("date-max").textContent = MAX_DATE;
+  document.getElementById("delay-note-max").textContent = MAX_DATE;
+
+  // Date helpers
+  function toYMD(d) { return d.replace(/-/g, ''); } // "2026-05-01" → "20260501"
+  function fmtDisplay(yyyymmdd) {
+    var y = yyyymmdd.slice(0,4), m = yyyymmdd.slice(4,6), d = yyyymmdd.slice(6,8);
+    var months = ["","ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+    return d + " " + months[parseInt(m)] + " " + y;
+  }
+  function addDays(isoDate, n) {
+    var dt = new Date(isoDate + "T00:00:00");
+    dt.setDate(dt.getDate() + n);
+    return dt.toISOString().slice(0,10);
+  }
+  function startOfMonth(isoDate) { return isoDate.slice(0,7) + "-01"; }
+  function prevMonthRange() {
+    var dt = new Date(MAX_DATE + "T00:00:00");
+    var y = dt.getFullYear(), m = dt.getMonth(); // 0-based
+    var first = new Date(y, m-1, 1);
+    var last  = new Date(y, m, 0);
+    function pad(n){ return String(n).padStart(2,'0'); }
+    return {
+      from: first.getFullYear() + "-" + pad(first.getMonth()+1) + "-01",
+      to:   last.getFullYear()  + "-" + pad(last.getMonth()+1)  + "-" + pad(last.getDate())
+    };
+  }
+
+  // Compute preset ranges relative to today, capped at MAX_DATE
+  function presetRange(preset) {
+    var today = new Date().toISOString().slice(0, 10);
+    var to = today < MAX_DATE ? today : MAX_DATE;
+    if (preset === "last_7_days")  return { from: addDays(today, -6), to: to };
+    if (preset === "last_30_days") return { from: addDays(today, -29), to: to };
+    if (preset === "this_month")   return { from: startOfMonth(to), to: to };
+    if (preset === "last_month")   return prevMonthRange();
+    return { from: addDays(today, -29), to: to };
+  }
+
+  // Aggregation
+  function aggregate(from, to) {
+    var f = toYMD(from), t = toYMD(to);
+    var map = {};
+    for (var i = 0; i < GA4_ROWS.length; i++) {
+      var r = GA4_ROWS[i];
+      if (r[0] < f || r[0] > t) continue;
+      var raw = r[1];
+      // Normaliza "Kampaoh X (City, Province)" → "Kampaoh X (City" para unir vistas y carrito
+      var name = raw.replace(/,\s*[^,)]+\)$/, "");
+      if (!map[name]) map[name] = { name: name, views: 0, cart: 0, checkout: 0, purchases: 0 };
+      map[name].views     += r[2];
+      map[name].cart      += r[3];
+      map[name].checkout  += r[4];
+      map[name].purchases += r[5];
+    }
+    return Object.values(map);
+  }
+
+  // Sort state
+  var sortCol = "views", sortDir = -1;
+  var currentFrom = "", currentTo = "";
+  var chartTopInst = null;
+
+  function n(v) { return v.toLocaleString("es-ES"); }
+  function pct(a,b) { return b > 0 ? (a/b*100).toFixed(1) + "%" : "—"; }
+
+  function shiftYearBack(isoDate) {
+    var p = isoDate.split('-');
+    return (parseInt(p[0]) - 1) + '-' + p[1] + '-' + p[2];
+  }
+
+  function yoyHtml(curr, prev, compact) {
+    if (!prev) return "<span class='yoy-neu'>—</span>";
+    var d = (curr - prev) / prev * 100;
+    var sign = d >= 0 ? "+" : "";
+    var cls  = d > 0 ? "yoy-up" : (d < 0 ? "yoy-down" : "yoy-neu");
+    var pctStr = "<span class='" + cls + "'>" + sign + d.toFixed(1) + "%</span>";
+    if (compact) return pctStr;
+    return "<span style='color:var(--muted);font-size:11px'>" + n(prev) + "</span><br>" + pctStr;
+  }
+
+  var COLS = [
+    { key: "name",           label: "Propiedad",        cls: "" },
+    { key: "views",          label: "Vistas",            cls: "views-val" },
+    { key: "views_prev",     label: "Vistas año ant.",   cls: "pct-val" },
+    { key: "views_pct",      label: "Δ vistas",          cls: "pct-val", noSort: true },
+    { key: "purchases",      label: "Reservas",          cls: "purchase-val" },
+    { key: "purchases_prev", label: "Reservas año ant.", cls: "purchase-val" },
+    { key: "purchases_pct",  label: "Δ reservas",        cls: "pct-val", noSort: true },
+    { key: "cvr_view",       label: "Vista→Reserva",     cls: "pct-val" },
+  ];
+
+  function renderDashboard(from, to) {
+    currentFrom = from; currentTo = to;
+    var rows = aggregate(from, to);
+
+    // Previous year period for YoY
+    var fromP = shiftYearBack(from), toP = shiftYearBack(to);
+    var prevRows = aggregate(fromP, toP);
+    var prevMap = {};
+    for (var i = 0; i < prevRows.length; i++) prevMap[prevRows[i].name] = prevRows[i];
+
+    // Enrich rows with previous year values and delta
+    for (var i = 0; i < rows.length; i++) {
+      var pr = prevMap[rows[i].name];
+      rows[i].views_prev     = pr ? pr.views     : null;
+      rows[i].purchases_prev = pr ? pr.purchases : null;
+      rows[i].views_yoy_raw     = (pr && pr.views     > 0) ? (rows[i].views     - pr.views)     / pr.views     * 100 : null;
+      rows[i].purchases_yoy_raw = (pr && pr.purchases > 0) ? (rows[i].purchases - pr.purchases) / pr.purchases * 100 : null;
+    }
+
+    // Totals
+    var totV = 0, totP = 0, totVP = 0, totPP = 0;
+    for (var i = 0; i < rows.length; i++) {
+      totV  += rows[i].views;
+      totP  += rows[i].purchases;
+    }
+    for (var i = 0; i < prevRows.length; i++) {
+      totVP += prevRows[i].views;
+      totPP += prevRows[i].purchases;
+    }
+
+    // KPIs
+    document.getElementById("kpi-views").textContent    = n(totV);
+    document.getElementById("kpi-purchases").textContent= n(totP);
+    document.getElementById("kpi-views-sub").textContent    = fmtDisplay(toYMD(from)) + " – " + fmtDisplay(toYMD(to));
+    document.getElementById("kpi-purchases-sub").textContent= pct(totP,  totV) + " conv. vista→reserva";
+    var vLabel = totVP ? "<span style='color:var(--muted);font-size:11px'>Año ant.: " + n(totVP) + " &nbsp;</span>" : "";
+    var pLabel = totPP ? "<span style='color:var(--muted);font-size:11px'>Año ant.: " + n(totPP) + " &nbsp;</span>" : "";
+    document.getElementById("kpi-views-delta").innerHTML    = vLabel + yoyHtml(totV, totVP, true);
+    document.getElementById("kpi-purchases-delta").innerHTML= pLabel + yoyHtml(totP, totPP, true);
+
+    // Funnel
+    var funnelEl = document.getElementById("funnel");
+    var steps = [
+      { label: "Vistas",   val: totV, color: "var(--views)",     pctOf: null },
+      { label: "Reservas", val: totP, color: "var(--purchases)", pctOf: totV },
+    ];
+    var html = "";
+    for (var si = 0; si < steps.length; si++) {
+      var s = steps[si];
+      var barW = totV > 0 ? Math.round(s.val / totV * 100) : 0;
+      var pctLabel = s.pctOf !== null ? (" · " + pct(s.val, s.pctOf) + " del paso anterior") : "";
+      html += "<div class='funnel-item'>";
+      html += "<div class='funnel-label'><span style='color:" + s.color + "'>" + s.label + "</span><span style='color:var(--text);font-weight:700'>" + n(s.val) + "</span></div>";
+      html += "<div class='funnel-bar-bg'><div class='funnel-bar' style='width:" + barW + "%;background:" + s.color + "'></div></div>";
+      html += "<div class='funnel-pct'>" + barW + "% del total de vistas" + pctLabel + "</div>";
+      html += "</div>";
+    }
+    funnelEl.innerHTML = html;
+
+    // Sort rows
+    rows.sort(function(a,b) {
+      if (sortCol === "name") { return sortDir * a.name.localeCompare(b.name); }
+      if (sortCol === "cvr_view") {
+        var av = a.views > 0 ? a.purchases / a.views : 0;
+        var bv = b.views > 0 ? b.purchases / b.views : 0;
+        return sortDir * (bv - av);
+      }
+      if (sortCol === "views_pct")     { return sortDir * ((b.views_yoy_raw||0)     - (a.views_yoy_raw||0)); }
+      if (sortCol === "purchases_pct") { return sortDir * ((b.purchases_yoy_raw||0) - (a.purchases_yoy_raw||0)); }
+      var av = a[sortCol] !== null && a[sortCol] !== undefined ? a[sortCol] : -Infinity;
+      var bv = b[sortCol] !== null && b[sortCol] !== undefined ? b[sortCol] : -Infinity;
+      return sortDir * (bv - av);
+    });
+
+    // Table header
+    var theadHtml = "<tr>";
+    for (var ci = 0; ci < COLS.length; ci++) {
+      var col = COLS[ci];
+      var isSorted = col.key === sortCol;
+      var arrow = isSorted ? (sortDir === -1 ? " ↓" : " ↑") : " ↕";
+      if (col.noSort) {
+        theadHtml += "<th style='cursor:default'>" + col.label + "</th>";
+      } else {
+        theadHtml += "<th data-col='" + col.key + "' class='" + (isSorted ? "sorted" : "") + "'>" + col.label + "<span class='sort-arrow'>" + arrow + "</span></th>";
+      }
+    }
+    theadHtml += "</tr>";
+    document.getElementById("thead").innerHTML = theadHtml;
+
+    // Add click handlers to th
+    var ths = document.getElementById("thead").querySelectorAll("th");
+    for (var ti = 0; ti < ths.length; ti++) {
+      (function(th) {
+        th.onclick = function() {
+          var col = th.getAttribute("data-col");
+          if (!col) return;
+          if (sortCol === col) { sortDir *= -1; }
+          else { sortCol = col; sortDir = -1; }
+          renderDashboard(currentFrom, currentTo);
+        };
+      })(ths[ti]);
+    }
+
+    // Table body
+    var tbodyHtml = "";
+    for (var ri = 0; ri < rows.length; ri++) {
+      var rw = rows[ri];
+      var shortName = rw.name.replace("Kampaoh ", "");
+      tbodyHtml += "<tr>";
+      tbodyHtml += "<td title='" + rw.name + "'>" + shortName + "</td>";
+      var neu = "<span class='yoy-neu'>—</span>";
+      tbodyHtml += "<td class='views-val'>" + n(rw.views) + "</td>";
+      tbodyHtml += "<td class='pct-val'>" + (rw.views_prev !== null ? n(rw.views_prev) : neu) + "</td>";
+      tbodyHtml += "<td class='pct-val'>" + yoyHtml(rw.views, rw.views_prev, true) + "</td>";
+      tbodyHtml += "<td class='purchase-val'>" + n(rw.purchases) + "</td>";
+      tbodyHtml += "<td class='purchase-val'>" + (rw.purchases_prev !== null ? n(rw.purchases_prev) : neu) + "</td>";
+      tbodyHtml += "<td class='pct-val'>" + yoyHtml(rw.purchases, rw.purchases_prev, true) + "</td>";
+      tbodyHtml += "<td class='pct-val'>" + pct(rw.purchases, rw.views) + "</td>";
+      tbodyHtml += "</tr>";
+    }
+    document.getElementById("tbody").innerHTML = tbodyHtml;
+
+    // Table footer
+    document.getElementById("tfoot").innerHTML =
+      "<tr class='tfoot-row'><td>TOTAL</td>" +
+      "<td class='views-val'>" + n(totV) + "</td>" +
+      "<td class='pct-val'>" + (totVP ? n(totVP) : "—") + "</td>" +
+      "<td class='pct-val'>" + yoyHtml(totV, totVP, true) + "</td>" +
+      "<td class='purchase-val'>" + n(totP) + "</td>" +
+      "<td class='purchase-val'>" + (totPP ? n(totPP) : "—") + "</td>" +
+      "<td class='pct-val'>" + yoyHtml(totP, totPP, true) + "</td>" +
+      "<td class='pct-val'>" + pct(totP,totV) + "</td></tr>";
+
+    // Top 15 chart
+    var top15 = rows.slice().sort(function(a,b){ return b.views - a.views; }).slice(0,15);
+    if (chartTopInst) { chartTopInst.destroy(); chartTopInst = null; }
+    if (typeof Chart !== "undefined") {
+      chartTopInst = new Chart(document.getElementById("chartTop"), {
+        type: "bar",
+        data: {
+          labels: top15.map(function(d){ return d.name.replace("Kampaoh ",""); }),
+          datasets: [
+            { label: "Vistas",   data: top15.map(function(d){return d.views;}),     backgroundColor: "rgba(99,102,241,0.8)", stack: "s" },
+            { label: "Reservas", data: top15.map(function(d){return d.purchases;}), backgroundColor: "rgba(34,197,94,0.8)",  stack: "s2" }
+          ]
+        },
+        options: {
+          indexAxis: "y", responsive: true,
+          plugins: { legend: { labels: { color: "#7b7f9e", font: { size: 11 } } } },
+          scales: {
+            x: { ticks: { color: "#7b7f9e", font: { size: 10 } }, grid: { color: "rgba(255,255,255,0.05)" } },
+            y: { ticks: { color: "#e8eaf0", font: { size: 11 } }, grid: { display: false } }
+          }
+        }
+      });
+    }
+  }
+
+  // Period buttons
+  var btnMap = {
+    "btn-7":   "last_7_days",
+    "btn-30":  "last_30_days",
+    "btn-mes": "this_month",
+    "btn-ant": "last_month"
+  };
+  var btnIds = ["btn-7","btn-30","btn-mes","btn-ant"];
+
+  function setActiveBtn(activeId) {
+    for (var i = 0; i < btnIds.length; i++) {
+      var b = document.getElementById(btnIds[i]);
+      if (b) b.className = "period-btn" + (btnIds[i] === activeId ? " active" : "");
+    }
+  }
+
+  function applyPreset(preset, btnId) {
+    var range = presetRange(preset);
+    setActiveBtn(btnId);
+    document.getElementById("date-from").value = range.from;
+    document.getElementById("date-to").value   = range.to;
+    renderDashboard(range.from, range.to);
+  }
+
+  document.getElementById("btn-7").onclick   = function() { applyPreset("last_7_days",  "btn-7"); };
+  document.getElementById("btn-30").onclick  = function() { applyPreset("last_30_days", "btn-30"); };
+  document.getElementById("btn-mes").onclick = function() { applyPreset("this_month",   "btn-mes"); };
+  document.getElementById("btn-ant").onclick = function() { applyPreset("last_month",   "btn-ant"); };
+
+  // Custom date inputs
+  function onDateChange() {
+    var from = document.getElementById("date-from").value;
+    var to   = document.getElementById("date-to").value;
+    if (!from || !to || from > to) return;
+    if (to > MAX_DATE) { document.getElementById("date-to").value = MAX_DATE; to = MAX_DATE; }
+    setActiveBtn(null);
+    renderDashboard(from, to);
+  }
+  document.getElementById("date-from").addEventListener("change", onDateChange);
+  document.getElementById("date-to").addEventListener("change",   onDateChange);
+
+  // Set date input max
+  document.getElementById("date-from").max = MAX_DATE;
+  document.getElementById("date-to").max   = MAX_DATE;
+
+  // PDF download
+  window.downloadPDF = function() {
+    var from = document.getElementById("date-from").value;
+    var to   = document.getElementById("date-to").value;
+    var meta = document.getElementById("print-meta");
+    meta.textContent = "Kampaoh · GA4 Propiedades · " + fmtDisplay(toYMD(from)) + " – " + fmtDisplay(toYMD(to)) + "  |  Exportado el " + new Date().toLocaleDateString("es-ES");
+    document.title = "Kampaoh GA4 " + from + " " + to;
+    window.print();
+    document.title = "Kampaoh · GA4 Propiedades";
+  };
+
+  // Initial render: last 30 days
+  applyPreset("last_30_days", "btn-30");
+})();
+}).catch(function(e){ console.error('Error cargando ga4-data.json:', e); });
+</script>
+</body>
+</html>

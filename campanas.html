@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Tipo de Campaña · Kampaoh</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#1a1c2e;color:#e2e4f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh}
+a{text-decoration:none}
+header{background:#222536;border-bottom:1px solid #2e3149;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px}
+.logo{font-weight:700;font-size:18px;color:#fff;letter-spacing:-.5px}
+.logo span{color:#6366f1}
+.period-badge{font-size:12px;color:#7b7f9e;background:#1a1c2e;border:1px solid #2e3149;border-radius:20px;padding:4px 12px}
+nav{background:#222536;border-bottom:1px solid #2e3149;padding:0 32px;display:flex;gap:0}
+nav a{display:block;padding:14px 20px;font-size:13px;font-weight:500;border-bottom:2px solid transparent;transition:all .2s}
+nav a:hover{color:#e2e4f0}
+nav a.active{color:#6366f1;border-bottom-color:#6366f1}
+nav a:not(.active){color:#7b7f9e}
+main{max-width:1400px;margin:0 auto;padding:32px}
+h1{font-size:22px;font-weight:700;color:#fff;margin-bottom:4px}
+.subtitle{font-size:13px;color:#7b7f9e;margin-bottom:28px}
+
+/* Tab selector */
+.type-tabs{display:flex;gap:8px;margin-bottom:28px;border-bottom:1px solid #2e3149;padding-bottom:0}
+.type-tab{background:none;border:none;color:#7b7f9e;font-size:14px;font-weight:600;padding:10px 20px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;letter-spacing:.2px}
+.type-tab:hover{color:#e2e4f0}
+.type-tab.active{color:#6366f1;border-bottom-color:#6366f1}
+.tab-badge{display:inline-block;background:#2e3149;color:#7b7f9e;font-size:11px;font-weight:600;border-radius:10px;padding:1px 7px;margin-left:6px}
+.type-tab.active .tab-badge{background:#6366f130;color:#a5b4fc}
+
+/* KPI strip */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:28px}
+.kpi-card{background:#222536;border:1px solid #2e3149;border-radius:10px;padding:20px;position:relative}
+.kpi-label{font-size:11px;font-weight:600;color:#7b7f9e;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+.kpi-value{font-size:26px;font-weight:700;color:#fff;line-height:1}
+.kpi-sub{font-size:12px;color:#7b7f9e;margin-top:6px}
+.kpi-card.highlight{border-color:#6366f140}
+.kpi-card.highlight .kpi-value{color:#a5b4fc}
+
+/* Platform cards */
+.platform-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
+.plat-card{background:#222536;border:1px solid #2e3149;border-radius:10px;padding:20px}
+.plat-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.plat-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.plat-name{font-size:14px;font-weight:700;color:#fff}
+.plat-spend{margin-left:auto;font-size:13px;font-weight:600;color:#e2e4f0}
+.plat-metrics{display:flex;flex-direction:column;gap:10px}
+.plat-metric{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid #2e3149}
+.plat-metric-label{font-size:12px;color:#7b7f9e}
+.plat-metric-value{font-size:13px;font-weight:600;color:#e2e4f0}
+.plat-metric-value.accent{color:#a5b4fc}
+.plat-empty{color:#7b7f9e;font-size:13px;padding:12px 0;text-align:center}
+
+/* Chart area */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
+.chart-card{background:#222536;border:1px solid #2e3149;border-radius:10px;padding:20px}
+.chart-title{font-size:13px;font-weight:600;color:#7b7f9e;margin-bottom:16px;text-transform:uppercase;letter-spacing:.6px}
+.chart-wrap{position:relative;height:240px}
+
+/* Campaign table */
+.table-section{background:#222536;border:1px solid #2e3149;border-radius:10px;overflow:hidden}
+.table-title{padding:16px 20px;font-size:13px;font-weight:600;color:#7b7f9e;text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid #2e3149;display:flex;align-items:center;justify-content:space-between}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{padding:10px 16px;font-size:11px;font-weight:700;color:#7b7f9e;text-transform:uppercase;letter-spacing:.8px;text-align:left;background:#1e2038;white-space:nowrap}
+thead th.num{text-align:right}
+tbody tr{border-top:1px solid #2e3149}
+tbody tr:hover{background:#1e2038}
+tbody td{padding:10px 16px;font-size:13px;color:#e2e4f0;white-space:nowrap}
+tbody td.num{text-align:right;font-variant-numeric:tabular-nums}
+tbody td.muted{color:#7b7f9e}
+.plat-pill{display:inline-block;font-size:11px;font-weight:600;border-radius:4px;padding:2px 8px}
+.plat-meta{background:#1877f220;color:#60a5fa}
+.plat-tiktok{background:#ee1d5220;color:#fb7185}
+.plat-google{background:#4285f420;color:#93c5fd}
+.obj-pill{display:inline-block;font-size:11px;font-weight:500;border-radius:4px;padding:2px 8px;background:#2e3149;color:#a5b4fc}
+.roas-good{color:#4ade80}
+.roas-bad{color:#f87171}
+.note-box{background:#1e2038;border:1px solid #2e3149;border-radius:8px;padding:12px 16px;font-size:12px;color:#7b7f9e;margin-bottom:20px}
+.note-box strong{color:#a5b4fc}
+
+/* Section visibility */
+.type-section{display:none}
+.type-section.active{display:block}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Kamp<span>aoh</span></div>
+  <div class="period-badge">Últimos 30 días · 22 abr – 21 may 2026</div>
+</header>
+
+<nav>
+  <a href="/">Inversión Publicitaria</a>
+  <a href="/ga4.html">Propiedades Vistas · GA4</a>
+  <a href="/campanas.html" class="active">Tipo de Campaña</a>
+</nav>
+
+<main>
+  <h1>Rendimiento por tipo de campaña</h1>
+  <p class="subtitle">Segmentación de Meta Ads, Google Ads y TikTok Ads por objetivo · Últimos 30 días</p>
+
+  <div class="type-tabs">
+    <button class="type-tab active" data-section="alcance">
+      Alcance / Reconocimiento<span class="tab-badge" id="badge-alcance"></span>
+    </button>
+    <button class="type-tab" data-section="trafico">
+      Tráfico<span class="tab-badge" id="badge-trafico"></span>
+    </button>
+    <button class="type-tab" data-section="conversion">
+      Conversión<span class="tab-badge" id="badge-conversion"></span>
+    </button>
+  </div>
+
+  <!-- ALCANCE SECTION -->
+  <div class="type-section active" id="sec-alcance">
+    <div class="kpi-grid" id="kpi-alcance"></div>
+    <div class="platform-row" id="plat-alcance"></div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Inversión por plataforma (Alcance)</div>
+        <div class="chart-wrap"><canvas id="chart-alcance-donut"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">CPM / CPP por campaña</div>
+        <div class="chart-wrap"><canvas id="chart-alcance-bar"></canvas></div>
+      </div>
+    </div>
+    <div class="table-section">
+      <div class="table-title">Campañas de alcance / reconocimiento</div>
+      <div class="table-wrap"><table id="tbl-alcance"><thead><tr>
+        <th>Plataforma</th><th>Campaña</th><th>Objetivo</th>
+        <th class="num">Inversión</th><th class="num">Alcance / Imp.</th>
+        <th class="num">CPP / CPM</th><th class="num">Impresiones</th>
+      </tr></thead><tbody id="tbody-alcance"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- TRÁFICO SECTION -->
+  <div class="type-section" id="sec-trafico">
+    <div class="kpi-grid" id="kpi-trafico"></div>
+    <div class="platform-row" id="plat-trafico"></div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Inversión por plataforma (Tráfico)</div>
+        <div class="chart-wrap"><canvas id="chart-trafico-donut"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Clics y CPC por campaña</div>
+        <div class="chart-wrap"><canvas id="chart-trafico-bar"></canvas></div>
+      </div>
+    </div>
+    <div class="table-section">
+      <div class="table-title">Campañas de tráfico</div>
+      <div class="table-wrap"><table id="tbl-trafico"><thead><tr>
+        <th>Plataforma</th><th>Campaña</th><th>Objetivo</th>
+        <th class="num">Inversión</th><th class="num">Clics</th>
+        <th class="num">CPC</th><th class="num">CTR</th>
+      </tr></thead><tbody id="tbody-trafico"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- CONVERSIÓN SECTION -->
+  <div class="type-section" id="sec-conversion">
+    <div class="note-box" id="note-conv"></div>
+    <div class="kpi-grid" id="kpi-conversion"></div>
+    <div class="platform-row" id="plat-conversion"></div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Inversión por plataforma (Conversión)</div>
+        <div class="chart-wrap"><canvas id="chart-conv-donut"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">CPA por campaña (Meta · compras reales)</div>
+        <div class="chart-wrap"><canvas id="chart-conv-bar"></canvas></div>
+      </div>
+    </div>
+    <div class="table-section">
+      <div class="table-title">Campañas de conversión</div>
+      <div class="table-wrap"><table id="tbl-conv"><thead><tr>
+        <th>Plataforma</th><th>Campaña</th><th>Objetivo</th>
+        <th class="num">Inversión</th><th class="num">Conversiones</th>
+        <th class="num">CPA</th><th class="num">Valor</th><th class="num">ROAS</th>
+      </tr></thead><tbody id="tbody-conv"></tbody></table></div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ─── RAW DATA ────────────────────────────────────────────────────
+const META = [
+  {n:"ES_Alcance_España2 (25)",        obj:"OUTCOME_AWARENESS", spend:18993.70, impr:38964868, reach:5307072, cpp:3.578941, clicks:113853, conv:188, val:46193.99},
+  {n:"Es_Conversiones_PUSH-CAMPING",  obj:"Sales",             spend:2071.73,  impr:741810,   reach:206085,  cpp:10.052794,clicks:17675,  conv:140, val:34475.37},
+  {n:"Es_Conversiones_TOP-Contenidos",obj:"Sales",             spend:1798.07,  impr:661614,   reach:287661,  cpp:6.250656, clicks:29920,  conv:156, val:33855.36},
+  {n:"Es_Conversiones_Verano (26)",   obj:"Sales",             spend:1483.71,  impr:579799,   reach:273618,  cpp:5.42256,  clicks:13661,  conv:116, val:26008.74},
+  {n:"Es_Conversiones_Destino-Campings",obj:"Sales",           spend:1354.41,  impr:517204,   reach:164598,  cpp:8.228593, clicks:18380,  conv:122, val:27526.45},
+  {n:"Alcance_Catálogo_Internacional",obj:"Sales",             spend:1274.38,  impr:3450827,  reach:1287967, cpp:0.989451, clicks:7856,   conv:3,   val:2508.54},
+  {n:"Es_Conversiones_Colaboraciones",obj:"Sales",             spend:1263.08,  impr:488658,   reach:126101,  cpp:10.016415,clicks:16555,  conv:242, val:58290.27},
+  {n:"Es_Conversiones_cordoba",       obj:"Sales",             spend:1235.61,  impr:510366,   reach:160866,  cpp:7.680989, clicks:10830,  conv:89,  val:19019.86},
+  {n:"ES_Conversiones_Catálogo_Verano",obj:"Sales",            spend:1176.33,  impr:2626926,  reach:717630,  cpp:1.639187, clicks:8001,   conv:53,  val:14135.41},
+  {n:"Es_Conversiones_UGC",           obj:"Sales",             spend:886.91,   impr:320342,   reach:129660,  cpp:6.840275, clicks:13469,  conv:76,  val:19730.93},
+  {n:"ES_Engagement_Contenido (25)",  obj:"Engagement",        spend:841.43,   impr:598782,   reach:324143,  cpp:2.59586,  clicks:9378,   conv:2,   val:152.20},
+  {n:"ES_Clientes-potenciales_Eventos",obj:"Leads",            spend:735.00,   impr:107197,   reach:50341,   cpp:14.600425,clicks:2743,   conv:5,   val:720.95},
+  {n:"ES_Alcance_Catálogo_Viajero",   obj:"Sales",             spend:585.70,   impr:1194595,  reach:412638,  cpp:1.419404, clicks:3225,   conv:0,   val:0},
+  {n:"Es_Trafico_España (26)",         obj:"Traffic",           spend:191.17,   impr:95962,    reach:79393,   cpp:2.407895, clicks:6008,   conv:4,   val:897.98},
+];
+
+const TIKTOK = [
+  {n:"ES_Alcance_Campings_2026",          obj:"Awareness", spend:3429.97, impr:18086591, clicks:32043, conv:0,    val:0},
+  {n:"ES_Conversiones_Smart+_RMK-LKL",   obj:"Sales",     spend:2941.59, impr:1953564,  clicks:11140, conv:323,  val:0},
+  {n:"Catalogo_MAR2026",                  obj:"Sales",     spend:2398.84, impr:1009879,  clicks:9836,  conv:266,  val:0},
+  {n:"Es_Alcance_Campings-PUSH",          obj:"Awareness", spend:2265.62, impr:9456240,  clicks:18165, conv:0,    val:0},
+  {n:"ES_Alcance_Influencer",             obj:"Awareness", spend:2050.87, impr:8117542,  clicks:19848, conv:0,    val:0},
+  {n:"Es_Conversiones_Influencer",        obj:"Sales",     spend:1082.38, impr:820559,   clicks:6226,  conv:1531, val:0},
+  {n:"ES_Conversiones_Cordoba+_RMK-LKL", obj:"Sales",     spend:1065.86, impr:862200,   clicks:3537,  conv:104,  val:0},
+  {n:"TravelADS_Verano_24MAR26",          obj:"Sales",     spend:594.73,  impr:867538,   clicks:5174,  conv:2076, val:0},
+];
+
+const GOOGLE = [
+  {n:"ES_Search_LPKs_No_Marca",                      ch:"SEARCH",          spend:3179.29, impr:134450,  clicks:17929, conv:199.69,  val:144906.12},
+  {n:"ES_PMAX_Push_Destinos",                        ch:"PERFORMANCE_MAX", spend:2829.58, impr:458874,  clicks:41961, conv:307.33,  val:229383.60},
+  {n:"ES_Search_Provincia_CCAA_No_Marca",            ch:"SEARCH",          spend:2712.32, impr:119387,  clicks:14595, conv:159.27,  val:131880.73},
+  {n:"ES_Conversion_GenDemand_Verano",               ch:"DEMAND_GEN",      spend:1479.79, impr:409358,  clicks:1763,  conv:98.38,   val:58839.62},
+  {n:"ES_Tráfico_GenDemand_Verano",                  ch:"DEMAND_GEN",      spend:1384.41, impr:2338713, clicks:59779, conv:1.00,    val:6475.02},
+  {n:"ES_Search_LPKs_Marca_New",                    ch:"SEARCH",          spend:1063.12, impr:107625,  clicks:41505, conv:1684.36, val:939556.37},
+  {n:"ES_Tráfico_GenDemand_Shorts",                  ch:"DEMAND_GEN",      spend:773.82,  impr:1038325, clicks:23074, conv:8.86,    val:29237.42},
+  {n:"ES_Alcance_Vídeo_LKL_Selección",               ch:"VIDEO",           spend:670.46,  impr:525333,  clicks:443,   conv:0,       val:2540.79},
+  {n:"ES_Search_Competencia",                        ch:"SEARCH",          spend:457.49,  impr:19137,   clicks:888,   conv:9.08,    val:5999.29},
+  {n:"ES_Search_Cercania_Destinos",                  ch:"SEARCH",          spend:444.99,  impr:23060,   clicks:1397,  conv:6.29,    val:4574.49},
+  {n:"ES_Search_Campings_Genérico_No_Marca",         ch:"SEARCH",          spend:444.01,  impr:16543,   clicks:2393,  conv:29.71,   val:29014.81},
+  {n:"ES_Search_LPKs_No_Marca_PushDestinos",         ch:"SEARCH",          spend:410.00,  impr:8008,    clicks:1450,  conv:30.80,   val:11378.71},
+  {n:"ES_Conv_GenDemand_Shorts_PushDestinos",        ch:"DEMAND_GEN",      spend:165.27,  impr:48764,   clicks:287,   conv:5.00,    val:2567.84},
+];
+
+// ─── CLASSIFICATION ──────────────────────────────────────────────
+function typeMeta(r){
+  if(r.obj==='OUTCOME_AWARENESS'||r.obj==='Engagement') return 'alcance';
+  if(r.obj==='Traffic') return 'trafico';
+  return 'conversion';
+}
+function typeTikTok(r){
+  if(r.obj==='Awareness') return 'alcance';
+  if(r.obj==='Traffic') return 'trafico';
+  return 'conversion';
+}
+function typeGoogle(r){
+  if(r.ch==='VIDEO') return 'alcance';
+  const n=r.n.toLowerCase();
+  if(n.includes('tráfico')||n.includes('trafico')) return 'trafico';
+  return 'conversion';
+}
+
+// ─── BUILD DATASETS ──────────────────────────────────────────────
+const data = {
+  alcance:  { meta:[], tiktok:[], google:[] },
+  trafico:  { meta:[], tiktok:[], google:[] },
+  conversion:{ meta:[], tiktok:[], google:[] }
+};
+META.forEach(r   => data[typeMeta(r)].meta.push(r));
+TIKTOK.forEach(r => data[typeTikTok(r)].tiktok.push(r));
+GOOGLE.forEach(r => data[typeGoogle(r)].google.push(r));
+
+// ─── HELPERS ─────────────────────────────────────────────────────
+const fmt  = n => n==null||isNaN(n)?'—':'€'+n.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtK = n => n==null||isNaN(n)?'—':n>=1000000?(n/1000000).toFixed(1)+'M':n>=1000?(n/1000).toFixed(0)+'K':n.toLocaleString('es-ES');
+const fmtN = n => n==null||isNaN(n)?'—':n.toLocaleString('es-ES',{minimumFractionDigits:0,maximumFractionDigits:1});
+const sum  = (arr,k) => arr.reduce((a,r)=>a+(r[k]||0),0);
+const cpm  = (sp,im) => im>0?sp/im*1000:0;
+const pct  = (a,b)   => b>0?(a/b*100).toFixed(2)+'%':'—';
+
+function kpiCard(label,value,sub,highlight){
+  return `<div class="kpi-card${highlight?' highlight':''}">
+    <div class="kpi-label">${label}</div>
+    <div class="kpi-value">${value}</div>
+    ${sub?`<div class="kpi-sub">${sub}</div>`:''}
+  </div>`;
+}
+
+function platCard(name,dot,metricsHtml,spend){
+  return `<div class="plat-card">
+    <div class="plat-header">
+      <div class="plat-dot" style="background:${dot}"></div>
+      <div class="plat-name">${name}</div>
+      <div class="plat-spend">${fmt(spend)}</div>
+    </div>
+    <div class="plat-metrics">${metricsHtml}</div>
+  </div>`;
+}
+function pm(label,value,accent){
+  return `<div class="plat-metric">
+    <div class="plat-metric-label">${label}</div>
+    <div class="plat-metric-value${accent?' accent':''}">${value}</div>
+  </div>`;
+}
+
+const CHART_OPTS = {
+  responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{labels:{color:'#7b7f9e',font:{size:11}}},tooltip:{backgroundColor:'#222536',borderColor:'#2e3149',borderWidth:1,titleColor:'#e2e4f0',bodyColor:'#a5b4fc'}},
+  scales:{x:{ticks:{color:'#7b7f9e',font:{size:10}},grid:{color:'#2e3149'}},y:{ticks:{color:'#7b7f9e',font:{size:11}},grid:{color:'#2e3149'}}}
+};
+const DONUT_OPTS = {
+  responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{position:'right',labels:{color:'#7b7f9e',font:{size:11},boxWidth:12,padding:10}},tooltip:{backgroundColor:'#222536',borderColor:'#2e3149',borderWidth:1,titleColor:'#e2e4f0',bodyColor:'#a5b4fc'}}
+};
+let charts={};
+function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+
+// ─── RENDER ALCANCE ──────────────────────────────────────────────
+function renderAlcance(){
+  const md=data.alcance.meta, td=data.alcance.tiktok, gd=data.alcance.google;
+  const mSpend=sum(md,'spend'), tSpend=sum(td,'spend'), gSpend=sum(gd,'spend');
+  const total=mSpend+tSpend+gSpend;
+  const mReach=sum(md,'reach'), mImpr=sum(md,'impr');
+  const tImpr=sum(td,'impr'), gImpr=sum(gd,'impr');
+  const mCPP= mReach>0?mSpend/mReach*1000:0;
+  const tCPM= tImpr>0?tSpend/tImpr*1000:0;
+  const gCPM= gImpr>0?gSpend/gImpr*1000:0;
+
+  document.getElementById('kpi-alcance').innerHTML =
+    kpiCard('Total inversión alcance', fmt(total), `${((total/(total+sum(data.trafico.meta,'spend')+sum(data.trafico.tiktok,'spend')+sum(data.trafico.google,'spend')+sum(data.conversion.meta,'spend')+sum(data.conversion.tiktok,'spend')+sum(data.conversion.google,'spend'))*100).toFixed(0)}% del total`, false) +
+    kpiCard('Personas alcanzadas', fmtK(mReach), 'Meta · única reach', true) +
+    kpiCard('CPP Meta', fmt(mCPP).replace('€','€ '), '€ por 1.000 alcanzados', false) +
+    kpiCard('Impresiones totales', fmtK(mImpr+tImpr+gImpr), 'Todas plataformas', false) +
+    kpiCard('CPM TikTok', fmt(tCPM).replace('€','€ '), '€ por 1.000 impresiones', false);
+
+  document.getElementById('plat-alcance').innerHTML =
+    platCard('Meta Ads','#1877f2',
+      pm('Campañas',md.length) +
+      pm('Personas alcanzadas', fmtK(mReach)) +
+      pm('CPP (€/1.000 alcanzados)', fmt(mCPP), true) +
+      pm('Impresiones', fmtK(mImpr))
+    , mSpend) +
+    platCard('TikTok Ads','#ee1d52',
+      td.length?
+        pm('Campañas',td.length) +
+        pm('Impresiones', fmtK(tImpr)) +
+        pm('CPM (€/1.000 imp.)', fmt(tCPM), true) +
+        pm('Clics', fmtK(sum(td,'clicks')))
+      :`<div class="plat-empty">Sin campañas de alcance</div>`
+    , tSpend) +
+    platCard('Google Ads','#4285f4',
+      gd.length?
+        pm('Campañas',gd.length) +
+        pm('Impresiones', fmtK(gImpr)) +
+        pm('CPM (€/1.000 imp.)', fmt(gCPM), true) +
+        pm('Tipo', 'YouTube / Video')
+      :`<div class="plat-empty">Sin campañas de alcance</div>`
+    , gSpend);
+
+  // Donut: spend by platform
+  destroyChart('alcance-donut');
+  charts['alcance-donut']=new Chart(document.getElementById('chart-alcance-donut'),{
+    type:'doughnut',
+    data:{labels:['Meta','TikTok','Google'],datasets:[{data:[mSpend,tSpend,gSpend],backgroundColor:['#1877f280','#ee1d5280','#4285f480'],borderColor:['#1877f2','#ee1d52','#4285f4'],borderWidth:1}]},
+    options:{...DONUT_OPTS,plugins:{...DONUT_OPTS.plugins,tooltip:{...DONUT_OPTS.plugins.tooltip,callbacks:{label:ctx=>`€${ctx.raw.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})}`}}}}
+  });
+
+  // Bar: CPP/CPM per campaign (show top 8)
+  const allCamp = [
+    ...md.map(r=>({lbl:r.n.substring(0,22),v:r.cpp,plt:'Meta'})),
+    ...td.map(r=>({lbl:r.n.substring(0,22),v:cpm(r.spend,r.impr),plt:'TikTok'})),
+    ...gd.map(r=>({lbl:r.n.substring(0,22),v:cpm(r.spend,r.impr),plt:'Google'}))
+  ].filter(x=>x.v>0).sort((a,b)=>b.v-a.v).slice(0,8);
+  const colors=allCamp.map(x=>x.plt==='Meta'?'#1877f2':x.plt==='TikTok'?'#ee1d52':'#4285f4');
+  destroyChart('alcance-bar');
+  charts['alcance-bar']=new Chart(document.getElementById('chart-alcance-bar'),{
+    type:'bar',
+    data:{labels:allCamp.map(x=>x.lbl),datasets:[{label:'CPP/CPM (€)',data:allCamp.map(x=>x.v),backgroundColor:colors.map(c=>c+'80'),borderColor:colors,borderWidth:1}]},
+    options:{...CHART_OPTS,indexAxis:'y',plugins:{legend:{display:false},...CHART_OPTS.plugins}}
+  });
+
+  // Table
+  const allRows=[
+    ...md.map(r=>({plt:'meta',pn:'Meta',n:r.n,obj:r.obj,spend:r.spend,reach:fmtK(r.reach),metricVal:fmt(r.cpp),impr:fmtK(r.impr)})),
+    ...td.map(r=>({plt:'tiktok',pn:'TikTok',n:r.n,obj:r.obj,spend:r.spend,reach:fmtK(r.impr)+' imp',metricVal:fmt(cpm(r.spend,r.impr)),impr:fmtK(r.impr)})),
+    ...gd.map(r=>({plt:'google',pn:'Google',n:r.n,obj:r.ch,spend:r.spend,reach:fmtK(r.impr)+' imp',metricVal:fmt(cpm(r.spend,r.impr)),impr:fmtK(r.impr)}))
+  ].sort((a,b)=>b.spend-a.spend);
+  document.getElementById('tbody-alcance').innerHTML=allRows.map(r=>`<tr>
+    <td><span class="plat-pill plat-${r.plt}">${r.pn}</span></td>
+    <td>${r.n}</td>
+    <td><span class="obj-pill">${r.obj}</span></td>
+    <td class="num">${fmt(r.spend)}</td>
+    <td class="num">${r.reach}</td>
+    <td class="num accent">${r.metricVal}</td>
+    <td class="num muted">${r.impr}</td>
+  </tr>`).join('');
+}
+
+// ─── RENDER TRÁFICO ───────────────────────────────────────────────
+function renderTrafico(){
+  const md=data.trafico.meta, td=data.trafico.tiktok, gd=data.trafico.google;
+  const mSpend=sum(md,'spend'), tSpend=sum(td,'spend'), gSpend=sum(gd,'spend');
+  const total=mSpend+tSpend+gSpend;
+  const mClicks=sum(md,'clicks'), tClicks=sum(td,'clicks'), gClicks=sum(gd,'clicks');
+  const allClicks=mClicks+tClicks+gClicks;
+  const avgCPC = allClicks>0?total/allClicks:0;
+  const mImpr=sum(md,'impr'), tImpr=sum(td,'impr'), gImpr=sum(gd,'impr');
+
+  document.getElementById('kpi-trafico').innerHTML =
+    kpiCard('Total inversión tráfico', fmt(total), '', false) +
+    kpiCard('Total clics', fmtK(allClicks), 'Todas plataformas', true) +
+    kpiCard('CPC medio', fmt(avgCPC), '€ por clic', false) +
+    kpiCard('CTR medio', pct(allClicks,mImpr+tImpr+gImpr), 'Clics / Impresiones', false) +
+    kpiCard('Impresiones totales', fmtK(mImpr+tImpr+gImpr), '', false);
+
+  document.getElementById('plat-trafico').innerHTML =
+    platCard('Meta Ads','#1877f2',
+      md.length?
+        pm('Campañas',md.length) +
+        pm('Clics', fmtK(mClicks)) +
+        pm('CPC (€/clic)', fmt(mSpend/mClicks||0), true) +
+        pm('CTR', pct(mClicks,mImpr))
+      :`<div class="plat-empty">Sin campañas de tráfico</div>`
+    , mSpend) +
+    platCard('TikTok Ads','#ee1d52',
+      td.length?
+        pm('Campañas',td.length) +
+        pm('Clics', fmtK(tClicks)) +
+        pm('CPC (€/clic)', fmt(tSpend/tClicks||0), true) +
+        pm('CTR', pct(tClicks,tImpr))
+      :`<div class="plat-empty">Sin campañas de tráfico</div>`
+    , tSpend) +
+    platCard('Google Ads','#4285f4',
+      gd.length?
+        pm('Campañas',gd.length) +
+        pm('Clics', fmtK(gClicks)) +
+        pm('CPC (€/clic)', fmt(gSpend/gClicks||0), true) +
+        pm('CTR', pct(gClicks,gImpr)) +
+        pm('Tipo', 'Demand Gen')
+      :`<div class="plat-empty">Sin campañas de tráfico</div>`
+    , gSpend);
+
+  destroyChart('trafico-donut');
+  charts['trafico-donut']=new Chart(document.getElementById('chart-trafico-donut'),{
+    type:'doughnut',
+    data:{labels:['Meta','TikTok','Google'],datasets:[{data:[mSpend,tSpend,gSpend],backgroundColor:['#1877f280','#ee1d5280','#4285f480'],borderColor:['#1877f2','#ee1d52','#4285f4'],borderWidth:1}]},
+    options:{...DONUT_OPTS,plugins:{...DONUT_OPTS.plugins,tooltip:{...DONUT_OPTS.plugins.tooltip,callbacks:{label:ctx=>`€${ctx.raw.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})}`}}}}
+  });
+
+  const allCamp=[
+    ...md.map(r=>({lbl:r.n.substring(0,22),v:r.clicks,cpc:r.spend/r.clicks||0,plt:'Meta'})),
+    ...td.map(r=>({lbl:r.n.substring(0,22),v:r.clicks,cpc:r.spend/r.clicks||0,plt:'TikTok'})),
+    ...gd.map(r=>({lbl:r.n.substring(0,22),v:r.clicks,cpc:r.spend/r.clicks||0,plt:'Google'}))
+  ].sort((a,b)=>b.v-a.v).slice(0,8);
+  const colors2=allCamp.map(x=>x.plt==='Meta'?'#1877f2':x.plt==='TikTok'?'#ee1d52':'#4285f4');
+  destroyChart('trafico-bar');
+  charts['trafico-bar']=new Chart(document.getElementById('chart-trafico-bar'),{
+    type:'bar',
+    data:{labels:allCamp.map(x=>x.lbl),datasets:[{label:'Clics',data:allCamp.map(x=>x.v),backgroundColor:colors2.map(c=>c+'80'),borderColor:colors2,borderWidth:1}]},
+    options:{...CHART_OPTS,indexAxis:'y',plugins:{legend:{display:false},...CHART_OPTS.plugins}}
+  });
+
+  const allRows=[
+    ...md.map(r=>({plt:'meta',pn:'Meta',n:r.n,obj:r.obj,spend:r.spend,clicks:r.clicks,cpc:r.spend/r.clicks||0,ctr:pct(r.clicks,r.impr)})),
+    ...td.map(r=>({plt:'tiktok',pn:'TikTok',n:r.n,obj:r.obj,spend:r.spend,clicks:r.clicks,cpc:r.spend/r.clicks||0,ctr:pct(r.clicks,r.impr)})),
+    ...gd.map(r=>({plt:'google',pn:'Google',n:r.n,obj:r.ch,spend:r.spend,clicks:r.clicks,cpc:r.spend/r.clicks||0,ctr:pct(r.clicks,r.impr)}))
+  ].sort((a,b)=>b.spend-a.spend);
+  document.getElementById('tbody-trafico').innerHTML=allRows.map(r=>`<tr>
+    <td><span class="plat-pill plat-${r.plt}">${r.pn}</span></td>
+    <td>${r.n}</td>
+    <td><span class="obj-pill">${r.obj}</span></td>
+    <td class="num">${fmt(r.spend)}</td>
+    <td class="num">${fmtK(r.clicks)}</td>
+    <td class="num accent">${fmt(r.cpc)}</td>
+    <td class="num muted">${r.ctr}</td>
+  </tr>`).join('');
+}
+
+// ─── RENDER CONVERSIÓN ────────────────────────────────────────────
+function renderConversion(){
+  const md=data.conversion.meta, td=data.conversion.tiktok, gd=data.conversion.google;
+  const mSpend=sum(md,'spend'), tSpend=sum(td,'spend'), gSpend=sum(gd,'spend');
+  const total=mSpend+tSpend+gSpend;
+  const mConv=sum(md,'conv'), tConv=sum(td,'conv'), gConv=sum(gd,'conv');
+  const mVal=sum(md,'val'), gVal=sum(gd,'val');
+  const metaROAS = mSpend>0?mVal/mSpend:0;
+  const gROAS    = gSpend>0?gVal/gSpend:0;
+  const mCPA = mConv>0?mSpend/mConv:0;
+  const gCPA = gConv>0?gSpend/gConv:0;
+  const tCPA = tConv>0?tSpend/tConv:0;
+
+  document.getElementById('note-conv').innerHTML =
+    `<strong>Nota sobre conversiones:</strong> Meta reporta compras reales del píxel (CPA y ROAS fiables). ` +
+    `Google puede incluir micro-conversiones configuradas en Google Ads (valores inflados). ` +
+    `TikTok reporta eventos de conversión configurados, sin valor monetario en este periodo.`;
+
+  document.getElementById('kpi-conversion').innerHTML =
+    kpiCard('Total inversión conv.', fmt(total), '', false) +
+    kpiCard('Compras Meta (píxel)', fmtN(mConv), `CPA: ${fmt(mCPA)}`, true) +
+    kpiCard('ROAS Meta', 'x'+metaROAS.toFixed(1), `Valor: €${(mVal/1000).toFixed(0)}K`, false) +
+    kpiCard('Conv. Google Ads', fmtN(Math.round(gConv)), `CPA: ${fmt(gCPA)}`, false) +
+    kpiCard('Conv. TikTok', fmtN(tConv), `CPA: ${fmt(tCPA)} ·sin valor`, false);
+
+  document.getElementById('plat-conversion').innerHTML =
+    platCard('Meta Ads','#1877f2',
+      pm('Campañas',md.length) +
+      pm('Compras (píxel)', fmtN(mConv)) +
+      pm('CPA real', fmt(mCPA), true) +
+      pm('Valor', fmt(mVal)) +
+      pm('ROAS', 'x'+metaROAS.toFixed(1), metaROAS>=3)
+    , mSpend) +
+    platCard('TikTok Ads','#ee1d52',
+      td.length?
+        pm('Campañas',td.length) +
+        pm('Conversiones', fmtN(tConv)) +
+        pm('CPA', fmt(tCPA), true) +
+        pm('Valor', '— (no reportado)') +
+        pm('ROAS', '—')
+      :`<div class="plat-empty">Sin campañas de conversión</div>`
+    , tSpend) +
+    platCard('Google Ads','#4285f4',
+      gd.length?
+        pm('Campañas',gd.length) +
+        pm('Conversiones', fmtN(Math.round(gConv))) +
+        pm('CPA', fmt(gCPA), true) +
+        pm('Valor (plataforma)', fmt(gVal)) +
+        pm('ROAS', 'x'+gROAS.toFixed(1))
+      :`<div class="plat-empty">Sin campañas de conversión</div>`
+    , gSpend);
+
+  destroyChart('conv-donut');
+  charts['conv-donut']=new Chart(document.getElementById('chart-conv-donut'),{
+    type:'doughnut',
+    data:{labels:['Meta','TikTok','Google'],datasets:[{data:[mSpend,tSpend,gSpend],backgroundColor:['#1877f280','#ee1d5280','#4285f480'],borderColor:['#1877f2','#ee1d52','#4285f4'],borderWidth:1}]},
+    options:{...DONUT_OPTS,plugins:{...DONUT_OPTS.plugins,tooltip:{...DONUT_OPTS.plugins.tooltip,callbacks:{label:ctx=>`€${ctx.raw.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})}`}}}}
+  });
+
+  // Bar: CPA of Meta campaigns (most meaningful)
+  const metaCamps=md.filter(r=>r.conv>0).sort((a,b)=>b.spend-a.spend).slice(0,8);
+  destroyChart('conv-bar');
+  charts['conv-bar']=new Chart(document.getElementById('chart-conv-bar'),{
+    type:'bar',
+    data:{labels:metaCamps.map(r=>r.n.substring(0,22)),datasets:[{label:'CPA (€)',data:metaCamps.map(r=>r.spend/r.conv),backgroundColor:'#1877f280',borderColor:'#1877f2',borderWidth:1}]},
+    options:{...CHART_OPTS,indexAxis:'y',plugins:{legend:{display:false},...CHART_OPTS.plugins}}
+  });
+
+  const allRows=[
+    ...md.map(r=>({plt:'meta',pn:'Meta',n:r.n,obj:r.obj,spend:r.spend,conv:r.conv,cpa:r.conv?r.spend/r.conv:null,val:r.val,roas:r.val&&r.spend?r.val/r.spend:null})),
+    ...td.map(r=>({plt:'tiktok',pn:'TikTok',n:r.n,obj:r.obj,spend:r.spend,conv:r.conv,cpa:r.conv?r.spend/r.conv:null,val:null,roas:null})),
+    ...gd.map(r=>({plt:'google',pn:'Google',n:r.n,obj:r.ch,spend:r.spend,conv:r.conv,cpa:r.conv?r.spend/r.conv:null,val:r.val,roas:r.val&&r.spend?r.val/r.spend:null}))
+  ].sort((a,b)=>b.spend-a.spend);
+  document.getElementById('tbody-conv').innerHTML=allRows.map(r=>{
+    const roasStr=r.roas!=null?`<span class="${r.roas>=3?'roas-good':'roas-bad'}">x${r.roas.toFixed(1)}</span>`:'—';
+    return `<tr>
+      <td><span class="plat-pill plat-${r.plt}">${r.pn}</span></td>
+      <td>${r.n}</td>
+      <td><span class="obj-pill">${r.obj}</span></td>
+      <td class="num">${fmt(r.spend)}</td>
+      <td class="num">${r.conv?fmtN(r.conv):'—'}</td>
+      <td class="num accent">${r.cpa?fmt(r.cpa):'—'}</td>
+      <td class="num">${r.val?fmt(r.val):'—'}</td>
+      <td class="num">${roasStr}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── BADGE COUNTS ─────────────────────────────────────────────────
+function updateBadges(){
+  const types=['alcance','trafico','conversion'];
+  types.forEach(t=>{
+    const n=data[t].meta.length+data[t].tiktok.length+data[t].google.length;
+    document.getElementById('badge-'+t).textContent=n;
+  });
+}
+
+// ─── TAB SWITCHING ────────────────────────────────────────────────
+let rendered={alcance:false,trafico:false,conversion:false};
+function showSection(sec){
+  document.querySelectorAll('.type-tab').forEach(b=>b.classList.toggle('active',b.dataset.section===sec));
+  document.querySelectorAll('.type-section').forEach(s=>s.classList.toggle('active',s.id==='sec-'+sec));
+  if(!rendered[sec]){
+    if(sec==='alcance')    renderAlcance();
+    if(sec==='trafico')    renderTrafico();
+    if(sec==='conversion') renderConversion();
+    rendered[sec]=true;
+  }
+}
+document.querySelectorAll('.type-tab').forEach(b=>b.addEventListener('click',()=>showSection(b.dataset.section)));
+
+// ─── INIT ─────────────────────────────────────────────────────────
+updateBadges();
+renderAlcance();
+rendered.alcance=true;
+</script>
+</body>
+</html>
