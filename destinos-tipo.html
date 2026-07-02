@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kampaoh · Mix por Destino</title>
+<style>
+  :root {
+    --bg:#0f1117; --surface:#1a1d27; --surface2:#222536; --border:#2e3149;
+    --text:#e8eaf0; --muted:#7b7f9e; --meta:#1877f2; --tiktok:#ff0050;
+    --google:#fbbc04; --danger:#ef4444; --accent:#6366f1; --green:#22c55e;
+    --conv:#22c55e; --alc:#6366f1; --int:#f59e0b;
+    --traf:#38bdf8; --bus:#a78bfa; --dem:#fb923c; --otro:#64748b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;}
+
+  header{background:var(--surface);border-bottom:1px solid var(--border);padding:18px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+  header h1{font-size:18px;font-weight:700;}
+  header h1 span{color:var(--accent);}
+  .meta-info{color:var(--muted);font-size:12px;}
+  .meta-info strong{color:var(--text);}
+
+  nav{background:#222536;border-bottom:1px solid #2e3149;padding:0 32px;display:flex;gap:0;overflow-x:auto;}
+  .nav-a{padding:10px 18px;font-size:12px;font-weight:600;color:#7b7f9e;text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap;}
+  .nav-a:hover{color:var(--text);}
+  .nav-a.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+  /* ── Toolbar ── */
+  .toolbar{background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 32px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .tb-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;}
+  .sort-btns,.plat-btns{display:flex;gap:4px;}
+  .sort-btn,.plat-btn{padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;}
+  .sort-btn:hover,.plat-btn:hover{border-color:var(--accent);color:var(--text);}
+  .sort-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .plat-btn.active-meta{background:rgba(24,119,242,.2);border-color:#1877f2;color:#60a5fa;}
+  .plat-btn.active-google{background:rgba(251,188,4,.15);border-color:var(--google);color:var(--google);}
+  .plat-btn.active-tiktok{background:rgba(255,0,80,.15);border-color:var(--tiktok);color:#fb7185;}
+  .tb-search{background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:5px 10px;font-size:12px;outline:none;transition:border-color .15s;width:180px;}
+  .tb-search:focus{border-color:var(--accent);}
+  .tb-stats{margin-left:auto;font-size:11px;color:var(--muted);}
+
+  /* ── Legend ── */
+  .legend-bar{padding:8px 32px;display:flex;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--border);background:var(--bg);}
+  .leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);}
+  .leg-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0;}
+
+  main{padding:20px 32px 40px;max-width:1600px;margin:0 auto;}
+
+  /* ── Table card ── */
+  .table-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+  .table-wrap{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;min-width:700px;}
+  thead th{padding:9px 12px 8px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);white-space:nowrap;background:var(--surface2);}
+  thead th:first-child,thead th:nth-child(2){text-align:left;}
+  thead th{text-align:right;}
+  thead th.bar-th{text-align:left;width:100%;}
+
+  tbody tr{border-bottom:1px solid rgba(46,49,73,.5);cursor:pointer;transition:background .1s;}
+  tbody tr:hover{background:rgba(99,102,241,.05);}
+  tbody tr.expanded{background:rgba(99,102,241,.06);}
+  td{padding:9px 12px;vertical-align:middle;font-size:12px;text-align:right;font-variant-numeric:tabular-nums;}
+  td.rank{color:var(--muted);font-size:11px;width:32px;}
+  td.name{text-align:left;font-weight:600;font-size:13px;white-space:nowrap;min-width:160px;}
+  td.total{font-weight:700;white-space:nowrap;}
+  td.bar-cell{text-align:left;padding-right:20px;width:100%;}
+  td.plats{white-space:nowrap;}
+
+  /* ── Stacked bar ── */
+  .bar-wrap{display:flex;height:22px;border-radius:4px;overflow:hidden;background:var(--surface2);gap:1px;}
+  .bar-seg{height:100%;transition:opacity .15s;position:relative;}
+  .bar-seg:hover{opacity:.75;cursor:default;}
+
+  /* ── Platform pills ── */
+  .pp{display:inline-block;font-size:10px;font-weight:600;padding:2px 6px;border-radius:10px;margin-right:2px;white-space:nowrap;}
+  .pp.Meta{background:rgba(24,119,242,.18);color:#60a5fa;}
+  .pp.Google{background:rgba(251,188,4,.15);color:#fbbf24;}
+  .pp.TikTok{background:rgba(255,0,80,.18);color:#fb7185;}
+
+  /* ── Expanded detail ── */
+  .exp-tr td{padding:0;}
+  .exp-inner{padding:12px 16px 14px 48px;background:rgba(99,102,241,.04);border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;}
+  .type-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;}
+  .tc-name{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;}
+  .tc-val{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;}
+  .tc-pct{font-size:10px;color:var(--muted);margin-top:2px;}
+  .plat-row{grid-column:1/-1;display:flex;gap:12px;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--border);margin-top:2px;}
+  .plat-item{font-size:12px;display:flex;align-items:center;gap:6px;}
+
+  /* ── Summary row ── */
+  .sum-tr td{background:var(--surface2);font-weight:700;border-top:2px solid var(--border);}
+
+  /* ── Loading / empty ── */
+  .loading-msg,.empty-msg{padding:60px 32px;text-align:center;color:var(--muted);font-size:13px;}
+
+  footer{text-align:center;padding:20px;color:var(--muted);font-size:11px;border-top:1px solid var(--border);margin-top:8px;}
+  @media(max-width:900px){main{padding:12px 16px 32px;}thead{display:none;}td{display:block;text-align:left;}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Kampaoh &middot; <span>Mix por Destino</span></h1>
+  <div class="meta-info">Período: <strong id="hdr-period">—</strong> &nbsp;&middot;&nbsp; Actualizado: <strong id="hdr-updated">—</strong></div>
+</header>
+
+<nav>
+  <a href="index.html" class="nav-a">Inversión Publicitaria</a>
+  <a href="objetivos.html" class="nav-a">Por objetivo</a>
+  <a href="ga4.html" class="nav-a">Propiedades Vistas · GA4</a>
+  <a href="google.html" class="nav-a">Google Ads · Optimización</a>
+  <a href="destinos-tipo.html" class="nav-a active">Mix por Destino</a>
+</nav>
+
+<div class="legend-bar">
+  <div class="leg"><div class="leg-dot" style="background:var(--conv)"></div>Conversión</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--alc)"></div>Alcance</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--int)"></div>Interacción</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--traf)"></div>Tráfico</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--bus)"></div>Búsqueda</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--dem)"></div>DemandGen</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--otro)"></div>Sin clasificar</div>
+</div>
+
+<div class="toolbar">
+  <span class="tb-label">Ordenar:</span>
+  <div class="sort-btns">
+    <button class="sort-btn active" onclick="setSort('total',this)">Total €</button>
+    <button class="sort-btn" onclick="setSort('conv',this)">Conversión</button>
+    <button class="sort-btn" onclick="setSort('alc',this)">Alcance</button>
+    <button class="sort-btn" onclick="setSort('int',this)">Interacción</button>
+  </div>
+  <span class="tb-label" style="margin-left:8px">Plataforma:</span>
+  <div class="plat-btns">
+    <button class="plat-btn" id="btn-meta"   onclick="togglePlat('Meta',this,'active-meta')">Meta</button>
+    <button class="plat-btn" id="btn-google" onclick="togglePlat('Google',this,'active-google')">Google</button>
+    <button class="plat-btn" id="btn-tiktok" onclick="togglePlat('TikTok',this,'active-tiktok')">TikTok</button>
+  </div>
+  <input class="tb-search" id="search" placeholder="Buscar destino…" oninput="render()">
+  <span class="tb-stats" id="tb-stats"></span>
+</div>
+
+<main>
+  <div class="table-card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Destino</th>
+            <th>Total €</th>
+            <th class="bar-th">Distribución por tipo de campaña</th>
+            <th>Plataformas</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="5" class="loading-msg">Cargando datos…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<footer>Kampaoh · Dashboard de Inversión &nbsp;·&nbsp; Datos de Meta Ads, Google Ads y TikTok Ads</footer>
+
+<script>
+// ─── NOMENCLATURA COMPLETA ───────────────────────────────────────────────────
+const NOMENCLATURA = {
+  'arenas':          ['arenas','las-arenas'],
+  'valdvaqueros':    ['valdvaqueros','valdevaqueros'],
+  'el-palmar':       ['el-palmar','palmar'],
+  'tarifa':          ['tarifa'],
+  'puerto-santa-maria': ['puerto-santa-maria','el-puerto'],
+  'santillana-del-mar': ['santillana-del-mar','santillana'],
+  'llanes':          ['llanes'],
+  'isla-cristina':   ['isla-cristina','islacristina'],
+  'paloma':          ['paloma'],
+  'donana':          ['doñana','donana'],
+  'costa-brava':     ['costa-brava','costa brava'],
+  'costa-dorada':    ['costa-dorada'],
+  'cova-negra':      ['cova-negra','cova negra'],
+  'tossa-de-mar':    ['tossa-de-mar','tossa'],
+  'cambrils':        ['cambrils'],
+  'platjadaro':      ["platjadaro","platja-de-aro","platja d'aro"],
+  'somo-playa':      ['somo-playa'],
+  'somo-parque':     ['somo-parque'],
+  'somo':            ['somo'],
+  'sierra-de-urbasa':['sierra-de-urbasa','urbasa'],
+  'mendigorria':     ['mendigorria','mendigorría'],
+  'castrillon':      ['castrillon','castrillón'],
+  'rianxo':          ['rianxo'],
+  'zumaia':          ['zumaia'],
+  'ruiloba':         ['ruiloba'],
+  'los-canos':       ['los-caños','los-canos','caños de meca'],
+  'trafalgar':       ['trafalgar'],
+  'grazalema':       ['grazalema'],
+  'costa-del-sol':   ['costa-del-sol'],
+  'cordoba':         ['cordoba','córdoba'],
+  'costa-blanca':    ['costa-blanca'],
+  'cazorla':         ['cazorla'],
+  'los-escullos':    ['los-escullos'],
+  'playa-de-levante':['playa-de-levante','playa de levante'],
+  'sierra-nevada':   ['sierra-nevada','sierra nevada'],
+  'benajarafe':      ['benajarafe'],
+  'marbella':        ['marbella'],
+  'cabaneros':       ['cabañeros','cabaneros'],
+  'lago-de-arcos':   ['lago-de-arcos','lago de arcos'],
+  'alquezar':        ['alquézar','alquezar'],
+  'oyambre':         ['oyambre'],
+  'navajas':         ['navajas'],
+  'almadrava':       ["l'almadrava","almadrava"],
+  'calella':         ['calella'],
+  'deva':            ['deva'],
+  'villajoyosa':     ['villajoyosa'],
+  'crevillent':      ['crevillent'],
+  'bayona-playa':    ['bayona-playa'],
+  'bayona':          ['bayona'],
+  'ria-de-vigo':     ['ria-de-vigo','ría-de-vigo','ría de vigo','ria de vigo'],
+  'rio-mino':        ['río-miño','rio-mino'],
+  'palamos':         ['palamos','palamós'],
+  'picos-de-urbion': ['picos-de-urbion','picos de urbión','picos-urbion','picos'],
+  'cabo-blanco':     ['cabo-blanco'],
+  'lagoa':           ['lagoa'],
+  'kikopark-playa':  ['kikopark-playa','kikopar'],
+  'kikopark-rural':  ['kikopark-rural'],
+  'kikopark':        ['kikopark'],
+  'ria-de-arousa-playa': ['ria-de-arousa-playa'],
+  'ria-de-arousa-rural': ['ria-de-arousa-rural'],
+  'pintens':         ['pintens'],
+  'la-bolera':       ['la-bolera'],
+  'playa-troenzo':   ['playa-troenzo','troenzo'],
+  'oliva':           ['oliva'],
+  'el-rocio':        ['el-rocio','el rocío'],
+  'esponella':       ['esponella','esponellá'],
+  'ancora':          ['ancora','âncora'],
+  'gala':            ['gala'],
+  'vagueira':        ['vagueira'],
+  'mira':            ['mira'],
+  'meco':            ['meco','praia do meco','praia-do-meco'],
+  'praia-de-angeiras':['praia-de-angeiras'],
+  'valledoria':      ['valledoria'],
+  'flumendosa':      ['flumendosa'],
+  'fonts-dalgar':    ["fonts-dalgar","fonts d'algar"],
+  'hostel-palmar':   ['hostel-palmar'],
+  'hostel-trafalgar':['hostel-trafalgar'],
+  'la-franca':       ['la-franca'],
+  'delta-ebro':      ['delta-ebro','delta del ebro','delta ebro'],
+  'peniche':         ['peniche'],
+  'sesimbra':        ['sesimbra'],
+  'lisboa':          ['lisboa'],
+  'blanes':          ['blanes'],
+  'moncofar':        ['moncofar'],
+  'san-pedro-moel':  ['san-pedro-moel'],
+  'tavira':          ['tavira'],
+  'playa-de-sueca':  ['playa-de-sueca'],
+  'benicassim':      ['benicassim','benicàssim'],
+  'martinho-do-porto':['martinho-do-porto'],
+  'porto':           ['porto'],
+  'o-pedrouzo':      ['o-pedrouzo','pedrouzo'],
+  'menorca':         ['menorca'],
+  'pedroso':         ['pedroso'],
+  'estepona':        ['estepona'],
+  'roquetas':        ['roquetas','roquetas-de-mar'],
+  'neptuno':         ['neptuno'],
+  'conil':           ['conil'],
+  'bufones-de-pria': ['bufones-de-pria','bufones de pria','bufones'],
+};
+
+const LABELS = {
+  'arenas':'Las Arenas','las-arenas':'Las Arenas','valdvaqueros':'Valdevaqueros','el-palmar':'El Palmar',
+  'tarifa':'Tarifa','puerto-santa-maria':'Puerto de Sta. María',
+  'santillana-del-mar':'Santillana del Mar','llanes':'Llanes',
+  'isla-cristina':'Isla Cristina','paloma':'Paloma','donana':'Doñana',
+  'costa-brava':'Costa Brava','costa-dorada':'Costa Dorada','cova-negra':'Cova Negra',
+  'tossa-de-mar':'Tossa de Mar','cambrils':'Cambrils','platjadaro':"Platja d'Aro",
+  'somo-playa':'Somo Playa','somo-parque':'Somo Parque','somo':'Somo',
+  'sierra-de-urbasa':'Sierra de Urbasa','mendigorria':'Mendigorría',
+  'castrillon':'Castrillón','rianxo':'Rianxo','zumaia':'Zumaia','ruiloba':'Ruiloba',
+  'los-canos':'Los Caños','trafalgar':'Trafalgar','grazalema':'Grazalema',
+  'costa-del-sol':'Costa del Sol','cordoba':'Córdoba','costa-blanca':'Costa Blanca',
+  'cazorla':'Cazorla','los-escullos':'Los Escullos',
+  'playa-de-levante':'Playa de Levante','sierra-nevada':'Sierra Nevada',
+  'benajarafe':'Benajarafe','marbella':'Marbella','cabaneros':'Cabañeros',
+  'lago-de-arcos':'Lago de Arcos','alquezar':'Alquézar','oyambre':'Oyambre',
+  'navajas':'Navajas','almadrava':"L'Almadrava",'calella':'Calella','deva':'Deva',
+  'villajoyosa':'Villajoyosa','crevillent':'Crevillent',
+  'bayona-playa':'Bayona Playa','bayona':'Bayona',
+  'ria-de-vigo':'Ría de Vigo','rio-mino':'Río Miño','palamos':'Palamós',
+  'picos-de-urbion':'Picos de Urbión','cabo-blanco':'Cabo Blanco','lagoa':'Lagoa',
+  'kikopark-playa':'KikoPark Playa','kikopark-rural':'KikoPark Rural','kikopark':'KikoPark',
+  'ria-de-arousa-playa':'Ría de Arosa Playa','ria-de-arousa-rural':'Ría de Arosa Rural',
+  'pintens':'Pintens','la-bolera':'La Bolera','playa-troenzo':'Playa Troenzo',
+  'oliva':'Oliva','el-rocio':'El Rocío','esponella':'Esponellá',
+  'ancora':'Âncora','gala':'Gala','vagueira':'Vagueira','mira':'Mira',
+  'meco':'Praia do Meco','praia-de-angeiras':'Praia de Angeiras',
+  'valledoria':'Valledoria','flumendosa':'Flumendosa',"fonts-dalgar":"Fonts d'Algar",
+  'hostel-palmar':'Hostel El Palmar','hostel-trafalgar':'Hostel Trafalgar',
+  'la-franca':'La Franca','delta-ebro':'Delta del Ebro','peniche':'Peniche',
+  'sesimbra':'Sesimbra','lisboa':'Lisboa','blanes':'Blanes','moncofar':'Moncofar',
+  'san-pedro-moel':'São Pedro de Moel','tavira':'Tavira',
+  'playa-de-sueca':'Playa de Sueca','benicassim':'Benicàssim',
+  'martinho-do-porto':'Martinho do Porto','porto':'São Martinho do Porto',
+  'o-pedrouzo':'O Pedrouzo','menorca':'Menorca','pedroso':'Pedroso',
+  'estepona':'Estepona','roquetas':'Roquetas','neptuno':'Neptuno','conil':'Conil',
+  'bufones-de-pria':'Bufones de Pria',
+};
+
+const TYPE_COLORS = {
+  'Conversión':'#22c55e','Alcance':'#6366f1','Interacción':'#f59e0b',
+  'Tráfico':'#38bdf8','Búsqueda':'#a78bfa','DemandGen':'#fb923c','Otro':'#64748b'
+};
+const TYPE_ORDER = ['Conversión','Alcance','Interacción','Tráfico','Búsqueda','DemandGen','Otro'];
+
+// Build search list (longest variants first)
+const SEARCH_LIST = [];
+for (const [slug, variants] of Object.entries(NOMENCLATURA)) {
+  for (const v of variants) {
+    SEARCH_LIST.push({ slug, v: norm(v) });
+  }
+}
+SEARCH_LIST.sort((a, b) => b.v.length - a.v.length);
+
+function norm(s) {
+  return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
+function extractDest(name) {
+  const n = norm(name);
+  for (const { slug, v } of SEARCH_LIST) {
+    if (n.includes(v)) return slug;
+  }
+  return null;
+}
+
+function getCampaignType(campaignName, platform) {
+  const n = norm(campaignName);
+  if (n.includes('conversion') || n.includes('ventas') || n.includes('smart+')) return 'Conversión';
+  if (n.includes('interaccion')) return 'Interacción';
+  if (n.includes('alcance')) return 'Alcance';
+  if (n.includes('trafico')) return 'Tráfico';
+  if (platform === 'google') {
+    if (n.includes('gen_dem') || n.includes('demandgen')) return 'DemandGen';
+    if (n.includes('video') || n.includes('youtube') || n.includes('short')) return 'Vídeo';
+    if (n.includes('search') || n.includes('push')) return 'Búsqueda';
+  }
+  if (n.includes('lookalike') || n.includes('look_alike') || n.includes('lkl')) return 'Alcance';
+  if (n.includes('remarketing') || n.includes('rmkt')) return 'Conversión';
+  if (n.includes('demandgen') || n.includes('demand gen')) return 'DemandGen';
+  return 'Otro';
+}
+
+// Slugs que deben fusionarse con su canónico
+const SLUG_MERGE = {
+  'arenas':          'las-arenas',
+  'palmar':          'el-palmar',
+  'roquetas-de-mar': 'roquetas',
+  'picos':           'picos-de-urbion',
+  'picos-urbion':    'picos-de-urbion',
+  'kikopark':        'kikopark-playa',
+};
+
+// Slugs que el script de extracción generó por error (año, formato, label interno)
+// → tratar como sin-etiquetar y re-extraer del nombre del anuncio
+const DEST_RETAG = new Set(['scmg', '2024', 'ig-reel']);
+
+// ─── DATA ────────────────────────────────────────────────────────────────────
+let sortKey = 'total';
+let platFilter = new Set();
+const expanded = new Set();
+let tableData = [];
+let lastUpdated = '—';
+
+async function loadData() {
+  try {
+    const [metaR, googleR, tikR] = await Promise.all([
+      fetch('meta-ads-data.json').then(r => r.json()),
+      fetch('google-adgroups-data.json').then(r => r.json()),
+      fetch('tiktok-adgroups-data.json').then(r => r.json()),
+    ]);
+
+    const acc = {};
+    let minDate = '99999999', maxDate = '00000000';
+
+    function add(dest, platform, type, spend, date) {
+      dest = SLUG_MERGE[dest] || dest;
+      if (!acc[dest]) acc[dest] = { dest, types: {}, platforms: {} };
+      acc[dest].types[type] = (acc[dest].types[type] || 0) + spend;
+      acc[dest].platforms[platform] = (acc[dest].platforms[platform] || 0) + spend;
+      if (date < minDate) minDate = date;
+      if (date > maxDate) maxDate = date;
+    }
+
+    // Meta: date[0], campaign_name[2], ad_name[6], dest[7], spend[8]
+    for (const row of metaR.rows) {
+      const spend = parseFloat(row[8]) || 0;
+      if (spend === 0) continue;
+      let dest = row[7];
+      if (dest === 'sin-etiquetar' || dest === 'generic' || DEST_RETAG.has(dest)) {
+        dest = extractDest(row[6]) || extractDest(row[2]) || null;
+      }
+      if (!dest || dest === 'sin-etiquetar') continue;
+      const type = getCampaignType(row[2], 'meta');
+      add(dest, 'Meta', type, spend, row[0]);
+    }
+
+    // Google: date[0], campaign_name[2], adgroup_name[4], dest[5], spend[6]
+    for (const row of googleR.rows) {
+      const spend = parseFloat(row[6]) || 0;
+      if (spend === 0) continue;
+      let dest = row[5];
+      if (dest === 'sin-etiquetar' || dest === 'generic') {
+        dest = extractDest(row[4]) || extractDest(row[2]) || null;
+      }
+      if (!dest || dest === 'sin-etiquetar') continue;
+      const type = getCampaignType(row[2], 'google');
+      add(dest, 'Google', type, spend, row[0]);
+    }
+
+    // TikTok adgroups: date[0], campaign_name[2], adgroup_name[4], dest[5], spend[6]
+    for (const row of tikR.rows) {
+      const spend = parseFloat(row[6]) || 0;
+      if (spend === 0) continue;
+      let dest = row[5];
+      if (dest === 'sin-etiquetar' || dest === 'generic') {
+        dest = extractDest(row[4]) || extractDest(row[2]) || null;
+      }
+      if (!dest || dest === 'sin-etiquetar') continue;
+      const type = getCampaignType(row[2], 'tiktok');
+      add(dest, 'TikTok', type, spend, row[0]);
+    }
+
+    tableData = Object.values(acc)
+      .map(d => ({
+        ...d,
+        label: LABELS[d.dest] || d.dest,
+        total: Object.values(d.types).reduce((s, v) => s + v, 0)
+      }))
+      .filter(d => d.total >= 100);
+
+    if (minDate !== '99999999') {
+      const fmt = s => s.slice(6,8)+'/'+s.slice(4,6)+'/'+s.slice(0,4);
+      document.getElementById('hdr-period').textContent = fmt(minDate) + ' → ' + fmt(maxDate);
+    }
+    lastUpdated = new Date().toLocaleDateString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric' });
+    document.getElementById('hdr-updated').textContent = lastUpdated;
+
+    render();
+  } catch (e) {
+    document.getElementById('tbody').innerHTML =
+      '<tr><td colspan="5" class="loading-msg">Error al cargar los datos: ' + e.message + '</td></tr>';
+  }
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function fmt(n) { return n >= 1000 ? (n/1000).toFixed(0) + 'k' : Math.round(n).toString(); }
+function fmtE(n) { return Math.round(n).toLocaleString('es-ES') + '€'; }
+
+function getVisible() {
+  const q = norm(document.getElementById('search').value);
+  return tableData
+    .filter(d => {
+      if (platFilter.size > 0 && ![...platFilter].some(p => (d.platforms[p] || 0) > 0)) return false;
+      if (q && !norm(d.label).includes(q) && !norm(d.dest).includes(q)) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortKey === 'total') return b.total - a.total;
+      if (sortKey === 'conv')  return (b.types['Conversión']||0) - (a.types['Conversión']||0);
+      if (sortKey === 'alc')   return (b.types['Alcance']||0)   - (a.types['Alcance']||0);
+      if (sortKey === 'int')   return (b.types['Interacción']||0) - (a.types['Interacción']||0);
+      return 0;
+    });
+}
+
+function render() {
+  const data = getVisible();
+  const grandTotal = data.reduce((s, d) => s + d.total, 0);
+  document.getElementById('tb-stats').textContent =
+    data.length + ' destinos · ' + fmtE(grandTotal) + ' total';
+
+  const tbody = document.getElementById('tbody');
+  const rows = [];
+
+  data.forEach((d, i) => {
+    const typeTotal = Object.values(d.types).reduce((s, v) => s + v, 0);
+    const segs = TYPE_ORDER.filter(t => d.types[t] > 0).map(t => {
+      const pct = (d.types[t] / typeTotal * 100).toFixed(1);
+      return `<div class="bar-seg" style="width:${pct}%;background:${TYPE_COLORS[t]}" title="${t}: ${fmtE(d.types[t])} · ${pct}%"></div>`;
+    }).join('');
+
+    const platPills = Object.entries(d.platforms)
+      .sort((a,b) => b[1]-a[1])
+      .map(([p, s]) => `<span class="pp ${p}">${p} ${fmt(s)}€</span>`)
+      .join('');
+
+    const isExp = expanded.has(d.dest);
+    rows.push(`<tr class="${isExp ? 'expanded' : ''}" onclick="toggleRow('${d.dest}')">
+      <td class="rank">${i+1}</td>
+      <td class="name">${d.label}</td>
+      <td class="total">${fmtE(d.total)}</td>
+      <td class="bar-cell"><div class="bar-wrap">${segs}</div></td>
+      <td class="plats">${platPills}</td>
+    </tr>`);
+
+    if (isExp) {
+      const cards = TYPE_ORDER.filter(t => d.types[t] > 0).map(t => {
+        const pct = Math.round(d.types[t] / typeTotal * 100);
+        return `<div class="type-card">
+          <div class="tc-name" style="color:${TYPE_COLORS[t]}">${t}</div>
+          <div class="tc-val" style="color:${TYPE_COLORS[t]}">${fmtE(d.types[t])}</div>
+          <div class="tc-pct">${pct}% del total</div>
+        </div>`;
+      }).join('');
+      const platItems = Object.entries(d.platforms)
+        .sort((a,b) => b[1]-a[1])
+        .map(([p, s]) => `<div class="plat-item"><span class="pp ${p}">${p}</span><strong>${fmtE(s)}</strong><span style="color:var(--muted)">· ${Math.round(s/d.total*100)}%</span></div>`)
+        .join('');
+      rows.push(`<tr class="exp-tr" onclick="event.stopPropagation()">
+        <td colspan="5">
+          <div class="exp-inner">${cards}<div class="plat-row">${platItems}</div></div>
+        </td>
+      </tr>`);
+    }
+  });
+
+  if (data.length > 0) {
+    const sumTypes = {};
+    data.forEach(d => Object.entries(d.types).forEach(([t,s]) => { sumTypes[t]=(sumTypes[t]||0)+s; }));
+    const segs2 = TYPE_ORDER.filter(t=>sumTypes[t]>0).map(t => {
+      const pct = (sumTypes[t]/grandTotal*100).toFixed(1);
+      return `<div class="bar-seg" style="width:${pct}%;background:${TYPE_COLORS[t]}" title="${t}: ${fmtE(sumTypes[t])} · ${pct}%"></div>`;
+    }).join('');
+    rows.push(`<tr class="sum-tr">
+      <td></td><td style="color:var(--muted);font-size:11px">TOTAL</td>
+      <td class="total">${fmtE(grandTotal)}</td>
+      <td class="bar-cell"><div class="bar-wrap">${segs2}</div></td><td></td>
+    </tr>`);
+  }
+
+  tbody.innerHTML = rows.join('') || '<tr><td colspan="5" class="empty-msg">Sin resultados</td></tr>';
+}
+
+function toggleRow(dest) {
+  expanded.has(dest) ? expanded.delete(dest) : expanded.add(dest);
+  render();
+}
+
+function setSort(key, btn) {
+  sortKey = key;
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function togglePlat(p, btn, cls) {
+  if (platFilter.has(p)) {
+    platFilter.delete(p);
+    btn.classList.remove(cls);
+  } else {
+    platFilter.add(p);
+    btn.classList.add(cls);
+  }
+  render();
+}
+
+loadData();
+</script>
+</body>
+</html>

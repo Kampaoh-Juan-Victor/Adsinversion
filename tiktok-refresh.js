@@ -12,7 +12,8 @@ const path = require("path");
 const ACCESS_TOKEN    = (process.env.TIKTOK_ACCESS_TOKEN || "").trim();
 const ADVERTISER_ID   = (process.env.TIKTOK_ADVERTISER_ID || "").trim();
 const TIKTOK_PATH     = path.join(__dirname, "tiktok-data.json");
-const TIKTOK_ADS_PATH = path.join(__dirname, "tiktok-ads-data.json");
+const TIKTOK_ADS_PATH      = path.join(__dirname, "tiktok-ads-data.json");
+const TIKTOK_ADGROUPS_PATH = path.join(__dirname, "tiktok-adgroups-data.json");
 const DATA_PATH       = path.join(__dirname, "data.json");
 const CAMPAIGNS_PATH  = path.join(__dirname, "campaigns-data.json");
 
@@ -151,7 +152,7 @@ async function refreshTikTok(dateFrom, dateTo) {
   try {
     adRaw = await fetchAllPages(
       "AUCTION_AD",
-      ["ad_id", "adgroup_id", "campaign_id", "stat_time_day"],
+      ["ad_id", "stat_time_day"],
       ["ad_name", "adgroup_name", "campaign_name", "spend", "impressions", "clicks", "ctr", "cpm", "cpc", "conversion", "cost_per_conversion", "video_play_actions", "video_watched_2s", "video_watched_6s", "video_views_p25", "video_views_p50", "video_views_p75", "video_views_p100", "average_video_play"],
       dateFrom, dateTo
     );
@@ -178,9 +179,9 @@ async function refreshTikTok(dateFrom, dateTo) {
 
     adRows.push([
       date.replace(/-/g, ""),
-      item.dimensions.campaign_id  || "",
+      "",
       item.metrics.campaign_name   || "",
-      item.dimensions.adgroup_id   || "",
+      "",
       item.metrics.adgroup_name    || "",
       item.dimensions.ad_id        || "",
       adName,
@@ -217,6 +218,62 @@ async function refreshTikTok(dateFrom, dateTo) {
     ttAdsFile.updated = dateTo;
     fs.writeFileSync(TIKTOK_ADS_PATH, JSON.stringify(ttAdsFile), "utf8");
     console.log(`  ✅ tiktok-ads-data.json — ${adRows.length} filas`);
+  }
+
+  // ── 3. Adgroup-level → tiktok-adgroups-data.json ─────────────────────────
+  console.log(`  Fetching TikTok adgroups (destinos) ${dateFrom} → ${dateTo}...`);
+  try {
+    const adgroupRaw = await fetchAllPages(
+      "AUCTION_ADGROUP",
+      ["adgroup_id", "stat_time_day"],
+      ["adgroup_name", "campaign_name", "spend", "impressions", "clicks", "ctr", "cpm", "cpc", "conversion", "cost_per_conversion", "video_play_actions", "video_watched_2s", "video_watched_6s", "video_views_p25", "video_views_p50", "video_views_p75", "video_views_p100", "average_video_play"],
+      dateFrom, dateTo
+    );
+
+    const adgroupRows = adgroupRaw.map(item => {
+      const adgroupName = item.metrics.adgroup_name || "";
+      const dest = extractDestination(adgroupName);
+      const spend = parseFloat(item.metrics.spend) || 0;
+      return [
+        item.dimensions.stat_time_day.slice(0, 10).replace(/-/g, ""),
+        "",
+        item.metrics.campaign_name    || "",
+        item.dimensions.adgroup_id    || "",
+        adgroupName,
+        dest,
+        Math.round(spend * 100) / 100,
+        parseInt(item.metrics.impressions)        || 0,
+        parseInt(item.metrics.clicks)             || 0,
+        Math.round((parseFloat(item.metrics.ctr)  || 0) * 100) / 100,
+        Math.round((parseFloat(item.metrics.cpm)  || 0) * 100) / 100,
+        Math.round((parseFloat(item.metrics.cpc)  || 0) * 100) / 100,
+        parseInt(item.metrics.conversion)         || 0,
+        Math.round((parseFloat(item.metrics.cost_per_conversion) || 0) * 100) / 100,
+        parseInt(item.metrics.video_play_actions) || 0,
+        parseInt(item.metrics.video_watched_2s)   || 0,
+        parseInt(item.metrics.video_watched_6s)   || 0,
+        parseInt(item.metrics.video_views_p25)    || 0,
+        parseInt(item.metrics.video_views_p50)    || 0,
+        parseInt(item.metrics.video_views_p75)    || 0,
+        parseInt(item.metrics.video_views_p100)   || 0,
+        Math.round((parseFloat(item.metrics.average_video_play) || 0) * 100) / 100,
+      ];
+    });
+
+    const ttAdgroupsFile = loadJson(TIKTOK_ADGROUPS_PATH, {
+      updated: "",
+      cols: ["date","campaign_id","campaign_name","adgroup_id","adgroup_name","dest","spend","impressions","clicks","ctr","cpm","cpc","conversions","cost_per_conversion","video_plays","video_2s","video_6s","video_p25","video_p50","video_p75","video_p100","avg_video_play"],
+      rows: [],
+    });
+    if (!Array.isArray(ttAdgroupsFile.rows)) ttAdgroupsFile.rows = [];
+    ttAdgroupsFile.rows = ttAdgroupsFile.rows.filter(r => { const d = parseInt(String(r[0])); return d < fromNum || d > toNum; });
+    ttAdgroupsFile.rows.push(...adgroupRows);
+    ttAdgroupsFile.rows.sort((a, b) => String(a[0]).localeCompare(String(b[0])));
+    ttAdgroupsFile.updated = dateTo;
+    fs.writeFileSync(TIKTOK_ADGROUPS_PATH, JSON.stringify(ttAdgroupsFile), "utf8");
+    console.log(`  ✅ tiktok-adgroups-data.json — ${adgroupRows.length} filas`);
+  } catch(e) {
+    console.log(`  ⚠️  Adgroup-level no disponible (${e.message})`);
   }
 
   const dataFile = loadJson(DATA_PATH, { v: 1, updated: "", days: {} });
