@@ -4,5 +4,931 @@
 <meta charset="UTF-8">
   <meta name="robots" content="noindex, nofollow">
   <script>(function(){if(sessionStorage.getItem('kp')==='1')return;function _kpShow(){var o=document.createElement('div');o.id='kp-lock';o.style.cssText='position:fixed;inset:0;background:#0f1117;z-index:99999;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,sans-serif';o.innerHTML='<div style="text-align:center"><div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:-.5px;margin-bottom:6px">Kampaoh<\/div><div style="font-size:12px;color:#6870a0;margin-bottom:28px;letter-spacing:.06em;text-transform:uppercase">Dashboard &middot; Acceso privado<\/div><input id="kpi" type="password" placeholder="C\u00f3digo de acceso" style="width:200px;padding:12px 16px;border:2px solid #2a2d42;border-radius:10px;background:#1a1d2e;color:#fff;font-size:18px;text-align:center;outline:none;letter-spacing:.2em" autocomplete="current-password" \/><br><div id="kpe" style="height:18px;margin-top:8px;font-size:11px;color:#dc2626"><\/div><button id="kpb" style="margin-top:4px;padding:11px 36px;background:#6366f1;border:none;border-radius:9px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;width:200px">Entrar<\/button><\/div>';document.body.prepend(o);function go(){if(document.getElementById('kpi').value==='1806'){sessionStorage.setItem('kp','1');document.getElementById('kp-lock').remove();}else{document.getElementById('kpi').style.borderColor='#dc2626';document.getElementById('kpe').textContent='C\u00f3digo incorrecto';}}document.getElementById('kpb').onclick=go;document.getElementById('kpi').addEventListener('keydown',function(e){if(e.key==='Enter')go();document.getElementById('kpi').style.borderColor='#2a2d42';document.getElementById('kpe').textContent='';});document.getElementById('kpi').focus();}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',_kpShow);}else{_kpShow();}})()</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kampaoh · Google Ads · Optimización</title>
+<style>
+  :root {
+    --bg:#0f1117; --surface:#1a1d27; --surface2:#222536; --border:#2e3149;
+    --text:#e8eaf0; --muted:#7b7f9e; --google:#fbbc04; --accent:#6366f1;
+    --green:#22c55e; --danger:#ef4444; --warn:#f59e0b; --info:#38bdf8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;}
+
+  header{background:var(--surface);border-bottom:1px solid var(--border);padding:18px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+  header h1{font-size:18px;font-weight:700;}
+  header h1 span{color:var(--google);}
+  .badge{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--muted);}
+
+  nav{background:#222536;border-bottom:1px solid #2e3149;padding:0 32px;display:flex;gap:0;flex-wrap:wrap;}
+  .nav-a{padding:10px 18px;font-size:12px;font-weight:600;color:#7b7f9e;text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap;}
+  .nav-a.active{color:var(--google);border-bottom-color:var(--google);}
+
+  .section-tabs{background:var(--surface2);border-bottom:1px solid var(--border);padding:0 32px;display:flex;gap:0;overflow-x:auto;}
+  .stab{padding:11px 20px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s;}
+  .stab:hover{color:var(--text);}
+  .stab.active{color:var(--google);border-bottom-color:var(--google);}
+
+  main{padding:24px 32px 40px;max-width:1300px;margin:0 auto;}
+  .section{display:none;}
+  .section.active{display:block;}
+
+  /* ── Cards ── */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:20px;overflow:hidden;}
+  .card-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .card-head h3{font-size:13px;font-weight:700;flex:1;}
+  .card-body{padding:20px;}
+  .card-body p{color:var(--muted);font-size:13px;line-height:1.7;margin-bottom:12px;}
+  .card-body p:last-child{margin-bottom:0;}
+
+  /* ── KPIs inline ── */
+  .kpi-strip{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
+  .kpis{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;min-width:120px;}
+  .kpis .kl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;}
+  .kpis .kv{font-size:20px;font-weight:700;}
+  .kpis .kv.good{color:var(--green);}
+  .kpis .kv.warn{color:var(--warn);}
+  .kpis .kv.bad{color:var(--danger);}
+  .kpis .kv.neu{color:var(--info);}
+
+  /* ── Priority tags ── */
+  .p-red{display:inline-block;background:rgba(239,68,68,.12);color:#f87171;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700;margin-right:6px;white-space:nowrap;}
+  .p-yel{display:inline-block;background:rgba(245,158,11,.12);color:#fbbf24;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700;margin-right:6px;white-space:nowrap;}
+  .p-grn{display:inline-block;background:rgba(34,197,94,.12);color:#4ade80;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700;margin-right:6px;white-space:nowrap;}
+
+  /* ── Rec list ── */
+  .rec-list{list-style:none;padding:0;}
+  .rec-list li{padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05);display:flex;gap:12px;align-items:flex-start;line-height:1.6;font-size:13px;}
+  .rec-list li:last-child{border-bottom:none;padding-bottom:0;}
+  .rec-list li .rec-body{flex:1;}
+  .rec-list li strong{color:var(--text);display:block;margin-bottom:3px;}
+  .rec-list li span{color:var(--muted);font-size:12px;}
+
+  /* ── Performance table ── */
+  table{width:100%;border-collapse:collapse;}
+  th{padding:9px 12px;text-align:right;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;background:var(--surface2);border-bottom:1px solid var(--border);white-space:nowrap;}
+  th:first-child{text-align:left;}
+  td{padding:10px 12px;text-align:right;border-bottom:1px solid rgba(255,255,255,.04);font-variant-numeric:tabular-nums;font-size:12px;}
+  td:first-child{text-align:left;font-size:12px;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:rgba(255,255,255,.025);}
+  .tag-type{display:inline-block;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;}
+  .tag-search{background:rgba(251,188,4,.12);color:var(--google);}
+  .tag-pmax{background:rgba(99,102,241,.12);color:#a5b4fc;}
+  .tag-dgen{background:rgba(56,189,248,.12);color:var(--info);}
+  .tag-video{background:rgba(239,68,68,.12);color:#f87171;}
+  .roas-good{color:var(--green);font-weight:700;}
+  .roas-ok{color:var(--warn);font-weight:700;}
+  .roas-bad{color:var(--danger);font-weight:700;}
+  .dash{color:var(--border);}
+
+  /* ── Sections ── */
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .alert-box{border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.6;margin-bottom:16px;display:flex;gap:10px;}
+  .alert-red{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#fca5a5;}
+  .alert-yel{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:#fcd34d;}
+  .alert-grn{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);color:#86efac;}
+  .alert-icon{font-size:16px;flex-shrink:0;}
+
+  .step-list{list-style:none;padding:0;counter-reset:steps;}
+  .step-list li{counter-increment:steps;padding:10px 0 10px 44px;position:relative;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px;line-height:1.6;color:var(--muted);}
+  .step-list li:last-child{border-bottom:none;}
+  .step-list li::before{content:counter(steps);position:absolute;left:0;top:10px;width:28px;height:28px;background:var(--surface2);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--google);}
+  .step-list li strong{color:var(--text);}
+
+  footer{text-align:center;padding:20px;color:var(--muted);font-size:11px;border-top:1px solid var(--border);margin-top:8px;}
+
+  @media(max-width:900px){
+    main{padding:16px;}
+    .two-col{grid-template-columns:1fr;}
+    .section-tabs{padding:0 16px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Kampaoh &middot; <span>Google Ads</span> &middot; Optimización</h1>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <span class="badge" id="hdr-campaigns">—</span>
+    <span class="badge" id="hdr-period">cargando…</span>
+  </div>
+</header>
+
+<nav>
+  <a href="index.html" class="nav-a">Inversión Publicitaria</a>
+  <a href="objetivos.html" class="nav-a">Por objetivo</a>
+  <a href="ga4.html" class="nav-a">GA4</a>
+  <a href="google.html" class="nav-a active">Google Ads · Optimización</a>
+  <a href="destinos-tipo.html" class="nav-a">Mix por Destino</a>
+  <a href="busqueda-be.html" class="nav-a">Búsqueda BE</a>
+  <a href="gsc.html" class="nav-a">GSC</a>
+  <a href="funnel.html" class="nav-a">Funnel</a>
+</nav>
+
+<div class="section-tabs">
+  <button class="stab active" data-sec="diagnostico">Diagnóstico</button>
+  <button class="stab" data-sec="search">Búsqueda (Search)</button>
+  <button class="stab" data-sec="pmax">Performance Max</button>
+  <button class="stab" data-sec="dgen">Demand Generation</button>
+  <button class="stab" data-sec="grupos">Grupos de anuncios</button>
+  <button class="stab" data-sec="anuncios">Anuncios</button>
+  <button class="stab" data-sec="pujas">Pujas y presupuesto</button>
+</div>
+
+<main>
+
+<!-- ════════════════════════════════════════════════════════════
+     DIAGNÓSTICO
+═══════════════════════════════════════════════════════════════ -->
+<div class="section active" id="sec-diagnostico">
+
+  <div class="alert-grn alert-box">
+    <span class="alert-icon">✓</span>
+    <div><strong>Cuenta en buen estado general.</strong> Las campañas de Search Marca y PMax son las grandes generadoras de valor. El CPA global es competitivo para el sector glamping (ticket €232). Hay margen claro de mejora en Competencia, Cercanía y Demand Gen Shorts.</div>
+  </div>
+
+  <!-- Selector de período -->
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
+    <span style="font-size:12px;color:var(--muted);font-weight:600;margin-right:4px;">Período:</span>
+    <button class="period-btn active" data-preset="last_7_days">Últ. 7 días</button>
+    <button class="period-btn" data-preset="last_30_days">Últ. 30 días</button>
+    <button class="period-btn" data-preset="this_month">Este mes</button>
+    <button class="period-btn" data-preset="last_month">Mes anterior</button>
+    <div style="display:flex;gap:4px;align-items:center;">
+      <input type="date" id="date-from" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:4px 8px;font-size:12px;">
+      <span style="color:var(--muted);font-size:12px;">→</span>
+      <input type="date" id="date-to" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:4px 8px;font-size:12px;">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h3>Rendimiento por campaña · Google Ads</h3>
+      <span class="badge" id="table-period-label" style="font-size:11px;">—</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Campaña</th>
+          <th>Tipo</th>
+          <th>Inversión</th>
+          <th>Conversiones</th>
+          <th>CPA</th>
+          <th>Valor conv.</th>
+          <th>ROAS</th>
+          <th>Clics</th>
+          <th>CPC</th>
+        </tr>
+      </thead>
+      <tbody id="google-tbody">
+        <tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px;">Cargando datos…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-head"><h3>🏆 Top performers — mantener y escalar</h3></div>
+      <div class="card-body">
+        <ul class="rec-list">
+          <li><div class="rec-body"><strong>Search LPKs Marca New · ROAS ×376</strong><span>La campaña más eficiente. Tráfico de marca que convierte a un coste ridículo. Nunca debe quedarse sin presupuesto.</span></div></li>
+          <li><div class="rec-body"><strong>PMax Push Destinos · ROAS ×25</strong><span>Segundo mejor ROAS con volumen significativo. Bien configurada puede escalar. Revisar asset groups y canales.</span></div></li>
+          <li><div class="rec-body"><strong>Search LPKs No Marca · ROAS ×17</strong><span>El gran generador de demanda nueva. €53K de valor con €3.1K de inversión. Escalar con cuidado controlando IS.</span></div></li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>⚠️ Bajo rendimiento — revisar o pausar</h3></div>
+      <div class="card-body">
+        <ul class="rec-list">
+          <li><div class="rec-body"><strong>Search Competencia · CPA €44 · ROAS ×4</strong><span>CPA 3× más alto que LPKs No Marca para el mismo presupuesto. Revisar términos, pujas y propuesta de valor en el anuncio.</span></div></li>
+          <li><div class="rec-body"><strong>Search Cercanía Destinos · CPA €67 · ROAS ×4</strong><span>El peor CPA de la cuenta. 1.462 clics con solo 7 conversiones. Revisar segmentación geográfica y términos.</span></div></li>
+          <li><div class="rec-body"><strong>Demand Gen Shorts Push · CPA €28 · solo 7 conv</strong><span>Volumen muy bajo para el formato. Necesita más tiempo o más presupuesto para aprender.</span></div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /diagnostico -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     SEARCH
+═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-search">
+
+  <div class="card">
+    <div class="card-head"><h3>Estructura actual de campañas Search</h3></div>
+    <div class="card-body">
+      <p>Tienes <strong>7 campañas Search activas</strong> bien diferenciadas por intención: marca, no marca genérico, LPKs específicos, competencia y cercanía. La estructura es sólida. Las oportunidades de mejora están en la granularidad de los grupos de anuncios y en las campañas de bajo rendimiento.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Recomendaciones · Búsqueda</h3></div>
+    <div class="card-body">
+      <ul class="rec-list">
+
+        <li>
+          <span class="p-red">Urgente</span>
+          <div class="rec-body">
+            <strong>Revisar Competencia y Cercanía — CPA inasumible</strong>
+            <span>Ambas campañas tienen ROAS ×4 con CPA de €44–€67. Con ticket medio de €232 y margen del negocio, necesitas un CPA máximo orientativo de ~€77. Descarga el informe de términos de búsqueda y filtra todo lo que no tenga intención de reserva directa. Pausa o excluye términos informativos y de investigación. Si en 15 días no mejoran, considera fusionarlas en una sola campaña con presupuesto reducido.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-red">Urgente</span>
+          <div class="rec-body">
+            <strong>Activar tCPA en Competencia y Cercanía</strong>
+            <span>Si están en Maximizar conversiones sin objetivo, añade un tCPA de €30–€40 para forzar al algoritmo a ser más selectivo. Con solo 7–10 conversiones/mes puede que Google no tenga suficientes datos — valora si merece mantenerlas activas este volumen.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-yel">Importante</span>
+          <div class="rec-body">
+            <strong>Escalar LPKs No Marca y Provincia/CCAA con más presupuesto</strong>
+            <span>Son las campañas con mejor equilibrio volumen/ROAS entre las no-marca. Si tienen Impression Share por debajo del 70%, hay oportunidad de capturar más demanda. Aumenta presupuesto un 20–30% y monitoriza que el CPA no supere €20.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-yel">Importante</span>
+          <div class="rec-body">
+            <strong>Añadir extensiones de imagen y activos de imagen a todas las Search</strong>
+            <span>Las campañas Search de Kampaoh venden una experiencia visual (glamping en naturaleza). Los activos de imagen aumentan el CTR en mobile entre un 10–25%. Sube fotos de los destinos más rentables (las-arenas, el-palmar, trafalgar) como activos de campaña.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-yel">Importante</span>
+          <div class="rec-body">
+            <strong>Revisar términos de búsqueda semanalmente — especialmente LPKs No Marca</strong>
+            <span>Con 17.892 clics/mes hay mucho volumen que puede incluir consultas irrelevantes. Filtra por tasa de conversión baja y excluye términos como "camping barato", "camping gratis", nombres de competidores directos. Esto reduce CPA sin bajar volumen.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-yel">Importante</span>
+          <div class="rec-body">
+            <strong>Crear campaña Search específica para Córdoba</strong>
+            <span>Córdoba aparece como destino prioritario en Meta y TikTok con buen rendimiento. En Search solo se cubre desde Provincia/CCAA de forma genérica. Una campaña específica con términos como "glamping córdoba", "alojamiento naturaleza córdoba" puede bajar el CPA capturando demanda cualificada.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-grn">Estratégico</span>
+          <div class="rec-body">
+            <strong>Activar Segmentación de audiencias en observación (todas las Search)</strong>
+            <span>Añade en modo "observación" (no segmentación) las audiencias: visitantes web últimos 30 días, compradores anteriores, similares a compradores. Esto te dará datos de rendimiento por audiencia para aplicar ajustes de puja en 4–6 semanas.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-grn">Estratégico</span>
+          <div class="rec-body">
+            <strong>Crear campaña Search Marca para nuevos destinos al abrirlos</strong>
+            <span>LPKs_Marca_New tiene ROAS ×376. Cuando abras un nuevo destino, crea inmediatamente una campaña de marca para ese destino específico antes de que la competencia compre tus branded terms.</span>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Estructura recomendada para campañas Search</h3></div>
+    <div class="card-body">
+      <p style="margin-bottom:16px">Para glamping/reservas de alojamiento, la estructura óptima por intención de búsqueda es:</p>
+      <div class="two-col">
+        <div>
+          <p><strong style="color:var(--google)">Campaña 1 · Marca</strong></p>
+          <p>Términos: "kampaoh", "kampaoh [destino]", variantes de marca. Smart Bidding tROAS alto (×10+). Presupuesto ilimitado — nunca debe pausarse.</p>
+        </div>
+        <div>
+          <p><strong style="color:var(--google)">Campaña 2 · Genérico alta intención</strong></p>
+          <p>Términos: "glamping España", "glamping [zona]", "alojamiento naturaleza". tCPA ≤ €20. Segmentada por zona geográfica de destino.</p>
+        </div>
+        <div style="margin-top:12px">
+          <p><strong style="color:var(--google)">Campaña 3 · Destinos específicos</strong></p>
+          <p>Un grupo de anuncios por destino prioritario. Términos long-tail con el nombre del destino. Permite personalizar el anuncio con el nombre exacto del camping.</p>
+        </div>
+        <div style="margin-top:12px">
+          <p><strong style="color:var(--google)">Campaña 4 · Competencia</strong></p>
+          <p>Solo si el CPA es competitivo. Términos de marcas competidoras. Presupuesto controlado. Pausar si CPA supera 2× el CPA objetivo.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /search -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     PERFORMANCE MAX
+═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-pmax">
+
+  <div class="card">
+    <div class="card-head"><h3>Estado actual · PMax Push Destinos</h3></div>
+    <div class="card-body">
+      <div class="kpi-strip">
+        <div class="kpis"><div class="kl">Inversión</div><div class="kv neu">€2.847</div></div>
+        <div class="kpis"><div class="kl">Conversiones</div><div class="kv good">312</div></div>
+        <div class="kpis"><div class="kl">CPA</div><div class="kv good">€9,13</div></div>
+        <div class="kpis"><div class="kl">Valor conv.</div><div class="kv good">€71.377</div></div>
+        <div class="kpis"><div class="kl">ROAS</div><div class="kv good">×25</div></div>
+        <div class="kpis"><div class="kl">Clics</div><div class="kv neu">42.180</div></div>
+        <div class="kpis"><div class="kl">CPC medio</div><div class="kv good">€0,067</div></div>
+      </div>
+      <p>El PMax está funcionando bien con ROAS ×25. El CPC medio de €0,067 es muy bajo, lo que indica que Google está distribuyendo el presupuesto principalmente en Display y YouTube. El riesgo es la opacidad: no sabes qué canales y assets están generando las conversiones.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Recomendaciones · Performance Max</h3></div>
+    <div class="card-body">
+      <ul class="rec-list">
+
+        <li>
+          <span class="p-red">Urgente</span>
+          <div class="rec-body">
+            <strong>Solicitar informe de desglose de canales (Insights)</strong>
+            <span>PMax reparte el presupuesto entre Search, Shopping, Display, YouTube, Gmail y Discover. Con CPC tan bajo (€0.067), la mayor parte del gasto va a Display/YouTube. Ve a Insights → "Desglose de rendimiento por canal" para saber dónde está el valor real. Si Search dentro de PMax tiene ROAS muy alto pero Display bajo, considera subir el presupuesto máximo de Search o crear URL exclusions.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-red">Urgente</span>
+          <div class="rec-body">
+            <strong>Añadir señales de audiencia cualificadas</strong>
+            <span>Si no las tienes: (1) Sube tu lista de clientes actuales como señal, (2) Añade visitantes de /reservar y /checkout como audiencia de señal, (3) Añade similares a compradores. Esto orienta al algoritmo hacia usuarios con mayor probabilidad de conversión sin forzar segmentación.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-yel">Importante</span>
+          <div class="rec-body">
+            <strong>Crear al menos 3 asset groups diferenciados por temática</strong>
+            <span>Si tienes un solo asset group genérico, estás perdiendo relevancia. Crea grupos por: (1) Playa / costa, (2) Interior / montaña, (3) Familias. Cada uno con imágenes, títulos y descripciones específicos. Google optimizará qué grupo mostrar según la intención del usuario.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-yel">Importante</span>
+          <div class="rec-body">
+            <strong>Añadir exclusiones de URL para evitar canibalización con Search</strong>
+            <span>Sin exclusiones, PMax puede competir en subasta contra tus propias campañas de Search Marca. Añade las URLs de tus campañas de marca en "Exclusiones de URL" para que PMax no puje por branded terms (ya los cubre LPKs_Marca_New a mejor coste).</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-yel">Importante</span>
+          <div class="rec-body">
+            <strong>Activar tROAS en lugar de Maximizar valor de conversión</strong>
+            <span>Si actualmente está en "Maximizar valor", añade un tROAS de ×15–×20 para dar un objetivo explícito al algoritmo. Con 312 conversiones/mes tienes suficientes datos para que Smart Bidding funcione correctamente con objetivo de ROAS.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-grn">Estratégico</span>
+          <div class="rec-body">
+            <strong>Crear un segundo PMax segmentado por temporada</strong>
+            <span>Considera un PMax específico para temporada alta (mayo–septiembre) con assets de verano/playa, y otro para puentes y temporada media. Esto permite controlar mejor el presupuesto estacional sin tener que editar el PMax principal.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-grn">Estratégico</span>
+          <div class="rec-body">
+            <strong>Monitorizar el "Informe de términos de búsqueda" de PMax</strong>
+            <span>Desde 2024 Google muestra (parcialmente) los términos de búsqueda que activa el PMax. Revísalo semanalmente para añadir negativos a nivel cuenta que eviten clics irrelevantes. Los términos como "glamping gratis", "camping barato" o nombres de competidores deben ir a negativos de cuenta.</span>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+
+</div><!-- /pmax -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     DEMAND GENERATION
+═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-dgen">
+
+  <div class="card">
+    <div class="card-head"><h3>Estado actual · Demand Generation (4 campañas)</h3></div>
+    <div class="card-body">
+      <div class="kpi-strip">
+        <div class="kpis"><div class="kl">Conv. Verano</div><div class="kv good">98 conv · €15,13 CPA</div></div>
+        <div class="kpis"><div class="kl">Conv. Shorts Push</div><div class="kv warn">7 conv · €28,27 CPA</div></div>
+        <div class="kpis"><div class="kl">Tráfico Verano</div><div class="kv neu">60.571 visitas · €0,023/clic</div></div>
+        <div class="kpis"><div class="kl">Tráfico Shorts</div><div class="kv neu">23.728 visitas · €0,033/clic</div></div>
+      </div>
+      <p>Demand Gen es el canal de Google más parecido a Meta en términos de segmentación y formatos. Funciona bien para generar demanda entre usuarios que no te buscan todavía. El tráfico es muy barato (€0,02–0,03/clic), pero hay que validar la calidad de ese tráfico en GA4.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Recomendaciones · Demand Generation</h3></div>
+    <div class="card-body">
+      <ul class="rec-list">
+
+        <li>
+          <span class="p-red">Urgente</span>
+          <div class="rec-body">
+            <strong>Validar calidad del tráfico de Demand Gen en GA4</strong>
+            <span>60.571 visitas a €0,023/clic es muy barato — pero barato no es siempre bueno. En GA4 filtra sesiones con fuente "google / cpc" y campaña "ES_Tráfico_GenDemand_Verano". Revisa: tiempo en sesión, páginas por sesión, tasa de rebote. Si los usuarios llegan y se van en menos de 10 segundos, el tráfico es de baja calidad y el presupuesto debería redirigirse a Conversiones.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-yel">Importante</span>
+          <div class="rec-body">
+            <strong>Separar campañas de Tráfico y Conversiones en Demand Gen</strong>
+            <span>Tienes la estructura correcta (tráfico vs. conversiones separadas). Asegúrate de que las de Tráfico tienen como objetivo de puja "Maximizar clics" y las de Conversiones tienen tCPA o tROAS activo. Mezclar objetivos en Demand Gen confunde el algoritmo.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-yel">Importante</span>
+          <div class="rec-body">
+            <strong>Añadir Shorts como formato principal en las campañas de vídeo</strong>
+            <span>YouTube Shorts tiene CPMs mucho más bajos que los vídeos estándar y mayor engagement en móvil. Para Kampaoh (producto visual, escapismo) los Shorts de 15–30 seg con paisajes naturales y llamada a la acción funcionan muy bien. Sube al menos 3 vídeos cortos optimizados para formato vertical 9:16.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-yel">Importante</span>
+          <div class="rec-body">
+            <strong>Crear audiencias de remarketing dentro de Demand Gen</strong>
+            <span>Demand Gen permite segmentar por: (1) Visitantes web últimos 30 días, (2) Abandono de reserva, (3) Similares a compradores. Crea una campaña específica de Demand Gen Retargeting con mensajes de urgencia (últimas plazas, precio especial) dirigida a estos usuarios. El CPA en retargeting suele ser 40–60% más bajo que en prospección.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-yel">Importante</span>
+          <div class="rec-body">
+            <strong>Probar creatividades con precios y fechas específicas</strong>
+            <span>Los anuncios de Demand Gen que mejor funcionan en turismo/reservas incluyen precio y urgencia explícitos: "Glamping desde €89/noche · Solo quedan 3 plazas en julio". Prueba al menos una variante así frente al anuncio genérico de branding. El CTR suele subir un 20–40%.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-grn">Estratégico</span>
+          <div class="rec-body">
+            <strong>Demand Gen como puente entre alcance y conversión</strong>
+            <span>Usa el funnel en 3 pasos: (1) Alcance Vídeo para generar notoriedad (audiencias frías, amplio), (2) Demand Gen Tráfico para retargeting de quien vio el vídeo pero no visitó la web, (3) Search/PMax para capturar cuando tienen intención de búsqueda. Esto alarga el funnel de atribución pero reduce el CPA final porque llegas al usuario más preparado.</span>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+
+</div><!-- /dgen -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     GRUPOS DE ANUNCIOS
+═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-grupos">
+
+  <div class="card">
+    <div class="card-head"><h3>Principios de estructura de grupos de anuncios</h3></div>
+    <div class="card-body">
+      <p>La regla de oro en Google Ads es <strong>máxima relevancia entre búsqueda → grupo → anuncio → landing page</strong>. Cuanto más alineado esté lo que busca el usuario con lo que ven en el anuncio y donde aterrizan, más bajo es el CPA.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Estructura recomendada por tipo de campaña</h3></div>
+    <div class="card-body">
+      <ul class="rec-list">
+
+        <li>
+          <span class="p-red">Urgente</span>
+          <div class="rec-body">
+            <strong>Un grupo de anuncios por intención de búsqueda, no por destino</strong>
+            <span>Evita el error de meter 50 destinos en un solo grupo con keywords como "glamping [destino X]", "glamping [destino Y]". Agrupa por intención: (1) Búsquedas genéricas de glamping, (2) Búsquedas por zona geográfica, (3) Búsquedas por nombre exacto de destino. Cada grupo tiene su anuncio con la keyword en el título.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-red">Urgente</span>
+          <div class="rec-body">
+            <strong>Auditar el Quality Score de cada grupo</strong>
+            <span>Un Quality Score bajo (1–4) encarece el CPC hasta un 400%. Revisa en el nivel de palabra clave los componentes: relevancia del anuncio, tasa de clics esperada, experiencia en la página de destino. Los grupos con QS &lt; 5 necesitan reestructuración inmediata del anuncio o de las keywords que los componen.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-yel">Importante</span>
+          <div class="rec-body">
+            <strong>Máximo 10–15 keywords por grupo de anuncios</strong>
+            <span>Si un grupo tiene más de 20 keywords, es probable que la relevancia del anuncio sea baja para algunas de ellas. Divide grupos grandes en subgrupos más específicos. Para Kampaoh: separa "glamping playa" de "glamping montaña" de "glamping con niños" — tienen usuarios distintos y mensajes distintos.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-yel">Importante</span>
+          <div class="rec-body">
+            <strong>Usar coincidencia de frase y exacta, no amplia sin control</strong>
+            <span>La concordancia amplia sin tRCPA/tROAS activo en grupos con histórico bajo dispara el presupuesto en búsquedas irrelevantes. Usa frase para términos principales y exacta para tus keywords más valiosas. Si usas amplia, actívala solo en campañas con Smart Bidding maduro (+50 conversiones/mes).</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-yel">Importante</span>
+          <div class="rec-body">
+            <strong>Crear grupos específicos para búsquedas de fecha/temporada</strong>
+            <span>Términos como "glamping verano 2026", "glamping semana santa", "glamping puente mayo" tienen una intención de reserva muy alta. Crea un grupo dedicado en LPKs No Marca con estos términos y dirígelos a landing pages con disponibilidad de esas fechas.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-grn">Estratégico</span>
+          <div class="rec-body">
+            <strong>Grupos de remarketing RLSA en campañas Search</strong>
+            <span>Añade listas RLSA (Remarketing Lists for Search Ads) a tus grupos de búsqueda. Cuando alguien que ya visitó la web busca "glamping España", puja 30–50% más alto — ya conoces su interés. Esto mejora el ROAS de las campañas no-marca sin aumentar el presupuesto total.</span>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+
+</div><!-- /grupos -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     ANUNCIOS
+═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-anuncios">
+
+  <div class="card">
+    <div class="card-head"><h3>Mejores prácticas para anuncios de Kampaoh</h3></div>
+    <div class="card-body">
+      <p>Los anuncios de Kampaoh tienen que comunicar dos cosas a la vez: <strong>emoción</strong> (escapismo, naturaleza, experiencia única) y <strong>acción</strong> (reserva ahora, disponibilidad limitada). El formato RSA (Responsive Search Ad) de Google permite testear múltiples combinaciones automáticamente.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Estructura de RSA recomendada</h3></div>
+    <div class="card-body">
+      <ul class="rec-list">
+
+        <li>
+          <span class="p-red">Urgente</span>
+          <div class="rec-body">
+            <strong>Incluir la keyword principal en el título 1 (anclado)</strong>
+            <span>El primer título debe contener la búsqueda del usuario para maximizar relevancia. Para el grupo "glamping España": "Glamping en España · Kampaoh". Para búsquedas de destino: "Glamping en Tarifa · Reserva ya". Ancla el título 1 para garantizar que aparece siempre en esa posición.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-red">Urgente</span>
+          <div class="rec-body">
+            <strong>Al menos 15 títulos y 4 descripciones en cada RSA</strong>
+            <span>Google necesita variedad para optimizar combinaciones. Si tienes menos de 10 títulos, la calificación del anuncio será "Deficiente" y el algoritmo tendrá poco margen. Estructura los títulos en 3 categorías: (1) Keyword/intención, (2) Propuesta de valor, (3) CTA/urgencia.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-yel">Importante</span>
+          <div class="rec-body">
+            <strong>Títulos de propuesta de valor específicos de Kampaoh</strong>
+            <span>Evita títulos genéricos como "Reserva tu glamping". Usa: "Naturaleza + Confort · Desde €89/noche", "Más de 50 destinos en España", "Glamping con cama · Sin tienda de campaña", "Desayuno incluido en destinos seleccionados", "Reserva flexible · Cancela gratis". Cada título debe aportar información nueva.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-yel">Importante</span>
+          <div class="rec-body">
+            <strong>Activar todos los activos (extensiones) disponibles</strong>
+            <span>Para Kampaoh son especialmente relevantes: <br>
+            · <strong>Sitelinks</strong>: "Ver destinos de playa", "Glamping para familias", "Destinos con piscina", "Últimas plazas julio"<br>
+            · <strong>Callouts</strong>: "Sin cuota de membresía", "Reserva en 2 minutos", "+10.000 valoraciones 5 estrellas"<br>
+            · <strong>Extensión de precio</strong>: muestra destinos con precio desde X€ — aumenta CTR cualificado<br>
+            · <strong>Fragmentos estructurados</strong>: lista de destinos o experiencias disponibles</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-yel">Importante</span>
+          <div class="rec-body">
+            <strong>Crear un anuncio separado "Oferta" en periodos clave</strong>
+            <span>En Semana Santa, Black Friday, mayo (últimas plazas verano) y febrero (captación anticipada) crea un anuncio adicional en cada grupo con: título "Oferta · [Descuento o Urgencia]", descripción con precio específico y fecha límite. Google prioriza anuncios con alta relevancia temporal.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-grn">Estratégico</span>
+          <div class="rec-body">
+            <strong>Testear anuncios con preguntas en el título</strong>
+            <span>El formato pregunta funciona bien en turismo: "¿Buscas escapada en la naturaleza?", "¿Te imaginas dormir bajo las estrellas?". Crea una variante RSA con al menos 3 títulos en formato pregunta y compara el CTR contra los títulos declarativos después de 30 días.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-grn">Estratégico</span>
+          <div class="rec-body">
+            <strong>Landing pages específicas por grupo de anuncios</strong>
+            <span>El mayor impacto en Quality Score viene de la relevancia landing → keyword. Si un usuario busca "glamping Tarifa", debe llegar a la página de Tarifa, no a la home. Revisa que cada grupo de anuncios con destino específico apunte a la URL de ese destino. Para grupos genéricos, usa la home o la página de todos los destinos.</span>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+
+</div><!-- /anuncios -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     PUJAS Y PRESUPUESTO
+═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-pujas">
+
+  <div class="card">
+    <div class="card-head"><h3>Estrategia de pujas recomendada por tipo de campaña</h3></div>
+    <div class="card-body">
+      <p>El CPA máximo orientativo para Kampaoh con ticket €232 y ROAS mínimo ×3 es <strong>≈ €77</strong>. Actualmente las campañas principales están muy por debajo de ese umbral, lo que significa que hay margen para escalar presupuesto sin romper rentabilidad.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Recomendaciones · Pujas y presupuesto</h3></div>
+    <div class="card-body">
+      <ul class="rec-list">
+
+        <li>
+          <span class="p-red">Urgente</span>
+          <div class="rec-body">
+            <strong>Asignar tCPA a Competencia (€30) y Cercanía (€35)</strong>
+            <span>Actualmente tienen CPA de €44 y €67. Establece tCPA de €30–€35 para forzar al algoritmo a ser más selectivo. Acepta que el volumen baje — preferible pocas conversiones rentables que muchas caras.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-red">Urgente</span>
+          <div class="rec-body">
+            <strong>Garantizar presupuesto ilimitado en Search Marca</strong>
+            <span>Search LPKs Marca New tiene ROAS ×376. Si en algún momento se queda sin presupuesto estás perdiendo reservas directas a coste prácticamente cero. Asegura que nunca se limita por presupuesto — revisa el "informe de IS por presupuesto".</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-yel">Importante</span>
+          <div class="rec-body">
+            <strong>Escalar LPKs No Marca +20% de presupuesto</strong>
+            <span>Con CPA €15,65 y ROAS ×17 hay un margen enorme hasta llegar al CPA máximo de €77. Si el IS (Impression Share) está por debajo del 65%, aumenta el presupuesto en €500–€700/mes y monitoriza que el CPA no supere €22.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-yel">Importante</span>
+          <div class="rec-body">
+            <strong>Activar ajustes de puja por dispositivo</strong>
+            <span>Revisa en Google Ads el rendimiento por dispositivo (móvil vs. escritorio vs. tablet). En turismo, el móvil suele tener mayor CTR pero menor CVR que el escritorio (la gente consulta en móvil y reserva en desktop). Considera reducir las pujas en móvil un 20–30% si la tasa de conversión es significativamente menor.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-yel">Importante</span>
+          <div class="rec-body">
+            <strong>Ajustes de puja por horario en Search</strong>
+            <span>Analiza en Google Ads el rendimiento por hora del día y día de la semana. Para Kampaoh, los picos de reserva suelen ser jueves-domingo por la tarde-noche (planificación del fin de semana siguiente). Considera pujas +20–30% en esas franjas y -15% en madrugada entre semana.</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-grn">Estratégico</span>
+          <div class="rec-body">
+            <strong>Modelo de estacionalidad: aumentar presupuesto en fechas clave</strong>
+            <span>Kampaoh tiene estacionalidad muy marcada. Planifica los presupuestos con antelación:<br>
+            · <strong>Feb–Mar</strong>: +30% (captación anticipada verano)<br>
+            · <strong>Mar–Abr</strong>: +40% (Semana Santa)<br>
+            · <strong>May</strong>: +25% (urgencia últimas plazas verano)<br>
+            · <strong>Jun–Ago</strong>: presupuesto base alto (temporada alta)<br>
+            · <strong>Nov</strong>: +20% (Black Friday / regalos Navidad)<br>
+            · <strong>Oct, Dic–Ene</strong>: presupuesto mínimo de mantenimiento</span>
+          </div>
+        </li>
+
+        <li>
+          <span class="p-grn">Estratégico</span>
+          <div class="rec-body">
+            <strong>Portfolio bidding para campañas Search no-marca</strong>
+            <span>Si gestionas múltiples campañas Search no-marca con el mismo objetivo de CPA, considera unirlas en un Portfolio Bidding Strategy compartido. Esto permite que Google redistribuya las pujas entre campañas según oportunidad real, maximizando conversiones totales dentro del CPA objetivo global.</span>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Resumen de CPA objetivo recomendado por campaña</h3></div>
+    <table>
+      <thead>
+        <tr><th>Campaña</th><th>CPA actual</th><th>tCPA recomendado</th><th>Acción</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Search LPKs Marca New</td><td class="roas-good">€0,62</td><td>Sin tCPA · tROAS ×100</td><td style="color:var(--green)">Escalar presupuesto</td></tr>
+        <tr><td>Search LPKs No Marca</td><td class="roas-good">€15,65</td><td>tCPA €18</td><td style="color:var(--green)">Escalar +20%</td></tr>
+        <tr><td>Search Provincia CCAA</td><td class="roas-good">€16,92</td><td>tCPA €20</td><td style="color:var(--green)">Mantener</td></tr>
+        <tr><td>PMax Push Destinos</td><td class="roas-good">€9,13</td><td>tROAS ×20</td><td style="color:var(--green)">Escalar +15%</td></tr>
+        <tr><td>Search LPKs NM PushDest.</td><td class="roas-good">€11,56</td><td>tCPA €15</td><td style="color:var(--green)">Mantener</td></tr>
+        <tr><td>Search Campings Genérico</td><td class="roas-good">€15,90</td><td>tCPA €20</td><td style="color:var(--green)">Mantener</td></tr>
+        <tr><td>Demand Gen Conv. Verano</td><td class="roas-good">€15,13</td><td>tCPA €18</td><td style="color:var(--green)">Mantener · mejorar creatividades</td></tr>
+        <tr><td>Demand Gen Shorts Push</td><td class="roas-ok">€28,27</td><td>tCPA €25</td><td style="color:var(--warn)">Revisar creatividades</td></tr>
+        <tr><td>Search Competencia</td><td class="roas-bad">€44,00</td><td>tCPA €30</td><td style="color:var(--danger)">Revisar keywords · reducir</td></tr>
+        <tr><td>Search Cercanía Destinos</td><td class="roas-bad">€67,14</td><td>tCPA €35</td><td style="color:var(--danger)">Auditar o pausar</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div><!-- /pujas -->
+
+</main>
+
+<footer>Kampaoh &middot; Datos Portermetrics &middot; <span id="footer-period">—</span> &middot; <a href="https://app.portermetrics.com" target="_blank" style="color:var(--accent)">Abrir Portermetrics</a></footer>
+
+<style>
+.period-btn{background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;}
+.period-btn:hover{color:var(--text);}
+.period-btn.active{background:rgba(251,188,4,.12);border-color:var(--google);color:var(--google);}
+</style>
+
+<script>
+/* ── Section tabs ── */
+document.querySelectorAll(".stab").forEach(function(btn){
+  btn.onclick=function(){
+    document.querySelectorAll(".stab").forEach(function(b){b.classList.remove("active");});
+    document.querySelectorAll(".section").forEach(function(s){s.classList.remove("active");});
+    btn.classList.add("active");
+    document.getElementById("sec-"+btn.getAttribute("data-sec")).classList.add("active");
+  };
+});
+
+/* ── Date helpers ── */
+var DATA = null;
+var MAX_DATE = null;
+
+function addDays(d, n) {
+  var dt = new Date(d + 'T00:00:00');
+  dt.setDate(dt.getDate() + n);
+  return dt.toISOString().slice(0, 10);
+}
+function startOfMonth(d) { return d.slice(0, 8) + '01'; }
+function prevMonthRange() {
+  var today = new Date().toISOString().slice(0, 10);
+  var y = +today.slice(0, 4), m = +today.slice(5, 7) - 1;
+  if (m === 0) { m = 12; y--; }
+  var mm = String(m).padStart(2, '0');
+  var last = new Date(y, m, 0).getDate();
+  return { from: y + '-' + mm + '-01', to: y + '-' + mm + '-' + String(last).padStart(2, '0') };
+}
+function presetRange(preset) {
+  var today = new Date().toISOString().slice(0, 10);
+  var to = MAX_DATE && today > MAX_DATE ? MAX_DATE : today;
+  if (preset === 'last_7_days')  return { from: addDays(today, -6), to: to };
+  if (preset === 'last_30_days') return { from: addDays(today, -29), to: to };
+  if (preset === 'this_month')   return { from: startOfMonth(today), to: to };
+  if (preset === 'last_month')   return prevMonthRange();
+  return { from: addDays(today, -6), to: to };
+}
+var MONTH_ES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+function fmtDate(d) {
+  var p = d.split('-');
+  return +p[2] + ' ' + MONTH_ES[+p[1]-1] + ' ' + p[0];
+}
+
+/* ── Campaign type tag ── */
+function campType(name) {
+  var n = name.toUpperCase();
+  if (n.includes('PMAX') || n.includes('P_MAX')) return '<span class="tag-type tag-pmax">PMax</span>';
+  if (n.includes('SEARCH'))  return '<span class="tag-type tag-search">Search</span>';
+  if (n.includes('GENDEM') || n.includes('GEN_DEM') || n.includes('GEN DEM') || n.includes('DEMAND')) return '<span class="tag-type tag-dgen">Demand Gen</span>';
+  if (n.includes('VIDEO') || n.includes('VÍDEO') || n.includes('ALCANCE_V')) return '<span class="tag-type tag-video">Vídeo</span>';
+  return '<span class="tag-type" style="background:rgba(123,127,158,.12);color:var(--muted)">Otro</span>';
+}
+
+/* ── Number formatting ── */
+function eur(v) { return '€' + v.toLocaleString('es-ES', {minimumFractionDigits:0, maximumFractionDigits:0}); }
+function eurD(v, d) { return '€' + v.toLocaleString('es-ES', {minimumFractionDigits:d||2, maximumFractionDigits:d||2}); }
+function num(v) { return Math.round(v).toLocaleString('es-ES'); }
+function roasClass(r) { return r >= 10 ? 'roas-good' : r >= 5 ? 'roas-ok' : 'roas-bad'; }
+
+/* ── Aggregate Google campaigns for date range ── */
+function aggregateGoogle(from, to) {
+  if (!DATA) return {};
+  var acc = {};
+  Object.keys(DATA.days).forEach(function(dt) {
+    if (dt < from || dt > to) return;
+    (DATA.days[dt].g || []).forEach(function(r) {
+      var n = r[0];
+      if (!acc[n]) acc[n] = { s: 0, cv: 0, rv: 0, imp: 0, clk: 0 };
+      acc[n].s  += r[1] || 0;
+      acc[n].cv += r[2] || 0;
+      acc[n].rv += r[3] || 0;
+      acc[n].imp += r[4] || 0;
+      acc[n].clk += r[5] || 0;
+    });
+  });
+  return acc;
+}
+
+/* ── Render campaign table ── */
+function renderTable(from, to) {
+  var camps = aggregateGoogle(from, to);
+  var rows = Object.keys(camps).map(function(n) {
+    return { n: n, d: camps[n] };
+  }).filter(function(x) { return x.d.s > 0; });
+  rows.sort(function(a, b) { return b.d.rv - a.d.rv; });
+
+  var label = fmtDate(from) + ' – ' + fmtDate(to);
+  var tl = document.getElementById('table-period-label');
+  if (tl) tl.textContent = label;
+  var fp = document.getElementById('footer-period');
+  if (fp) fp.textContent = 'Período: ' + label;
+  var hp = document.getElementById('hdr-period');
+  if (hp) hp.textContent = label;
+  var hc = document.getElementById('hdr-campaigns');
+  if (hc) hc.textContent = rows.length + ' campañas';
+
+  var tbody = document.getElementById('google-tbody');
+  if (!tbody) return;
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px;">Sin datos para el período seleccionado</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = rows.map(function(x) {
+    var d = x.d;
+    var cpa = d.cv > 0 ? d.s / d.cv : null;
+    var roas = d.s > 0 ? d.rv / d.s : null;
+    var cpc = d.clk > 0 ? d.s / d.clk : null;
+    return '<tr>' +
+      '<td>' + x.n + '</td>' +
+      '<td>' + campType(x.n) + '</td>' +
+      '<td>' + eur(d.s) + '</td>' +
+      '<td>' + (d.cv > 0 ? num(d.cv) : '<span class="dash">—</span>') + '</td>' +
+      '<td>' + (cpa !== null ? eurD(cpa) : '<span class="dash">—</span>') + '</td>' +
+      '<td>' + (d.rv > 0 ? eur(d.rv) : '<span class="dash">—</span>') + '</td>' +
+      '<td class="' + (roas !== null ? roasClass(roas) : '') + '">' + (roas !== null ? '×' + roas.toLocaleString('es-ES', {maximumFractionDigits:1}) : '<span class="dash">—</span>') + '</td>' +
+      '<td>' + num(d.clk) + '</td>' +
+      '<td>' + (cpc !== null ? eurD(cpc) : '<span class="dash">—</span>') + '</td>' +
+      '</tr>';
+  }).join('');
+}
+
+/* ── Period buttons ── */
+var activePreset = 'last_7_days';
+document.querySelectorAll('.period-btn').forEach(function(btn) {
+  btn.onclick = function() {
+    document.querySelectorAll('.period-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    activePreset = btn.getAttribute('data-preset');
+    var r = presetRange(activePreset);
+    document.getElementById('date-from').value = r.from;
+    document.getElementById('date-to').value = r.to;
+    renderTable(r.from, r.to);
+  };
+});
+
+/* Custom date inputs */
+function onCustomDate() {
+  var f = document.getElementById('date-from').value;
+  var t = document.getElementById('date-to').value;
+  if (f && t && f <= t) {
+    document.querySelectorAll('.period-btn').forEach(function(b) { b.classList.remove('active'); });
+    renderTable(f, t);
+  }
+}
+document.getElementById('date-from').onchange = onCustomDate;
+document.getElementById('date-to').onchange = onCustomDate;
+
+/* ── Load data ── */
+fetch('campaigns-data.json').then(function(r) { return r.json(); }).then(function(data) {
+  DATA = data;
+  MAX_DATE = data.updated;
+  var r = presetRange(activePreset);
+  document.getElementById('date-from').value = r.from;
+  document.getElementById('date-to').value = r.to;
+  renderTable(r.from, r.to);
+}).catch(function(e) {
+  console.error('Error cargando campaigns-data.json:', e);
+  var tbody = document.getElementById('google-tbody');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--danger);padding:24px;">Error cargando datos de campañas</td></tr>';
+  var hp = document.getElementById('hdr-period');
+  if (hp) hp.textContent = 'sin datos';
+});
+</script>
 </body>
 </html>
