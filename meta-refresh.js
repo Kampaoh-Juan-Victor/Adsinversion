@@ -18,23 +18,20 @@ const DATA_PATH         = path.join(__dirname, "data.json");
 const CAMPAIGNS_PATH    = path.join(__dirname, "campaigns-data.json");
 const API_VERSION       = "v21.0";
 
-// Destinos conocidos de Kampaoh
-const DESTINOS = ["las-arenas","isla-cristina","trafalgar","costa-brava","canos","los-canos","somo-playa","somo","tarifa","ria-de-vigo","roquetas","llanes","tossa-de-mar","cambrils","paloma","kikopark-playa","kikopark","cova-negra","alquezar","bayona-playa","bayona","benicassim","blanes","navajas","lago-de-arcos","sierra-nevada","picos-urbion","picos","el-palmar","palmar"];
+const { extractDestination, normalize, DESTINOS } = require("./destinos-config");
 
-const GENERIC = new Set(["españa","spain","destinos","generico","generica","colaboraciones","ugc","contenido","verano","navidad","eventos","trueque","housekeeping","internacional","int","es","clientes","potenciales","carrusel","video","imagen","stories","reels","reel"]);
+// Términos genéricos que no son destinos (para el fallback de convención de nombres)
+const GENERIC = new Set(["espana","spain","destinos","generico","generica","colaboraciones","ugc","contenido","verano","navidad","eventos","trueque","housekeeping","internacional","int","es","clientes","potenciales","carrusel","video","imagen","stories","reels","reel"]);
 
-function extractDestination(name) {
-  const lower = name.toLowerCase();
-  // Buscar destino conocido en el nombre del anuncio
-  for (const dest of DESTINOS) {
-    if (lower.includes(dest)) return dest;
-  }
-  // Convención: [PLAT]_[OBJ]_[AUD]_[FORMATO]_[DESTINO]_[FECHA]
+function extractDestinationMeta(name) {
+  // 1. Extracción normalizada (maneja tildes, espacios, aliases)
+  const dest = extractDestination(name);
+  if (dest !== "sin-etiquetar") return dest;
+
+  // 2. Fallback: convención [PLAT]_[OBJ]_[AUD]_[FORMATO]_[DESTINO]_[FECHA]
   const parts = name.split("_");
   if (parts.length >= 5) {
-    const raw = parts[4]
-      .replace(/\s*\(\d+\)\s*/g, "")
-      .toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9\-]/g, "").replace(/-+/g, "-").replace(/^-|-$/g, "");
+    const raw = normalize(parts[4].replace(/\s*\(\d+\)\s*/g, ""));
     if (raw && raw.length >= 3 && !GENERIC.has(raw)) return raw;
   }
   return "sin-etiquetar";
@@ -179,8 +176,15 @@ async function refreshMeta(dateFrom, dateTo) {
 
   adRaw.forEach(item => {
     const date = item.date_start;
-    const adName = item.ad_name || "";
-    const dest = extractDestination(adName);
+    const adName    = item.ad_name    || "";
+    const adsetName = item.adset_name || "";
+    const campName  = item.campaign_name || "";
+    // Cascada: ad name → adset name → campaign name
+    const dest = extractDestinationMeta(adName) !== "sin-etiquetar"
+      ? extractDestinationMeta(adName)
+      : extractDestination(adsetName) !== "sin-etiquetar"
+        ? extractDestination(adsetName)
+        : extractDestination(campName);
     const spend = parseFloat(item.spend) || 0;
 
     if (!destByDate[date]) destByDate[date] = {};

@@ -92,6 +92,9 @@
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: rgba(255,255,255,0.025); }
   .tfoot-row td { font-weight: 700; background: var(--surface2); border-top: 1px solid var(--border); font-size: 13px; }
+  .yoy25 { background: rgba(255,255,255,0.02); }
+  .yoy26 { background: rgba(99,102,241,0.08); }
+  .tfoot-row .yoy26 { background: rgba(99,102,241,0.14); }
   .td-delta { font-size: 12px; font-weight: 600; }
 
   .dest-label { font-weight: 600; font-size: 13px; }
@@ -126,6 +129,24 @@
   .obj-note-row td { color:var(--muted); font-size:11px; padding:10px 14px; border-top:1px solid var(--border); }
   .generico-row td { opacity:.85; }
 
+  /* ── Objetivos por canal ── */
+  .obj-dist-wrap { margin-bottom:24px; }
+  .obj-dist-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .odc { background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+  .odc-head { padding:12px 16px 10px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; background:var(--surface2); }
+  .odc-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .odc-plat { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.7px; }
+  .odc-total { margin-left:auto; font-size:12px; font-weight:700; font-variant-numeric:tabular-nums; }
+  .odc-body { padding:12px 16px 14px; display:flex; flex-direction:column; gap:8px; }
+  .odc-row { display:grid; grid-template-columns:90px 1fr 52px; align-items:center; gap:8px; }
+  .odc-label { font-size:11px; color:var(--muted); }
+  .odc-bar-wrap { height:6px; background:var(--surface2); border-radius:3px; overflow:hidden; }
+  .odc-bar { height:100%; border-radius:3px; transition:width .3s; }
+  .odc-pct { font-size:11px; font-variant-numeric:tabular-nums; text-align:right; color:var(--muted); }
+  .odc-amt { font-size:12px; font-weight:600; font-variant-numeric:tabular-nums; grid-column:1; margin-top:2px; }
+  .odc-empty { padding:16px; font-size:12px; color:var(--muted); font-style:italic; }
+  @media(max-width:900px){ .obj-dist-grid{grid-template-columns:1fr;} }
+
   /* ── Budget deviation panel ── */
   .budget-section { margin-top: 24px; }
   .status-ok    { color: var(--green); font-weight: 700; font-size: 12px; }
@@ -157,6 +178,80 @@
     main { padding: 16px; }
     .period-bar, .compare-bar { padding: 10px 16px; }
   }
+
+  /* ── Submenú inversión ── */
+  .main-inner-nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; gap: 0; }
+  .main-inner-tab { padding: 9px 16px; font-size: 12px; font-weight: 600; color: var(--muted); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; transition: all .15s; white-space: nowrap; }
+  .main-inner-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .main-inner-tab:hover { color: var(--text); }
+
+  /* ── Tabla de campañas ── */
+  .camp-wrap { padding: 24px 32px; }
+  .camp-platform-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+  .camp-plat-btn { padding: 6px 16px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; }
+  .camp-plat-btn:hover { border-color: var(--accent); color: var(--text); }
+  .camp-plat-btn.meta.active   { background: var(--meta);    border-color: var(--meta);    color: #fff; }
+  .camp-plat-btn.google.active { background: #fbbc04;        border-color: #fbbc04;        color: #000; }
+  .camp-plat-btn.tiktok.active { background: var(--tiktok);  border-color: var(--tiktok);  color: #fff; }
+  .camp-table-wrap { overflow-x: auto; }
+  .camp-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .camp-table th { padding: 8px 10px; text-align: left; color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; border-bottom: 1px solid var(--border); cursor: pointer; white-space: nowrap; user-select: none; }
+  .camp-table th.num { text-align: right; }
+  .camp-table th:hover { color: var(--text); }
+  .camp-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); color: var(--text); white-space: nowrap; vertical-align: middle; }
+  .camp-table tr:last-child td { border-bottom: none; }
+  .camp-table tr:hover td { background: var(--surface2); }
+  .camp-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .camp-badge { display: inline-block; padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 700; letter-spacing: .3px; white-space: nowrap; }
+  .camp-name-cell { max-width: 280px; overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
+  .camp-total-row td { font-weight: 700; background: var(--surface2); }
+  .camp-toggle { background: none; border: none; color: var(--muted); cursor: pointer; padding: 0 5px 0 0; font-size: 9px; line-height: 1; transition: color .15s; }
+  .camp-toggle:hover { color: var(--text); }
+  .camp-adg-row td { background: rgba(255,255,255,0.025); }
+  .camp-ad-row td  { background: rgba(0,0,0,0.12); }
+/* ── Optimización ── */
+.opt-obj-tabs { display:flex; gap:8px; margin:16px 0 12px; flex-wrap:wrap; }
+.opt-obj-btn { padding:6px 14px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--muted); cursor:pointer; font-size:12px; font-weight:600; transition:.15s; }
+.opt-obj-btn.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.opt-section { margin-top:28px; }
+.opt-section-title { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:14px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.status-badge { display:inline-flex; align-items:center; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; white-space:nowrap; }
+.status-escalar  { background:#10b98120; color:#10b981; }
+.status-ok       { background:#3b82f620; color:#60a5fa; }
+.status-optimizar{ background:#f59e0b20; color:#f59e0b; }
+.status-revisar  { background:#ef444420; color:#ef4444; }
+.status-sin-datos{ background:#ffffff10; color:var(--muted); }
+.tip { position:relative; cursor:help; }
+.tip[data-tip]::after {
+  content: attr(data-tip);
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  background: #1a1d2e;
+  color: #e2e8f0;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.6;
+  padding: 10px 14px;
+  border-radius: 10px;
+  width: 280px;
+  white-space: normal;
+  border: 1px solid var(--border);
+  z-index: 300;
+  box-shadow: 0 4px 20px rgba(0,0,0,.5);
+  text-align: left;
+  pointer-events: none;
+}
+.tip[data-tip]:hover::after { display: block; }
+.rec-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px; }
+.rec-item { padding:12px 16px; border-radius:10px; font-size:13px; line-height:1.5; border-left:3px solid; }
+.rec-item strong { display:block; margin-bottom:2px; font-size:13px; }
+.rec-item.escalar  { background:#10b98108; border-color:#10b981; }
+.rec-item.optimizar{ background:#f59e0b08; border-color:#f59e0b; }
+.rec-item.revisar  { background:#ef444408; border-color:#ef4444; }
+.rec-item.dest-escalar  { background:#10b98108; border-color:#10b981; }
+.rec-item.dest-revisar  { background:#ef444408; border-color:#ef4444; }
 </style>
 </head>
 <body>
@@ -174,10 +269,11 @@
 
 <nav style="background:#222536;border-bottom:1px solid #2e3149;padding:0 32px;display:flex;gap:0">
   <a href="index.html" style="padding:10px 18px;font-size:12px;font-weight:600;color:#6366f1;text-decoration:none;border-bottom:2px solid #6366f1">Inversión Publicitaria</a>
-  <a href="objetivos.html" style="padding:10px 18px;font-size:12px;font-weight:600;color:#7b7f9e;text-decoration:none;border-bottom:2px solid transparent">Por objetivo</a>
   <a href="ga4.html" style="padding:10px 18px;font-size:12px;font-weight:600;color:#7b7f9e;text-decoration:none;border-bottom:2px solid transparent">Propiedades Vistas · GA4</a>
-  <a href="google.html" style="padding:10px 18px;font-size:12px;font-weight:600;color:#7b7f9e;text-decoration:none;border-bottom:2px solid transparent">Google Ads · Optimización</a>
-  <a href="destinos-tipo.html" style="padding:10px 18px;font-size:12px;font-weight:600;color:#7b7f9e;text-decoration:none;border-bottom:2px solid transparent">Mix por Destino</a>
+<a href="busqueda-be.html" style="padding:10px 18px;font-size:12px;font-weight:600;color:#7b7f9e;text-decoration:none;border-bottom:2px solid transparent">Búsqueda BE</a>
+  <a href="gsc.html" style="padding:10px 18px;font-size:12px;font-weight:600;color:#7b7f9e;text-decoration:none;border-bottom:2px solid transparent">GSC</a>
+  <a href="funnel.html" style="padding:10px 18px;font-size:12px;font-weight:600;color:#7b7f9e;text-decoration:none;border-bottom:2px solid transparent">Funnel</a>
+  <a href="tiempo.html" style="padding:10px 18px;font-size:12px;font-weight:600;color:#7b7f9e;text-decoration:none;border-bottom:2px solid transparent">Tiempo</a>
 </nav>
 
 <!-- ── Barra de período ── -->
@@ -191,23 +287,6 @@
   <div class="period-sep"></div>
   <select id="month-select" class="month-select">
     <option value="">— Mes/Año —</option>
-    <option value="2025-01">Enero 2025</option>
-    <option value="2025-02">Febrero 2025</option>
-    <option value="2025-03">Marzo 2025</option>
-    <option value="2025-04">Abril 2025</option>
-    <option value="2025-05">Mayo 2025</option>
-    <option value="2025-06">Junio 2025</option>
-    <option value="2025-07">Julio 2025</option>
-    <option value="2025-08">Agosto 2025</option>
-    <option value="2025-09">Septiembre 2025</option>
-    <option value="2025-10">Octubre 2025</option>
-    <option value="2025-11">Noviembre 2025</option>
-    <option value="2025-12">Diciembre 2025</option>
-    <option value="2026-01">Enero 2026</option>
-    <option value="2026-02">Febrero 2026</option>
-    <option value="2026-03">Marzo 2026</option>
-    <option value="2026-04">Abril 2026</option>
-    <option value="2026-05">Mayo 2026</option>
   </select>
   <div class="period-sep"></div>
   <div class="date-range">
@@ -227,7 +306,14 @@
   <span class="compare-info" id="compare-info"></span>
 </div>
 
+<div class="main-inner-nav">
+  <button class="main-inner-tab active" id="tab-inv-general"      onclick="switchInvView('general')">Vista general</button>
+  <button class="main-inner-tab"        id="tab-inv-campaigns"    onclick="switchInvView('campaigns')">Resumen de campañas</button>
+  <button class="main-inner-tab"        id="tab-inv-optimization" onclick="switchInvView('optimization')">Optimización</button>
+</div>
+
 <main>
+<div id="view-general">
 
   <div class="kpi-row">
     <div class="kpi total">
@@ -253,6 +339,36 @@
       <div class="value" style="color:var(--google)" id="kpi-google"></div>
       <div class="sub" id="kpi-google-pct"></div>
       <div class="cmp" id="kpi-google-cmp"></div>
+    </div>
+  </div>
+
+  <!-- ── Distribución por objetivo ── -->
+  <div class="obj-dist-wrap">
+    <div class="obj-dist-grid">
+      <div class="odc">
+        <div class="odc-head">
+          <div class="odc-dot" style="background:#1877f2"></div>
+          <span class="odc-plat" style="color:#60a5fa">Meta Ads</span>
+          <span class="odc-total" id="obj-meta-total">—</span>
+        </div>
+        <div class="odc-body" id="obj-meta-rows"><div class="odc-empty">Cargando…</div></div>
+      </div>
+      <div class="odc">
+        <div class="odc-head">
+          <div class="odc-dot" style="background:#fbbc04"></div>
+          <span class="odc-plat" style="color:#fbbf24">Google Ads</span>
+          <span class="odc-total" id="obj-google-total">—</span>
+        </div>
+        <div class="odc-body" id="obj-google-rows"><div class="odc-empty">Cargando…</div></div>
+      </div>
+      <div class="odc">
+        <div class="odc-head">
+          <div class="odc-dot" style="background:#ff0050"></div>
+          <span class="odc-plat" style="color:#fb7185">TikTok Ads</span>
+          <span class="odc-total" id="obj-tiktok-total">—</span>
+        </div>
+        <div class="odc-body" id="obj-tiktok-rows"><div class="odc-empty">Cargando…</div></div>
+      </div>
     </div>
   </div>
 
@@ -287,17 +403,21 @@
     <table>
       <thead>
         <tr>
-          <th>Mes</th>
-          <th id="yoy-th-prev" style="color:#7b7f9e">Oct 24–Sep 25</th>
-          <th style="color:#1877f2;font-size:11px">Meta</th>
-          <th style="color:#ff0050;font-size:11px">TikTok</th>
-          <th style="color:#fbbc04;font-size:11px">Google</th>
-          <th id="yoy-th-curr" style="color:#e8eaf0">Oct 25–Sep 26</th>
-          <th style="color:#1877f2;font-size:11px">Meta</th>
-          <th style="color:#ff0050;font-size:11px">TikTok</th>
-          <th style="color:#fbbc04;font-size:11px">Google</th>
-          <th>&Delta; Total</th>
-          <th>&Delta; %</th>
+          <th rowspan="2" style="vertical-align:bottom">Mes</th>
+          <th colspan="4" id="yoy-th-prev" style="text-align:center;border-bottom:2px solid var(--border);padding-bottom:8px;background:rgba(255,255,255,0.02)"><span style="background:rgba(255,255,255,0.07);color:#9ca3af;font-size:13px;font-weight:700;padding:3px 14px;border-radius:20px;letter-spacing:.5px">2025</span></th>
+          <th colspan="4" id="yoy-th-curr" style="text-align:center;border-bottom:2px solid var(--accent);border-left:3px solid var(--accent);padding-bottom:8px;background:rgba(99,102,241,0.08)"><span style="background:rgba(99,102,241,0.3);color:#a5b4fc;font-size:13px;font-weight:700;padding:3px 14px;border-radius:20px;letter-spacing:.5px">2026</span></th>
+          <th rowspan="2" style="vertical-align:bottom">&Delta; Total</th>
+          <th rowspan="2" style="vertical-align:bottom">&Delta; %</th>
+        </tr>
+        <tr>
+          <th class="yoy25" style="color:#7b7f9e">Total</th>
+          <th class="yoy25" style="color:#1877f2;font-size:11px">Meta</th>
+          <th class="yoy25" style="color:#ff0050;font-size:11px">TikTok</th>
+          <th class="yoy25" style="color:#fbbc04;font-size:11px">Google</th>
+          <th class="yoy26" style="color:#e8eaf0;border-left:3px solid var(--accent)">Total</th>
+          <th class="yoy26" style="color:#1877f2;font-size:11px">Meta</th>
+          <th class="yoy26" style="color:#ff0050;font-size:11px">TikTok</th>
+          <th class="yoy26" style="color:#fbbc04;font-size:11px">Google</th>
         </tr>
       </thead>
       <tbody id="tbody-yoy"></tbody>
@@ -313,9 +433,9 @@
       <h3>Gasto por destino &times; plataforma</h3>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
         <button class="period-btn active" id="dest-tab-global">Global</button>
-        <button class="period-btn" id="dest-tab-conv">Conversiones</button>
-        <button class="period-btn" id="dest-tab-traf">Tráfico</button>
-        <button class="period-btn" id="dest-tab-alc">Alcance</button>
+        <button class="period-btn" id="dest-tab-meta" style="color:#1877f2">Meta</button>
+        <button class="period-btn" id="dest-tab-google" style="color:#fbbc04">Google</button>
+        <button class="period-btn" id="dest-tab-tiktok" style="color:#ff0050">TikTok</button>
       </div>
     </div>
     <table id="dest-table">
@@ -367,8 +487,40 @@
     </div>
   </div>
 
+</div><!-- /view-general -->
+
+<div id="view-campaigns" style="display:none">
+  <div class="camp-wrap">
+    <div class="camp-platform-tabs">
+      <button class="camp-plat-btn meta active" id="camp-btn-meta"   onclick="setCampPlatform('meta')">Meta Ads</button>
+      <button class="camp-plat-btn google"      id="camp-btn-google" onclick="setCampPlatform('google')">Google Ads</button>
+      <button class="camp-plat-btn tiktok"      id="camp-btn-tiktok" onclick="setCampPlatform('tiktok')">TikTok Ads</button>
+    </div>
+    <div class="camp-table-wrap">
+      <table class="camp-table">
+        <thead id="camp-thead"></thead>
+        <tbody id="camp-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div><!-- /view-campaigns -->
+
+<div id="view-optimization" style="display:none">
+  <div class="camp-wrap">
+    <div class="camp-platform-tabs">
+      <button class="camp-plat-btn meta active" id="opt-btn-meta"    onclick="setOptPlatform('meta')">Meta Ads</button>
+      <button class="camp-plat-btn google"       id="opt-btn-google"  onclick="setOptPlatform('google')">Google Ads</button>
+      <button class="camp-plat-btn tiktok"       id="opt-btn-tiktok"  onclick="setOptPlatform('tiktok')">TikTok Ads</button>
+    </div>
+    <div class="opt-obj-tabs" id="opt-obj-tabs"></div>
+    <div id="opt-table-wrap"></div>
+    <div id="opt-dest-wrap"></div>
+    <div id="opt-recs-wrap"></div>
+  </div>
+</div><!-- /view-optimization -->
+
 </main>
-<footer>Kampaoh &middot; Datos Portermetrics &middot; <a href="https://app.portermetrics.com" target="_blank" style="color:var(--accent)">Abrir Portermetrics</a></footer>
+<footer>Kampaoh &middot; Dashboard Ads &amp; Analytics</footer>
 
 
 <script>
@@ -409,6 +561,236 @@ var activePreset = "last_30_days";
 var compareMode  = "none";
 var chartPlatformInst = null, chartDestinosInst = null;
 var currentDest  = null;           // última tabla de destinos renderizada
+var CAMPAIGNS_DATA   = null;
+var GADS_BY_DATE     = null;  // {date: {tipo: {gen, dest}}}
+var TK_BY_DATE       = null;
+var META_ADS_BY_DATE = null;
+var GADS_DEST_DATE   = null;  // {date: {dest: {tipo: spend}}}
+var TK_DEST_DATE     = null;
+var META_DEST_DATE   = null;
+
+// ── Tipo de objetivo según nombre de campaña ──────────────────────────────────
+function getCampaignType(name) {
+  var n = (name||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+  if (/conver|pmax|performance.max|smart\+|catalogo|cat.logo/.test(n)) return 'Conversión';
+  if (/alcance|reach|branding|brand|video|v.deo|demand.gen|demandgen|gen.demand/.test(n)) return 'Alcance';
+  if (/interac|engagement/.test(n)) return 'Interacción';
+  if (/trafico|tr.fico|traffic/.test(n)) return 'Tráfico';
+  if (/search|b.squeda|busqueda/.test(n)) return 'Búsqueda';
+  return 'Otro';
+}
+
+var OBJ_COLORS = {
+  'Conversión':'#22c55e','Alcance':'#6366f1','Interacción':'#f59e0b',
+  'Tráfico':'#38bdf8','Búsqueda':'#a78bfa','Otro':'#64748b'
+};
+var OBJ_ORDER = ['Conversión','Alcance','Interacción','Tráfico','Búsqueda','Otro'];
+
+// Índice de adgroups Google/TikTok: {fecha: {tipo: {gen, dest}}}
+// rows: [date(YYYYMMDD), _, campaign_name, _, _, dest_slug, spend, ...]
+function buildAdsByDate(rows) {
+  var by = {};
+  (rows||[]).forEach(function(r) {
+    var date = r[0].slice(0,4)+'-'+r[0].slice(4,6)+'-'+r[0].slice(6,8);
+    var tipo = getCampaignType(r[2]);
+    var dest = r[5];
+    var spend = parseFloat(r[6]) || 0;
+    var isGen = (!dest || dest === 'sin-etiquetar' || dest === 'generic');
+    if (!by[date]) by[date] = {};
+    if (!by[date][tipo]) by[date][tipo] = {gen: 0, dest: 0};
+    if (isGen) by[date][tipo].gen += spend;
+    else       by[date][tipo].dest += spend;
+  });
+  return by;
+}
+
+// Índice de anuncios Meta: {fecha: {tipo: {gen, dest}}}
+// meta-ads-data.json cols: date[0], campaign_name[2], dest[7], spend[8]
+function buildMetaAdsByDate(rows) {
+  var by = {};
+  (rows||[]).forEach(function(r) {
+    var date = r[0].slice(0,4)+'-'+r[0].slice(4,6)+'-'+r[0].slice(6,8);
+    var tipo = getCampaignType(r[2]);
+    var dest = r[7];
+    var spend = parseFloat(r[8]) || 0;
+    var isGen = (!dest || dest === 'sin-etiquetar' || dest === 'generic');
+    if (!by[date]) by[date] = {};
+    if (!by[date][tipo]) by[date][tipo] = {gen: 0, dest: 0};
+    if (isGen) by[date][tipo].gen += spend;
+    else       by[date][tipo].dest += spend;
+  });
+  return by;
+}
+
+// Índice Google/TikTok por destino: {fecha: {dest: {tipo: spend}}} (excluye genéricas)
+function buildAdsByDateDest(rows) {
+  var by = {};
+  (rows||[]).forEach(function(r) {
+    var date = r[0].slice(0,4)+'-'+r[0].slice(4,6)+'-'+r[0].slice(6,8);
+    var tipo = getCampaignType(r[2]);
+    var dest = r[5];
+    var spend = parseFloat(r[6]) || 0;
+    if (!dest || dest === 'sin-etiquetar' || dest === 'generic') return;
+    if (!by[date]) by[date] = {};
+    if (!by[date][dest]) by[date][dest] = {};
+    by[date][dest][tipo] = (by[date][dest][tipo] || 0) + spend;
+  });
+  return by;
+}
+
+// Índice Meta por destino: {fecha: {dest: {tipo: spend}}} (excluye genéricas y falsos positivos)
+var DEST_RETAG_SET = new Set(['scmg','2024','ig-reel','sin-etiquetar','generic']);
+function buildMetaAdsByDateDest(rows) {
+  var by = {};
+  (rows||[]).forEach(function(r) {
+    var date = r[0].slice(0,4)+'-'+r[0].slice(4,6)+'-'+r[0].slice(6,8);
+    var tipo = getCampaignType(r[2]);
+    var dest = r[7];
+    var spend = parseFloat(r[8]) || 0;
+    if (!dest || DEST_RETAG_SET.has(dest)) return;
+    if (!by[date]) by[date] = {};
+    if (!by[date][dest]) by[date][dest] = {};
+    by[date][dest][tipo] = (by[date][dest][tipo] || 0) + spend;
+  });
+  return by;
+}
+
+// Agrega {dest: {tipo: spend}} para un rango de fechas dado un índice {date: {dest: {tipo: spend}}}
+function aggregateDestByObj(from, to, idx) {
+  var res = {};
+  var d = new Date(from+'T00:00:00Z'), end = new Date(to+'T00:00:00Z');
+  while (d <= end) {
+    var key = d.toISOString().slice(0,10);
+    var day = idx && idx[key];
+    if (day) {
+      for (var dest in day) {
+        if (!res[dest]) res[dest] = {};
+        for (var tipo in day[dest]) {
+          res[dest][tipo] = (res[dest][tipo] || 0) + day[dest][tipo];
+        }
+      }
+    }
+    d.setUTCDate(d.getUTCDate()+1);
+  }
+  return res;
+}
+
+// Totales por objetivo (gen+dest) — usado por la tab "Por objetivo"
+function aggregateByObj(from, to) {
+  var res = {meta:{}, google:{}, tiktok:{}};
+  var d = new Date(from+'T00:00:00Z'), end = new Date(to+'T00:00:00Z');
+  while (d <= end) {
+    var key = d.toISOString().slice(0,10);
+    if (META_ADS_BY_DATE && META_ADS_BY_DATE[key]) {
+      var mday = META_ADS_BY_DATE[key];
+      for (var t in mday) res.meta[t] = (res.meta[t]||0) + mday[t].gen + mday[t].dest;
+    } else if (CAMPAIGNS_DATA && CAMPAIGNS_DATA.days && CAMPAIGNS_DATA.days[key]) {
+      (CAMPAIGNS_DATA.days[key].m||[]).forEach(function(c){ var t=getCampaignType(c[0]); res.meta[t]=(res.meta[t]||0)+c[1]; });
+    }
+    if (GADS_BY_DATE && GADS_BY_DATE[key]) {
+      var gday = GADS_BY_DATE[key];
+      for (var t in gday) res.google[t] = (res.google[t]||0) + gday[t].gen + gday[t].dest;
+    }
+    if (TK_BY_DATE && TK_BY_DATE[key]) {
+      var tkday = TK_BY_DATE[key];
+      for (var t in tkday) res.tiktok[t] = (res.tiktok[t]||0) + tkday[t].gen + tkday[t].dest;
+    }
+    d.setUTCDate(d.getUTCDate()+1);
+  }
+  return res;
+}
+
+// Desglose completo: split genérica/destino + destino×objetivo por canal
+function aggregateByObjFull(from, to) {
+  var res = {
+    meta:   {gen: 0, dest: 0, byDest: {}},
+    google: {gen: 0, dest: 0, byDest: {}},
+    tiktok: {gen: 0, dest: 0, byDest: {}}
+  };
+  var d = new Date(from+'T00:00:00Z'), end = new Date(to+'T00:00:00Z');
+  while (d <= end) {
+    var key = d.toISOString().slice(0,10);
+    var srcs = [
+      [META_ADS_BY_DATE, res.meta],
+      [GADS_BY_DATE,     res.google],
+      [TK_BY_DATE,       res.tiktok]
+    ];
+    srcs.forEach(function(pair) {
+      var src = pair[0], out = pair[1];
+      if (!src || !src[key]) return;
+      for (var t in src[key]) {
+        var v = src[key][t];
+        out.gen  += v.gen  || 0;
+        out.dest += v.dest || 0;
+        out.byDest[t] = (out.byDest[t]||0) + (v.dest || 0);
+      }
+    });
+    d.setUTCDate(d.getUTCDate()+1);
+  }
+  return res;
+}
+
+function renderObjCard(bodyId, totalId, data) {
+  // data = {gen, dest, byDest: {tipo: spend}}
+  var total = data.gen + data.dest;
+  var totalEl = document.getElementById(totalId);
+  if (totalEl) totalEl.textContent = total > 0 ? fmt(total) : '—';
+  var bodyEl = document.getElementById(bodyId);
+  if (!bodyEl) return;
+  if (total === 0) { bodyEl.innerHTML = "<div class='odc-empty'>Sin datos para este período</div>"; return; }
+
+  var genPct  = (data.gen  / total * 100).toFixed(1);
+  var destPct = (data.dest / total * 100).toFixed(1);
+
+  var html = "<div style='display:flex;gap:8px;margin-bottom:14px'>"
+    +"<div style='flex:1;background:var(--surface2);border-radius:6px;padding:8px 10px'>"
+    +"<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px'>Genérica</div>"
+    +"<div style='display:flex;justify-content:space-between;align-items:baseline'>"
+    +"<span style='font-size:14px;font-weight:700;font-variant-numeric:tabular-nums'>"+fmt(data.gen)+"</span>"
+    +"<span style='font-size:11px;color:var(--muted)'>"+genPct+"%</span>"
+    +"</div></div>"
+    +"<div style='flex:1;background:var(--surface2);border-radius:6px;padding:8px 10px'>"
+    +"<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px'>Por destino</div>"
+    +"<div style='display:flex;justify-content:space-between;align-items:baseline'>"
+    +"<span style='font-size:14px;font-weight:700;font-variant-numeric:tabular-nums'>"+fmt(data.dest)+"</span>"
+    +"<span style='font-size:11px;color:var(--muted)'>"+destPct+"%</span>"
+    +"</div></div>"
+    +"</div>";
+
+  if (data.dest > 0) {
+    var maxV = 0;
+    for (var k in data.byDest) if (data.byDest[k] > maxV) maxV = data.byDest[k];
+    var sorted = Object.keys(data.byDest).filter(function(k){ return data.byDest[k] >= 0.5; });
+    sorted.sort(function(a,b){ return data.byDest[b] - data.byDest[a]; });
+
+    html += "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px'>Destino · por objetivo</div>";
+    sorted.forEach(function(tipo) {
+      var v = data.byDest[tipo];
+      var pct = (v / data.dest * 100).toFixed(1);
+      var barW = Math.round(v / maxV * 100);
+      var col = OBJ_COLORS[tipo] || '#64748b';
+      html += "<div style='margin-bottom:8px'>"
+        +"<div style='display:flex;justify-content:space-between;margin-bottom:3px'>"
+        +"<span style='font-size:11px;color:var(--muted)'>"+tipo+"</span>"
+        +"<span style='font-size:12px;font-weight:600;font-variant-numeric:tabular-nums'>"+fmt(v)+"</span>"
+        +"</div>"
+        +"<div style='display:flex;align-items:center;gap:8px'>"
+        +"<div style='flex:1;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden'>"
+        +"<div style='height:100%;width:"+barW+"%;background:"+col+";border-radius:3px'></div></div>"
+        +"<span style='font-size:11px;color:var(--muted);width:36px;text-align:right'>"+pct+"%</span>"
+        +"</div></div>";
+    });
+  }
+
+  bodyEl.innerHTML = html;
+}
+
+function renderObjDist() {
+  var full = aggregateByObjFull(fromDate, toDate);
+  renderObjCard('obj-meta-rows',   'obj-meta-total',   full.meta);
+  renderObjCard('obj-google-rows', 'obj-google-total', full.google);
+  renderObjCard('obj-tiktok-rows', 'obj-tiktok-total', full.tiktok);
+}
 
 // ── Helpers de fecha ──────────────────────────────────────────────────────────
 var MONTHS_ES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
@@ -614,6 +996,11 @@ function renderDashboard(){
 
   currentDest = histMode ? [] : dest;
   renderBudgetPanel();
+  renderObjDist();
+  var vc = document.getElementById('view-campaigns');
+  if (vc && vc.style.display !== 'none') renderCampaigns();
+  var vo = document.getElementById('view-optimization');
+  if (vo && vo.style.display !== 'none') renderOptimization();
 
   // ── Gráficos ──
   try{
@@ -623,7 +1010,46 @@ function renderDashboard(){
       chartPlatformInst=new Chart(document.getElementById("chartPlatform"),{type:"doughnut",data:{labels:["Meta Ads","TikTok Ads","Google Ads"],datasets:[{data:[metaT,tiktokT,googleT],backgroundColor:["#1877f2","#ff0050","#fbbc04"],borderColor:"#1a1d27",borderWidth:3,hoverOffset:6}]},options:{cutout:"70%",plugins:{legend:{position:"bottom",labels:{color:"#7b7f9e",padding:10,font:{size:11}}},tooltip:{callbacks:{label:function(ctx){return " "+fmt(ctx.raw)+"  ("+(ctx.raw/total*100).toFixed(1)+"%)";}}}}  }});
       if(!histMode){
         var top=[]; for(var ci=0;ci<sorted.length&&top.length<14;ci++){if(sorted[ci][1]!=="sin-etiquetar"&&(sorted[ci][2]+sorted[ci][3]+sorted[ci][4])>0.01)top.push(sorted[ci]);}
-        if(top.length) chartDestinosInst=new Chart(document.getElementById("chartDestinos"),{type:"bar",data:{labels:top.map(function(d){return d[0];}),datasets:[{label:"Meta",data:top.map(function(d){return d[2];}),backgroundColor:"#1877f2",borderRadius:3,stack:"s"},{label:"TikTok",data:top.map(function(d){return d[3];}),backgroundColor:"#ff0050",borderRadius:3,stack:"s"},{label:"Google",data:top.map(function(d){return d[4];}),backgroundColor:"#fbbc04",borderRadius:3,stack:"s"}]},options:{indexAxis:"y",responsive:true,plugins:{legend:{labels:{color:"#7b7f9e",font:{size:11}}}},scales:{x:{stacked:true,ticks:{color:"#7b7f9e",font:{size:10},callback:function(v){return "€"+v;}},grid:{color:"rgba(255,255,255,0.05)"}},y:{stacked:true,ticks:{color:"#e8eaf0",font:{size:11}},grid:{display:false}}}}});
+        if(top.length) chartDestinosInst=new Chart(document.getElementById("chartDestinos"),{
+          type:"bar",
+          data:{
+            labels:top.map(function(d){return d[0];}),
+            datasets:[
+              {label:"Meta",  data:top.map(function(d){return d[2];}),backgroundColor:"#1877f2",borderRadius:3,stack:"s"},
+              {label:"TikTok",data:top.map(function(d){return d[3];}),backgroundColor:"#ff0050",borderRadius:3,stack:"s"},
+              {label:"Google",data:top.map(function(d){return d[4];}),backgroundColor:"#fbbc04",borderRadius:3,stack:"s"}
+            ]
+          },
+          options:{
+            indexAxis:"y",responsive:true,
+            layout:{padding:{right:70}},
+            plugins:{legend:{labels:{color:"#7b7f9e",font:{size:11}}}},
+            scales:{
+              x:{stacked:true,ticks:{color:"#7b7f9e",font:{size:10},callback:function(v){return "€"+v;}},grid:{color:"rgba(255,255,255,0.05)"}},
+              y:{stacked:true,ticks:{color:"#e8eaf0",font:{size:11}},grid:{display:false}}
+            }
+          },
+          plugins:[{
+            id:"totalLabel",
+            afterDatasetsDraw:function(chart){
+              var ctx=chart.ctx;
+              ctx.save();
+              ctx.font="bold 11px system-ui,sans-serif";
+              ctx.fillStyle="#e8eaf0";
+              ctx.textAlign="left";
+              ctx.textBaseline="middle";
+              chart.data.labels.forEach(function(lbl,i){
+                var total=0;
+                chart.data.datasets.forEach(function(ds){total+=ds.data[i]||0;});
+                if(total<0.5) return;
+                var xPx=chart.scales.x.getPixelForValue(total);
+                var bar=chart.getDatasetMeta(0).data[i];
+                if(bar) ctx.fillText(fmt(total),xPx+6,bar.y);
+              });
+              ctx.restore();
+            }
+          }]
+        });
       }
     }
   }catch(e){}
@@ -820,6 +1246,24 @@ document.getElementById("month-select").onchange = function(){
   document.getElementById("date-to").value=to;
   renderDashboard();
 };
+
+// Generar opciones del selector mes/año dinámicamente (ene 2025 → mes actual)
+(function() {
+  var MESES_ES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio",
+                  "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+  var sel = document.getElementById("month-select");
+  var now = new Date();
+  var curY = now.getFullYear(), curM = now.getMonth() + 1; // 1-based
+  var y = 2025, m = 1;
+  while (y < curY || (y === curY && m <= curM)) {
+    var opt = document.createElement("option");
+    opt.value = y + "-" + String(m).padStart(2,"0");
+    opt.textContent = MESES_ES[m-1] + " " + y;
+    sel.appendChild(opt);
+    m++;
+    if (m > 12) { m = 1; y++; }
+  }
+})();
 
 ["cmp-none","cmp-prev","cmp-year"].forEach(function(id){
   document.getElementById(id).onclick=function(){
@@ -1183,8 +1627,87 @@ var OBJ_TOTALS = {
   alcance:      { meta: 20018.76+1347.45+621.86, tiktok: 3660.71+2416.17+2150.83, google: 718.22 }
 };
 
+function renderPlatformDestTab(platform) {
+  var idx = platform==='meta' ? META_DEST_DATE : platform==='google' ? GADS_DEST_DATE : TK_DEST_DATE;
+  var color = platform==='meta' ? '#1877f2' : platform==='google' ? '#fbbc04' : '#ff0050';
+  var label = platform==='meta' ? 'Meta' : platform==='google' ? 'Google' : 'TikTok';
+
+  if (!idx) {
+    document.getElementById("dest-thead").innerHTML='<tr><th colspan="10" style="text-align:center;color:var(--muted)">Cargando datos…</th></tr>';
+    document.getElementById("tbody").innerHTML='';
+    document.getElementById("tfoot").innerHTML='';
+    return;
+  }
+
+  var byDest = aggregateDestByObj(fromDate, toDate, idx);
+
+  // Tipos de objetivo presentes, ordenados por gasto total
+  var tiposTot = {};
+  for (var dest in byDest) for (var t in byDest[dest]) tiposTot[t] = (tiposTot[t]||0) + byDest[dest][t];
+  var tipos = Object.keys(tiposTot).filter(function(t){ return tiposTot[t]>=0.5; });
+  tipos.sort(function(a,b){ return tiposTot[b]-tiposTot[a]; });
+
+  // Destinos ordenados por gasto total desc
+  var dests = Object.keys(byDest).map(function(slug){
+    var tot=0; for (var t in byDest[slug]) tot+=byDest[slug][t];
+    return {slug:slug, byTipo:byDest[slug], total:tot};
+  }).filter(function(d){ return d.total>=0.5; });
+  dests.sort(function(a,b){ return b.total-a.total; });
+
+  if (!dests.length) {
+    document.getElementById("dest-thead").innerHTML='<tr><th colspan="5" style="text-align:center;color:var(--muted)">Sin datos de destino para este período</th></tr>';
+    document.getElementById("tbody").innerHTML='';
+    document.getElementById("tfoot").innerHTML='';
+    return;
+  }
+
+  var grandTotal = dests.reduce(function(s,d){ return s+d.total; },0);
+  var maxT = dests[0].total;
+
+  // Cabecera dinámica
+  var headCols = tipos.map(function(t){
+    return "<th style='color:"+(OBJ_COLORS[t]||'#7b7f9e')+"'>"+t+"</th>";
+  }).join('');
+  document.getElementById("dest-thead").innerHTML = '<tr>'
+    +'<th style="text-align:left">Destino</th>'
+    +headCols
+    +'<th style="color:'+color+'">Total '+label+'</th>'
+    +'<th>% s/total</th></tr>';
+
+  // Filas
+  var sumByTipo={}, sumTotal=0, rows='';
+  tipos.forEach(function(t){ sumByTipo[t]=0; });
+  dests.forEach(function(d){
+    var bw=Math.round(d.total/maxT*80);
+    var pct=grandTotal>0?(d.total/grandTotal*100).toFixed(1):'0.0';
+    var tipoCols=tipos.map(function(t){
+      var v=d.byTipo[t]||0; sumByTipo[t]+=v;
+      return v>=0.5
+        ? "<td style='color:"+(OBJ_COLORS[t]||'#7b7f9e')+";font-size:12px'>"+fmt(v)+"</td>"
+        : "<td><span class='dash'>—</span></td>";
+    }).join('');
+    sumTotal+=d.total;
+    rows+='<tr>'
+      +'<td><span class="dest-label">'+destLabel(d.slug)+'</span>'
+      +'<div class="dest-bar" style="width:'+bw+'px"></div></td>'
+      +tipoCols
+      +'<td><strong>'+fmt(d.total)+'</strong></td>'
+      +'<td class="pct-val">'+pct+'%</td></tr>';
+  });
+  document.getElementById("tbody").innerHTML=rows;
+
+  // Footer
+  var footCols=tipos.map(function(t){
+    return "<td style='color:"+(OBJ_COLORS[t]||'#7b7f9e')+";font-size:12px'>"+fmt(sumByTipo[t])+"</td>";
+  }).join('');
+  document.getElementById("tfoot").innerHTML='<tr class="tfoot-row">'
+    +'<td>TOTAL por destino</td>'+footCols
+    +'<td style="color:'+color+'"><strong>'+fmt(sumTotal)+'</strong></td>'
+    +'<td class="pct-val">100%</td></tr>';
+}
+
 function renderDestTab(){
-  var ids=["dest-tab-global","dest-tab-conv","dest-tab-traf","dest-tab-alc"];
+  var ids=["dest-tab-global","dest-tab-meta","dest-tab-google","dest-tab-tiktok"];
   ids.forEach(function(id){ var b=document.getElementById(id); if(b) b.className="period-btn"+(id===("dest-tab-"+destTab)?" active":""); });
   var tbl = document.getElementById("dest-table");
   if(destTab==="global"){
@@ -1193,17 +1716,10 @@ function renderDestTab(){
     renderDashboard(); return;
   }
   if(tbl) tbl.classList.add("obj-view");
-  var _thd=document.getElementById("th-delta"); if(_thd) _thd.style.display="none";
-  var t = OBJ_TOTALS[destTab]; if(!t) return;
-  var kpiTotal = t.meta+t.tiktok+t.google;
-  document.getElementById("kpi-total").textContent=fmt(kpiTotal);
-  document.getElementById("kpi-meta").textContent=fmt(t.meta);
-  document.getElementById("kpi-meta-pct").textContent=(t.meta/kpiTotal*100).toFixed(1)+"% del total";
-  document.getElementById("kpi-tiktok").textContent=fmt(t.tiktok);
-  document.getElementById("kpi-tiktok-pct").textContent=(t.tiktok/kpiTotal*100).toFixed(1)+"% del total";
-  document.getElementById("kpi-google").textContent=fmt(t.google);
-  document.getElementById("kpi-google-pct").textContent=(t.google/kpiTotal*100).toFixed(1)+"% del total";
 
+  if(destTab==="meta"||destTab==="google"||destTab==="tiktok"){
+    renderPlatformDestTab(destTab); return;
+  }
   if(destTab==="conversiones"){
     document.getElementById("dest-thead").innerHTML='<tr>'
       +'<th style="text-align:left">Destino</th>'
@@ -1319,11 +1835,11 @@ function renderDestTab(){
   }
 }
 
-["dest-tab-global","dest-tab-conv","dest-tab-traf","dest-tab-alc"].forEach(function(id){
+["dest-tab-global","dest-tab-meta","dest-tab-google","dest-tab-tiktok"].forEach(function(id){
   var btn=document.getElementById(id);
   if(!btn) return;
   btn.onclick=function(){
-    var map={"dest-tab-global":"global","dest-tab-conv":"conversiones","dest-tab-traf":"trafico","dest-tab-alc":"alcance"};
+    var map={"dest-tab-global":"global","dest-tab-meta":"meta","dest-tab-google":"google","dest-tab-tiktok":"tiktok"};
     destTab=map[id];
     renderDestTab();
   };
@@ -1332,10 +1848,23 @@ function renderDestTab(){
 // ── Init ──────────────────────────────────────────────────────────────────────
 setPreset("last_30_days"); // render inicial (mostrará "Cargando…" hasta que data.json cargue)
 
-fetch("data.json")
-  .then(function(r){return r.json();})
-  .then(function(d){
+var _cb = "?_=" + (new Date().toISOString().slice(0,10));
+Promise.all([
+  fetch("data.json"                + _cb).then(function(r){return r.json();}),
+  fetch("campaigns-data.json"      + _cb).then(function(r){return r.json();}).catch(function(){return null;}),
+  fetch("google-adgroups-data.json"+ _cb).then(function(r){return r.json();}).catch(function(){return null;}),
+  fetch("tiktok-ads-data.json"     + _cb).then(function(r){return r.json();}).catch(function(){return null;}),
+  fetch("meta-ads-data.json"       + _cb).then(function(r){return r.json();}).catch(function(){return null;})
+]).then(function(results){
+  var d = results[0], c = results[1], gads = results[2], tkads = results[3], mads = results[4];
     DATA = d;
+    CAMPAIGNS_DATA = c;
+    if (gads  && gads.rows)  { GADS_BY_DATE   = buildAdsByDate(gads.rows);      GADS_DEST_DATE = buildAdsByDateDest(gads.rows); }
+    if (tkads && tkads.rows) { TK_BY_DATE     = buildMetaAdsByDate(tkads.rows);    TK_DEST_DATE   = buildMetaAdsByDateDest(tkads.rows); }
+    if (mads  && mads.rows)  { META_ADS_BY_DATE = buildMetaAdsByDate(mads.rows); META_DEST_DATE = buildMetaAdsByDateDest(mads.rows); }
+    if (gads  && gads.rows)  GADS_RAW      = buildRawIdx(gads.rows,  2);
+    if (tkads && tkads.rows) TKTOK_ADS_RAW = buildRawIdx(tkads.rows, 2);
+    if (mads  && mads.rows)  META_ADS_RAW  = buildRawIdx(mads.rows,  2);
     var md = buildMensual(d);
     MENSUAL_LABELS = md.labels;
     MENSUAL_META   = md.meta;
@@ -1395,17 +1924,14 @@ function buildYoY(data) {
     if (d.t) for (var k in d.t) by[ym][1] += d.t[k];
     if (d.g) for (var k in d.g) by[ym][2] += d.g[k];
   }
-  // Temporada Oct–Sep: meses en orden de temporada
-  var seasonOrder = ["10","11","12","01","02","03","04","05","06","07","08","09"];
+  // Año calendario: ene–dic comparando 2025 vs 2026
+  var months = ["01","02","03","04","05","06","07","08","09","10","11","12"];
   var curYM = new Date().toISOString().slice(0,7);
-  return seasonOrder.map(function(mm) {
-    // Temporada A: Oct 2024 – Sep 2025
-    var ymA = (+mm >= 10 ? "2024" : "2025") + "-" + mm;
-    // Temporada B: Oct 2025 – Sep 2026
-    var ymB = (+mm >= 10 ? "2025" : "2026") + "-" + mm;
-    var dA = by[ymA]||[0,0,0], dB = by[ymB]||[0,0,0];
-    var label = MONTH_NAME_ES[+mm-1] + (ymB === curYM ? " *" : "");
-    return {mes:label, m25:dA[0], t25:dA[1], g25:dA[2], m26:dB[0], t26:dB[1], g26:dB[2]};
+  return months.map(function(mm) {
+    var ym25 = "2025-"+mm, ym26 = "2026-"+mm;
+    var d25 = by[ym25]||[0,0,0], d26 = by[ym26]||[0,0,0];
+    var label = MONTH_NAME_ES[+mm-1] + (ym26 === curYM ? " *" : "");
+    return {mes:label, m25:d25[0], t25:d25[1], g25:d25[2], m26:d26[0], t26:d26[1], g26:d26[2]};
   }).filter(function(r){ return r.m25+r.t25+r.g25+r.m26+r.t26+r.g26 > 0; });
 }
 
@@ -1438,35 +1964,60 @@ function renderMensualChart(){
           footerColor: '#e8eaf0'
         }
       },
+      layout: {padding:{top:20}},
       scales: {
         x: {stacked:true, ticks:{color:"#7b7f9e",font:{size:10}}, grid:{color:"rgba(255,255,255,0.04)"}},
         y: {stacked:true, ticks:{color:"#7b7f9e",font:{size:10},callback:function(v){return fmt(v);}}, grid:{color:"rgba(255,255,255,0.05)"}}
       }
-    }
+    },
+    plugins:[{
+      id:"mensualTotalLabel",
+      afterDatasetsDraw:function(chart){
+        var ctx=chart.ctx;
+        ctx.save();
+        ctx.font="bold 10px system-ui,sans-serif";
+        ctx.fillStyle="#e8eaf0";
+        ctx.textAlign="center";
+        ctx.textBaseline="bottom";
+        chart.data.labels.forEach(function(lbl,i){
+          var total=0;
+          chart.data.datasets.forEach(function(ds){total+=ds.data[i]||0;});
+          if(total<0.5) return;
+          var yPx=chart.scales.y.getPixelForValue(total);
+          var bar=chart.getDatasetMeta(0).data[i];
+          if(bar) ctx.fillText(fmt(total), bar.x, yPx-3);
+        });
+        ctx.restore();
+      }
+    }]
   });
 }
 
-// ── Tabla comparativa YoY (ene–may 2025 vs 2026) ─────────────────────────────
+// ── Tabla comparativa YoY (ene–dic 2025 vs 2026) — fallback hasta que data.json cargue
 var YOY_DATA = [
-  {mes:"Enero",   m25:17950, t25:372,  g25:3677,  m26:8498,  t26:1926,  g26:2316},
-  {mes:"Febrero", m25:17782, t25:160,  g25:7265,  m26:14689, t26:3115,  g26:2564},
-  {mes:"Marzo",   m25:21535, t25:349,  g25:9477,  m26:22868, t26:5053,  g26:5341},
-  {mes:"Abril",   m25:21065, t25:403,  g25:10100, m26:31338, t26:8381,  g26:13827},
-  {mes:"Mayo *",  m25:32789, t25:2739, g25:11599, m26:25245, t26:13578, g26:12499}
+  {mes:"Enero",      m25:17950, t25:372,   g25:3677,  m26:8498,  t26:1926,  g26:2316},
+  {mes:"Febrero",    m25:17782, t25:160,   g25:7265,  m26:14689, t26:3115,  g26:2564},
+  {mes:"Marzo",      m25:21535, t25:349,   g25:9477,  m26:22868, t26:5053,  g26:5341},
+  {mes:"Abril",      m25:21065, t25:403,   g25:10100, m26:31338, t26:8381,  g26:13827},
+  {mes:"Mayo *",     m25:32789, t25:2739,  g25:11599, m26:25245, t26:13578, g26:12499},
+  {mes:"Junio",      m25:50968, t25:3982,  g25:18703, m26:0,     t26:0,     g26:0},
+  {mes:"Julio",      m25:75483, t25:11863, g25:33183, m26:0,     t26:0,     g26:0},
+  {mes:"Agosto",     m25:52801, t25:9509,  g25:19918, m26:0,     t26:0,     g26:0},
+  {mes:"Septiembre", m25:20928, t25:2735,  g25:8852,  m26:0,     t26:0,     g26:0},
+  {mes:"Octubre",    m25:3892,  t25:593,   g25:1633,  m26:0,     t26:0,     g26:0},
+  {mes:"Noviembre",  m25:4948,  t25:348,   g25:1765,  m26:0,     t26:0,     g26:0},
+  {mes:"Diciembre",  m25:8433,  t25:1787,  g25:1852,  m26:0,     t26:0,     g26:0},
 ];
 
-function tdC(v, color){ return "<td style='color:"+color+";font-size:12px'>"+fmt(v)+"</td>"; }
+function tdC(v, color, cls){ return "<td class='"+(cls||"")+"' style='color:"+color+";font-size:12px'>"+fmt(v)+"</td>"; }
 
 function renderYoY(){
   var tbody = document.getElementById("tbody-yoy");
   var tfoot = document.getElementById("tfoot-yoy");
   if(!tbody || !tfoot) return;
   if(YOY_DATA.length) {
-    var lastMes = YOY_DATA[YOY_DATA.length-1].mes.replace(" *","");
     var rl = document.getElementById("yoy-range-label");
-    if(rl) rl.innerHTML = "Oct 2024 &ndash; Sep 2025 vs Oct 2025 &ndash; "+lastMes+" 2026 &nbsp;&middot;&nbsp; * mes en curso = parcial";
-    var thP = document.getElementById("yoy-th-prev"); if(thP) thP.textContent = "Oct 24–Sep 25";
-    var thC = document.getElementById("yoy-th-curr"); if(thC) thC.textContent = "Oct 25–Sep 26";
+    if(rl) rl.innerHTML = "Enero &ndash; Diciembre &nbsp;&middot;&nbsp; * mes en curso = parcial";
   }
   var rows = "", sm25=0,st25=0,sg25=0,sm26=0,st26=0,sg26=0;
   YOY_DATA.forEach(function(d){
@@ -1478,10 +2029,10 @@ function renderYoY(){
     sm26+=d.m26; st26+=d.t26; sg26+=d.g26;
     rows += "<tr>"
       +"<td style='font-weight:600'>"+d.mes+"</td>"
-      +"<td style='font-weight:700'>"+fmt(tot25)+"</td>"
-      +tdC(d.m25,"#1877f2")+tdC(d.t25,"#ff0050")+tdC(d.g25,"#fbbc04")
-      +"<td style='font-weight:700'>"+fmt(tot26)+"</td>"
-      +tdC(d.m26,"#1877f2")+tdC(d.t26,"#ff0050")+tdC(d.g26,"#fbbc04")
+      +"<td class='yoy25' style='font-weight:700'>"+fmt(tot25)+"</td>"
+      +tdC(d.m25,"#1877f2","yoy25")+tdC(d.t25,"#ff0050","yoy25")+tdC(d.g25,"#fbbc04","yoy25")
+      +"<td class='yoy26' style='font-weight:700;border-left:3px solid var(--accent)'>"+fmt(tot26)+"</td>"
+      +tdC(d.m26,"#1877f2","yoy26")+tdC(d.t26,"#ff0050","yoy26")+tdC(d.g26,"#fbbc04","yoy26")
       +"<td><span class='"+(tot25?cls:"delta-neu")+"'>"+(tot25?arr+" "+fmt(Math.abs(dif)):"—")+"</span></td>"
       +"<td><span class='"+(tot25?cls:"delta-neu")+"'>"+(tot25?arr+" "+Math.abs(pct).toFixed(1)+"%":"—")+"</span></td>"
       +"</tr>";
@@ -1495,10 +2046,10 @@ function renderYoY(){
   var ftLabel = firstMes+"–"+lastAbbr;
   tfoot.innerHTML = "<tr class='tfoot-row'>"
     +"<td>"+ftLabel+"</td>"
-    +"<td style='font-weight:700'>"+fmt(tot25T)+"</td>"
-    +tdC(sm25,"#1877f2")+tdC(st25,"#ff0050")+tdC(sg25,"#fbbc04")
-    +"<td style='font-weight:700'>"+fmt(tot26T)+"</td>"
-    +tdC(sm26,"#1877f2")+tdC(st26,"#ff0050")+tdC(sg26,"#fbbc04")
+    +"<td class='yoy25' style='font-weight:700'>"+fmt(tot25T)+"</td>"
+    +tdC(sm25,"#1877f2","yoy25")+tdC(st25,"#ff0050","yoy25")+tdC(sg25,"#fbbc04","yoy25")
+    +"<td class='yoy26' style='font-weight:700;border-left:3px solid var(--accent)'>"+fmt(tot26T)+"</td>"
+    +tdC(sm26,"#1877f2","yoy26")+tdC(st26,"#ff0050","yoy26")+tdC(sg26,"#fbbc04","yoy26")
     +"<td><span class='"+clsT+"'>"+arrT+" "+fmt(Math.abs(difT))+"</span></td>"
     +"<td><span class='"+clsT+"'>"+arrT+" "+Math.abs(pctT).toFixed(1)+"%</span></td>"
     +"</tr>";
@@ -1535,7 +2086,7 @@ document.getElementById("refresh-btn").onclick = function() {
       btn.classList.remove("loading");
       btn.disabled = false;
       btn.innerHTML = origText;
-      alert("Error al actualizar datos desde Porter.");
+      alert("Error al actualizar datos.");
     }
   };
 
@@ -1562,6 +2113,658 @@ document.getElementById("refresh-btn").onclick = function() {
     });
   }
 };
+
+// ── Resumen de campañas ───────────────────────────────────────────────────────
+var campPlatform   = 'meta';
+var campSortField  = 'spend';
+var campSortDir    = 1;
+var GADS_RAW       = null;
+var TKTOK_ADS_RAW  = null;
+var META_ADS_RAW   = null;
+var campExpanded   = {};
+var campAdgExpanded = {};
+var campLookup     = [];
+var adgLookup      = [];
+
+function buildRawIdx(rows, campCol) {
+  var idx = {};
+  rows.forEach(function(r) { var k=r[campCol]; if(!idx[k])idx[k]=[]; idx[k].push(r); });
+  return idx;
+}
+
+function inRange(rawDate) {
+  var s = String(rawDate);
+  return s >= fromDate.replace(/-/g,'') && s <= toDate.replace(/-/g,'');
+}
+
+function getDrillAdgRows(campName) {
+  var src = campPlatform==='google' ? GADS_RAW : campPlatform==='tiktok' ? TKTOK_ADS_RAW : META_ADS_RAW;
+  if (!src || !src[campName]) return [];
+  var map = {};
+  src[campName].forEach(function(r) {
+    if (!inRange(r[0])) return;
+    var k = r[4];
+    if (!map[k]) map[k] = {name:k, spend:0, conv:0, convVal:0, reach:0, imp:0, clk:0};
+    var m = map[k];
+    if      (campPlatform==='google') { m.spend+=r[6]||0; m.imp+=r[7]||0; m.clk+=r[8]||0; m.conv+=r[11]||0; m.convVal+=r[12]||0; }
+    else if (campPlatform==='tiktok') { m.spend+=r[8]||0; m.imp+=r[9]||0; m.clk+=r[10]||0; m.conv+=r[14]||0; }
+    else                              { m.spend+=r[8]||0; m.imp+=r[9]||0; m.reach+=r[10]||0; m.clk+=r[12]||0; m.conv+=r[16]||0; }
+  });
+  return Object.values(map).filter(function(c){return c.spend>0.01;}).sort(function(a,b){return b.spend-a.spend;});
+}
+
+function getDrillAdRows(campName, adgName) {
+  var src = campPlatform==='tiktok' ? TKTOK_ADS_RAW : META_ADS_RAW;
+  if (!src || !src[campName]) return [];
+  var map = {};
+  src[campName].forEach(function(r) {
+    if (!inRange(r[0]) || r[4]!==adgName) return;
+    var k = r[6];
+    if (!map[k]) map[k] = {name:k, spend:0, conv:0, reach:0, imp:0, clk:0};
+    var m = map[k];
+    if (campPlatform==='tiktok') { m.spend+=r[8]||0; m.imp+=r[9]||0; m.clk+=r[10]||0; m.conv+=r[14]||0; }
+    else                         { m.spend+=r[8]||0; m.imp+=r[9]||0; m.reach+=r[10]||0; m.clk+=r[12]||0; m.conv+=r[16]||0; }
+  });
+  return Object.values(map).filter(function(c){return c.spend>0.01;}).sort(function(a,b){return b.spend-a.spend;});
+}
+
+window.switchInvView = function(view) {
+  document.getElementById('view-general').style.display      = view==='general'      ? '' : 'none';
+  document.getElementById('view-campaigns').style.display    = view==='campaigns'    ? '' : 'none';
+  document.getElementById('view-optimization').style.display = view==='optimization' ? '' : 'none';
+  document.getElementById('tab-inv-general').classList.toggle('active',      view==='general');
+  document.getElementById('tab-inv-campaigns').classList.toggle('active',    view==='campaigns');
+  document.getElementById('tab-inv-optimization').classList.toggle('active', view==='optimization');
+  if (view==='campaigns')    renderCampaigns();
+  if (view==='optimization') renderOptimization();
+};
+
+window.setCampPlatform = function(plat) {
+  campPlatform = plat;
+  ['meta','google','tiktok'].forEach(function(p) {
+    document.getElementById('camp-btn-'+p).classList.toggle('active', p===plat);
+  });
+  campExpanded = {}; campAdgExpanded = {};
+  renderCampaigns();
+};
+
+window.campSort = function(field) {
+  if (campSortField===field) campSortDir*=-1; else { campSortField=field; campSortDir=1; }
+  renderCampaigns();
+};
+
+window.toggleCampDrill = function(i) {
+  var name = campLookup[i];
+  campExpanded[name] = !campExpanded[name];
+  renderCampaigns();
+};
+
+window.toggleAdgDrill = function(i) {
+  var pair = adgLookup[i], k = pair[0]+"§"+pair[1];
+  campAdgExpanded[k] = !campAdgExpanded[k];
+  renderCampaigns();
+};
+
+function getCampAggMap(f, t, plat) {
+  if (!CAMPAIGNS_DATA) return {};
+  var p = plat || campPlatform;
+  var map = {};
+  var platKey = p==='meta' ? 'm' : p==='google' ? 'g' : 't';
+  Object.keys(CAMPAIGNS_DATA.days||{}).forEach(function(day) {
+    if (day<f||day>t) return;
+    (CAMPAIGNS_DATA.days[day][platKey]||[]).forEach(function(r) {
+      var name=r[0];
+      if (!map[name]) map[name]={name:name,spend:0,conv:0,convVal:0,reach:0,imp:0,clk:0};
+      var m=map[name];
+      m.spend+=r[1]||0;
+      if      (p==='meta')   { m.conv+=r[2]||0; m.reach+=r[3]||0; m.imp+=r[4]||0; m.clk+=r[5]||0; }
+      else if (p==='google') { m.conv+=r[2]||0; m.convVal+=r[3]||0; m.imp+=r[4]||0; m.clk+=r[5]||0; }
+      else                   { m.conv+=r[2]||0; m.imp+=r[3]||0; m.clk+=r[4]||0; }
+    });
+  });
+  return map;
+}
+
+function getCampAggRows() {
+  var map = getCampAggMap(fromDate, toDate, campPlatform);
+  var camps = Object.values(map).filter(function(c){return c.spend>0.01;});
+  camps.sort(function(a,b){return campSortDir*((b[campSortField]||0)-(a[campSortField]||0));});
+  return camps;
+}
+
+function getCampKind(name) {
+  var n=(name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  if (/destino|lpk/.test(n)) return 'Por destino';
+  return 'Gen\u00e9rica';
+}
+
+function renderCampaigns() {
+  var thead=document.getElementById('camp-thead'), tbody=document.getElementById('camp-tbody');
+  if (!thead||!tbody) return;
+  if (!CAMPAIGNS_DATA||!fromDate) { tbody.innerHTML='<tr><td colspan="9" style="color:var(--muted);padding:24px;text-align:center">Sin datos</td></tr>'; return; }
+
+  // Comparativa
+  var cmpMap = null;
+  if (compareMode!=='none' && CAMPAIGNS_DATA) {
+    var cmpRange = compareMode==='prev' ? getPrevPeriod(fromDate,toDate) : getPrevYear(fromDate,toDate);
+    cmpMap = getCampAggMap(cmpRange.from, cmpRange.to);
+  }
+
+  campLookup=[]; adgLookup=[];
+  var camps=getCampAggRows();
+  var colCount = (campPlatform==='meta'?9:(campPlatform==='google'?9:8)) + (cmpMap?1:0);
+
+  function sortTh(field, label) {
+    var arrow=campSortField===field?(campSortDir>0?' \u2193':' \u2191'):'';
+    return '<th class="num" onclick="campSort(\'' + field + '\')">'+label+arrow+'</th>';
+  }
+  var th='<tr><th>Campa\u00f1a</th><th>Objetivo</th><th>Tipo</th>'+sortTh('spend','Gasto');
+  if (cmpMap) th += '<th class="num">Δ</th>';
+  if      (campPlatform==='meta')   th+=sortTh('conv','Compras')+sortTh('reach','Alcance')+sortTh('imp','Impresiones')+sortTh('clk','Clics')+'<th class="num">CTR</th>';
+  else if (campPlatform==='google') th+=sortTh('conv','Conv.')+sortTh('convVal','Valor conv.')+sortTh('imp','Impresiones')+sortTh('clk','Clics')+'<th class="num">CTR</th>';
+  else                              th+=sortTh('conv','Conv.')+sortTh('imp','Impresiones')+sortTh('clk','Clics')+'<th class="num">CTR</th>';
+  thead.innerHTML=th+'</tr>';
+
+  function fmtN(v) { if(!v)return'\u2014'; if(v>=1000000)return(v/1000000).toFixed(1)+'M'; if(v>=10000)return Math.round(v/1000)+'k'; if(v>=1000)return(v/1000).toFixed(1)+'k'; return String(Math.round(v)); }
+  function fmtE(v) { return v?'\u20ac'+Math.round(v):'\u2014'; }
+  function ctr(imp,clk) { return imp?(clk/imp*100).toFixed(1)+'%':'\u2014'; }
+  function objBadge(name) { var t=getCampaignType(name),c=OBJ_COLORS[t]||'#64748b'; return '<span class="camp-badge" style="background:'+c+'22;color:'+c+'">'+t+'</span>'; }
+  function kindBadge(name) { var k=getCampKind(name); return k==='Por destino'?'<span class="camp-badge" style="background:#6366f122;color:#818cf8">Por destino</span>':'<span class="camp-badge" style="background:#64748b22;color:#94a3b8">Gen\u00e9rica</span>'; }
+  function deltaCell(cur, cmpEntry) {
+    if (!cmpMap) return '';
+    if (!cmpEntry || cmpEntry.spend < 0.01) return '<td class="num">\u2014</td>';
+    var pct = (cur.spend - cmpEntry.spend) / cmpEntry.spend * 100;
+    return '<td class="num">'+renderDelta(pct)+'</td>';
+  }
+
+  function mCols(c, cmpEntry) {
+    var s='<td class="num">'+fmtE(c.spend)+'</td>';
+    s += deltaCell(c, cmpEntry);
+    if      (campPlatform==='meta')   s+='<td class="num">'+fmtN(c.conv)+'</td><td class="num">'+fmtN(c.reach)+'</td><td class="num">'+fmtN(c.imp)+'</td><td class="num">'+fmtN(c.clk)+'</td><td class="num">'+ctr(c.imp,c.clk)+'</td>';
+    else if (campPlatform==='google') s+='<td class="num">'+fmtN(c.conv)+'</td><td class="num">'+fmtE(c.convVal)+'</td><td class="num">'+fmtN(c.imp)+'</td><td class="num">'+fmtN(c.clk)+'</td><td class="num">'+ctr(c.imp,c.clk)+'</td>';
+    else                              s+='<td class="num">'+fmtN(c.conv)+'</td><td class="num">'+fmtN(c.imp)+'</td><td class="num">'+fmtN(c.clk)+'</td><td class="num">'+ctr(c.imp,c.clk)+'</td>';
+    return s;
+  }
+
+  if (!camps.length) { tbody.innerHTML='<tr><td colspan="'+colCount+'" style="color:var(--muted);padding:24px;text-align:center">Sin datos para el per\u00edodo seleccionado</td></tr>'; return; }
+
+  var total={spend:0,conv:0,convVal:0,reach:0,imp:0,clk:0}, cmpTotal=cmpMap?{spend:0}:null;
+  camps.forEach(function(c){total.spend+=c.spend;total.conv+=c.conv;total.convVal+=c.convVal;total.reach+=c.reach;total.imp+=c.imp;total.clk+=c.clk;
+    if(cmpTotal&&cmpMap[c.name]) cmpTotal.spend+=cmpMap[c.name].spend;
+  });
+
+  var canAd = campPlatform!=='google';
+  var html='';
+
+  camps.forEach(function(c) {
+    var ci=campLookup.length; campLookup.push(c.name);
+    var exp=campExpanded[c.name];
+    var cmpEntry = cmpMap ? cmpMap[c.name] : null;
+    html+='<tr class="camp-row">'
+      +'<td class="camp-name-cell"><button class="camp-toggle" onclick="toggleCampDrill('+ci+')">'+( exp?'\u25bc':'\u25b6')+'</button><span title="'+c.name+'">'+c.name+'</span></td>'
+      +'<td>'+objBadge(c.name)+'</td><td>'+kindBadge(c.name)+'</td>'
+      +mCols(c, cmpEntry)+'</tr>';
+
+    if (exp) {
+      getDrillAdgRows(c.name).forEach(function(adg) {
+        var ai=adgLookup.length; adgLookup.push([c.name, adg.name]);
+        var adgExp=canAd&&campAdgExpanded[c.name+'\u00a7'+adg.name];
+        var adgBtn=canAd?'<button class="camp-toggle" onclick="toggleAdgDrill('+ai+')">'+( adgExp?'\u25bc':'\u25b6')+'</button>':'';
+        html+='<tr class="camp-adg-row">'
+          +'<td class="camp-name-cell" style="padding-left:26px">'+adgBtn+'<span title="'+adg.name+'">'+adg.name+'</span></td>'
+          +'<td></td><td></td>'+mCols(adg, null)+'</tr>';
+
+        if (adgExp) {
+          getDrillAdRows(c.name, adg.name).forEach(function(ad) {
+            html+='<tr class="camp-ad-row">'
+              +'<td class="camp-name-cell" style="padding-left:48px"><span title="'+ad.name+'">'+ad.name+'</span></td>'
+              +'<td></td><td></td>'+mCols(ad, null)+'</tr>';
+          });
+        }
+      });
+    }
+  });
+
+  html+='<tr class="camp-total-row"><td colspan="3"><strong>TOTAL</strong></td>'+mCols(total, cmpTotal)+'</tr>';
+  tbody.innerHTML=html;
+}
+
+// ── Optimización ──────────────────────────────────────────────────────────────
+var optPlatform  = 'meta';
+var optObjective = 'all';
+
+var DEST_SLUGS = [
+  'praia-de-angeiras','ria-de-arousa-playa','ria-de-arousa-rural','san-pedro-moel',
+  'bufones-de-pria','playa-de-levante','playa-de-sueca','picos-de-urbion',
+  'kikopark-playa','kikopark-rural','playa-troenzo','costa-del-sol','costa-blanca',
+  'costa-brava','costa-dorada','tossa-de-mar','sierra-de-urbasa','sierra-nevada',
+  'santillana-del-mar','lago-de-arcos','isla-cristina','bayona-playa','los-escullos',
+  'delta-ebro','ria-de-vigo','puerto-santa-maria','cabo-blanco','cova-negra',
+  'la-franca','el-palmar','el-rocio','somo-playa','somo-parque','los-canos',
+  'kikopark','bayona','somo','arenas','valdvaqueros','tarifa','llanes','paloma',
+  'donana','cambrils','platjadaro','mendigorria','castrillon','rianxo','zumaia',
+  'ruiloba','cordoba','cazorla','benajarafe','cabaneros','alquezar','oyambre',
+  'navajas','almadrava','calella','deva','villajoyosa','crevillent','blanes',
+  'moncofar','benicassim','roquetas','conil','trafalgar','grazalema','marbella',
+  'palamos','rio-mino','pintens','la-bolera','oliva','esponella','menorca',
+  'estepona','neptuno','lagoa','pedroso','ancora','gala','vagueira','mira','meco',
+  'peniche','sesimbra','lisboa','tavira','porto'
+];
+
+function extractDestSlug(name) {
+  var n = (name||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+  for (var i=0; i<DEST_SLUGS.length; i++) {
+    if (n.indexOf(DEST_SLUGS[i]) >= 0) return DEST_SLUGS[i];
+  }
+  return null;
+}
+
+window.setOptPlatform = function(plat) {
+  optPlatform = plat;
+  ['meta','google','tiktok'].forEach(function(p) {
+    document.getElementById('opt-btn-'+p).classList.toggle('active', p===plat);
+  });
+  renderOptimization();
+};
+
+window.setOptObjective = function(obj) {
+  optObjective = obj;
+  document.querySelectorAll('.opt-obj-btn').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.obj === obj);
+  });
+  renderOptObjTable();
+  renderOptDestTable();
+  renderOptRecs();
+};
+
+function medianArr(arr) {
+  if (!arr.length) return null;
+  var s = arr.slice().sort(function(a,b){return a-b;});
+  var m = Math.floor(s.length/2);
+  return s.length%2 ? s[m] : (s[m-1]+s[m])/2;
+}
+
+function getPrimaryKpi(c, obj) {
+  if (optPlatform === 'meta') {
+    if (obj==='Alcance')    return {label:'CPP',  value: c.reach>0  ? c.spend/c.reach*1000 : null};
+    if (obj==='Conversión') return {label:'CPA',  value: c.conv>0   ? c.spend/c.conv       : null};
+    if (obj==='Interacción') return {label:'CPI', value: c.clk>0 ? c.spend/c.clk : null};
+    if (obj==='Tráfico')    return {label:'CPC', value: c.clk>0 ? c.spend/c.clk : null};
+    return                                             {label:'CPA',  value: c.conv>0   ? c.spend/c.conv : null};
+  }
+  if (optPlatform === 'google') {
+    if (obj==='Alcance')    return {label:'CPM',  value: c.imp>0    ? c.spend/c.imp*1000   : null};
+    if (obj==='Conversión') return {label:'CPA',  value: c.conv>0   ? c.spend/c.conv       : null};
+    if (obj==='Tráfico')    return {label:'CPC',  value: c.clk>0    ? c.spend/c.clk        : null};
+    return                                             {label:'CPA',  value: c.conv>0   ? c.spend/c.conv : null};
+  }
+  // TikTok
+  if (obj==='Alcance')    return {label:'CPM',  value: c.imp>0  ? c.spend/c.imp*1000 : null};
+  if (obj==='Conversión') return {label:'CPA',  value: c.conv>0 ? c.spend/c.conv     : null};
+  if (obj==='Tráfico')    return {label:'CPC',  value: c.clk>0  ? c.spend/c.clk      : null};
+  return                                             {label:'CPA',  value: c.conv>0 ? c.spend/c.conv : null};
+}
+
+function getOptStatus(kpiValue, med) {
+  if (kpiValue===null || !med || med<=0) return 'sin-datos';
+  var r = kpiValue/med;
+  if (r < 0.90) return 'escalar';   // >10% mejor que mediana
+  if (r < 1.15) return 'ok';        // ±15% de la mediana
+  if (r < 1.50) return 'optimizar'; // 15-50% peor
+  return 'revisar';                  // >50% peor
+}
+
+var OPT_STATUS_LABELS = {escalar:'Escalar ↑', ok:'OK', optimizar:'Optimizar', revisar:'Revisar ⚠', 'sin-datos':'—'};
+
+function getTipText(obj, status, kpiValue, med) {
+  var pctB = (kpiValue&&med) ? Math.round((1-kpiValue/med)*100) : null;
+  var pctA = (kpiValue&&med) ? Math.round((kpiValue/med-1)*100) : null;
+  if (status==='escalar') {
+    if (obj==='Conversión') return (pctB?'CPA '+pctB+'% por debajo de la mediana. ':'')+'Escalar inversión manteniendo el CPA. Incrementar presupuesto o puja gradualmente y monitorizar cada 48h.';
+    if (obj==='Alcance')   return (pctB?'CPP '+pctB+'% más eficiente que la mediana. ':'')+'Aumentar presupuesto para captar más alcance a bajo coste. Duplicar audiencias similares.';
+    if (obj==='Tráfico')      return (pctB?'CPC '+pctB+'% por debajo de la mediana. ':'')+'Subir pujas o presupuesto para captar más tráfico eficiente. Revisar impression share.';
+    if (obj==='Interacción') return (pctB?'CPI '+pctB+'% por debajo de la mediana. ':'')+'Contenido con alto engagement. Ampliar audiencia o aumentar presupuesto manteniendo el formato.';
+    return 'Rendimiento destacado. Incrementar presupuesto gradualmente y vigilar que el KPI no suba al escalar.';
+  }
+  if (status==='optimizar') {
+    if (obj==='Conversión') return (pctA?'CPA '+pctA+'% sobre la mediana. ':'')+'Revisar creatividades y audiencias. Probar nuevas segmentaciones o ajustar la landing page.';
+    if (obj==='Alcance')   return (pctA?'CPP '+pctA+'% sobre la mediana. ':'')+'Renovar creatividades y revisar frecuencia. Probar nuevos formatos o ampliar audiencia.';
+    if (obj==='Tráfico')      return (pctA?'CPC '+pctA+'% sobre la mediana. ':'')+'Revisar relevancia del anuncio, ajustar pujas y probar nuevas creatividades.';
+    if (obj==='Interacción') return (pctA?'CPI '+pctA+'% sobre la mediana. ':'')+'Revisar creatividades y formatos. Probar contenido más dinámico o llamadas a la acción.';
+    return 'KPI por encima de la mediana. Revisar creatividades y segmentación antes de reducir inversión.';
+  }
+  if (status==='revisar') {
+    if (obj==='Conversión')  return (pctA?'CPA '+pctA+'% sobre la mediana. ':'')+'Pausar o reducir inversión urgentemente. Revisar creatividades, audiencias y landing. Si no mejora en 7 días, pausar.';
+    if (obj==='Alcance')    return (pctA?'CPP '+pctA+'% sobre la mediana. ':'')+'Probable saturación de audiencia. Revisar frecuencia, ampliar cobertura o pausar y renovar creatividades.';
+    if (obj==='Tráfico')    return (pctA?'CPC '+pctA+'% sobre la mediana. ':'')+'Tráfico muy caro. Revisar calidad del anuncio, pujas y segmentación. Valorar pausa si no mejora.';
+    if (obj==='Interacción') return (pctA?'CPI '+pctA+'% sobre la mediana. ':'')+'Coste por interacción muy alto. Pausar anuncios con menor engagement y renovar creatividades urgentemente.';
+    return 'Rendimiento muy por encima de la mediana. Pausar o revisar la configuración completa.';
+  }
+  return '';
+}
+
+function getCampGroup(name) {
+  var n = name.toLowerCase();
+  if (/no[_\-\s]marca/.test(n)) return 'no-marca';
+  if (/[_\-\s]marca[_\-\s]|[_\-\s]marca$|\bmarca\b/.test(n)) return 'marca';
+  return 'general';
+}
+
+function buildMedianByObj(camps) {
+  var byKey = {};
+  camps.forEach(function(c) {
+    var obj = getCampaignType(c.name);
+    var grp = getCampGroup(c.name);
+    var key = obj + '||' + grp;
+    var kpi = getPrimaryKpi(c, obj);
+    if (kpi.value !== null) { if(!byKey[key]) byKey[key]=[]; byKey[key].push(kpi.value); }
+  });
+  var med = {};
+  Object.keys(byKey).forEach(function(k) { med[k] = medianArr(byKey[k]); });
+  return med;
+}
+
+function renderOptimization() {
+  var allCamps = Object.values(getCampAggMap(fromDate, toDate, optPlatform)).filter(function(c){return c.spend>0.5;});
+  if (!allCamps.length) {
+    ['opt-obj-tabs','opt-table-wrap','opt-dest-wrap','opt-recs-wrap'].forEach(function(id){
+      var el=document.getElementById(id); if(el) el.innerHTML='';
+    });
+    var tw = document.getElementById('opt-table-wrap');
+    if (tw) tw.innerHTML='<p style="color:var(--muted);font-size:13px;padding:24px 0">Sin datos para el período seleccionado.</p>';
+    return;
+  }
+
+  // Build objective tabs
+  var objCounts = {};
+  allCamps.forEach(function(c){ var t=getCampaignType(c.name); objCounts[t]=(objCounts[t]||0)+1; });
+  var tabsEl = document.getElementById('opt-obj-tabs');
+  if (tabsEl) {
+    var th = '<button class="opt-obj-btn'+(optObjective==='all'?' active':'')+'" data-obj="all" onclick="setOptObjective(\'all\')">Todos ('+allCamps.length+')</button>';
+    Object.keys(objCounts).sort().forEach(function(obj) {
+      th += '<button class="opt-obj-btn'+(optObjective===obj?' active':'')+'" data-obj="'+obj+'" onclick="setOptObjective(\''+obj+'\')">'+obj+' ('+objCounts[obj]+')</button>';
+    });
+    tabsEl.innerHTML = th;
+  }
+
+  renderOptObjTable();
+  renderOptDestTable();
+  renderOptRecs();
+}
+
+function renderOptObjTable() {
+  var wrap = document.getElementById('opt-table-wrap');
+  if (!wrap) return;
+  var allCamps = Object.values(getCampAggMap(fromDate, toDate, optPlatform)).filter(function(c){return c.spend>0.5;});
+  var camps = optObjective==='all' ? allCamps : allCamps.filter(function(c){return getCampaignType(c.name)===optObjective;});
+  if (!camps.length) { wrap.innerHTML='<p style="color:var(--muted);font-size:13px;padding:16px 0">Sin campañas para este objetivo en el período.</p>'; return; }
+
+  var medByObj = buildMedianByObj(allCamps);
+  var sorted = camps.slice().sort(function(a,b){return b.spend-a.spend;});
+
+  var html = '<div class="opt-section"><div class="opt-section-title">Rendimiento por campaña</div>'
+    +'<div style="overflow-x:auto"><table class="camp-table"><thead><tr>'
+    +'<th>Campaña</th><th>Objetivo</th><th>Tipo</th>'
+    +'<th class="num">Gasto</th><th class="num">KPI primario</th><th class="num">vs Mediana</th>'
+    +'<th class="num">CTR</th><th>Estado</th></tr></thead><tbody>';
+
+  sorted.forEach(function(c) {
+    var obj  = getCampaignType(c.name);
+    var kind = getCampKind(c.name);
+    var kpi  = getPrimaryKpi(c, obj);
+    var med  = medByObj[obj + '||' + getCampGroup(c.name)];
+    var status = getOptStatus(kpi.value, med);
+    var ratio  = (kpi.value && med) ? kpi.value/med : null;
+    var ratioStr = ratio ? (ratio<1?'':'+')+(((ratio-1)*100).toFixed(0))+'%' : '—';
+    var ctrVal = c.imp>0 ? (c.clk/c.imp*100).toFixed(1)+'%' : '—';
+    var kpiStr = kpi.value ? '€'+kpi.value.toFixed(2)+' <small style="opacity:.6">'+kpi.label+'</small>' : '—';
+
+    var objBadge = (function(){var t=getCampaignType(c.name),co=OBJ_COLORS[t]||'#64748b';return '<span class="camp-badge" style="background:'+co+'22;color:'+co+'">'+t+'</span>';})();
+    var kindBadge = kind==='Por destino'
+      ? '<span class="camp-badge" style="background:#6366f122;color:#818cf8">Por destino</span>'
+      : '<span class="camp-badge" style="background:#64748b22;color:#94a3b8">Genérica</span>';
+
+    html += '<tr>'
+      +'<td class="camp-name-cell"><span title="'+c.name+'">'+c.name+'</span></td>'
+      +'<td>'+objBadge+'</td><td>'+kindBadge+'</td>'
+      +'<td class="num">€'+Math.round(c.spend)+'</td>'
+      +'<td class="num">'+kpiStr+'</td>'
+      +'<td class="num">'+ratioStr+'</td>'
+      +'<td class="num">'+ctrVal+'</td>'
+      +'<td><span class="status-badge status-'+status+(getTipText(obj,status,kpi.value,med)?' tip':'')
+        +'" '+(getTipText(obj,status,kpi.value,med)?'data-tip="'+getTipText(obj,status,kpi.value,med)+'"':'')+'>'+OPT_STATUS_LABELS[status]+'</span></td>'
+      +'</tr>';
+  });
+
+  html += '</tbody></table></div></div>';
+  wrap.innerHTML = html;
+}
+
+function renderOptDestTable() {
+  var wrap = document.getElementById('opt-dest-wrap');
+  if (!wrap) { return; }
+  var src = optPlatform==='google' ? GADS_RAW : optPlatform==='tiktok' ? TKTOK_ADS_RAW : META_ADS_RAW;
+  if (!src) { wrap.innerHTML=''; return; }
+
+  // Key: slug + '||' + campName  — aggregate per destination × campaign
+  var destMap = {};
+  Object.keys(src).forEach(function(campName) {
+    if (getCampKind(campName) !== 'Por destino') return;
+    var obj = getCampaignType(campName);
+    if (optObjective !== 'all' && obj !== optObjective) return;
+    src[campName].forEach(function(r) {
+      if (!inRange(r[0])) return;
+      var nameSrc = optPlatform==='google' ? r[4] : r[6];
+      if (!nameSrc) return;
+      var slug = extractDestSlug(nameSrc);
+      if (!slug) return;
+      var key = slug + '||' + campName;
+      if (!destMap[key]) destMap[key] = {
+        slug: slug, campName: campName,
+        locator: optPlatform==='google' ? r[4] : r[4],
+        obj: obj, grp: getCampGroup(campName), spend:0, conv:0, clk:0, imp:0, reach:0
+      };
+      var d = destMap[key];
+      if      (optPlatform==='google') { d.spend+=r[6]||0; d.imp+=r[7]||0; d.clk+=r[8]||0;  d.conv+=r[11]||0; }
+      else if (optPlatform==='tiktok') { d.spend+=r[8]||0; d.imp+=r[9]||0; d.clk+=r[10]||0; d.conv+=r[14]||0; }
+      else                             { d.spend+=r[8]||0; d.imp+=r[9]||0; d.reach+=r[10]||0; d.clk+=r[12]||0; d.conv+=r[16]||0; }
+    });
+  });
+
+  var dests = Object.values(destMap).filter(function(d){return d.spend>0.5;});
+  if (!dests.length) { wrap.innerHTML=''; return; }
+  dests.sort(function(a,b){return b.spend-a.spend;});
+
+  // KPI per entry depends on objective
+  function destKpi(d) {
+    var obj = d.obj;
+    if (obj==='Alcance') {
+      if (optPlatform==='meta'&&d.reach>0) return {label:'CPP', value:d.spend/d.reach*1000};
+      if (d.imp>0) return {label:'CPM', value:d.spend/d.imp*1000};
+      return {label:'—', value:null};
+    }
+    if (obj==='Conversión') return d.conv>0 ? {label:'CPA', value:d.spend/d.conv} : {label:'CPA', value:null};
+    if (obj==='Interacción') return d.clk>0 ? {label:'CPI', value:d.spend/d.clk} : {label:'CPI', value:null};
+    if (obj==='Tráfico')    return d.clk>0 ? {label:'CPC', value:d.spend/d.clk} : {label:'CPC', value:null};
+    return d.conv>0 ? {label:'CPA', value:d.spend/d.conv} : {label:'—', value:null};
+  }
+
+  // Compute median KPI per objective × grupo (Marca / No-Marca / General)
+  var kpiByKey = {};
+  dests.forEach(function(d){ var k=destKpi(d); var key=d.obj+'||'+d.grp; if(k.value){ if(!kpiByKey[key]) kpiByKey[key]=[]; kpiByKey[key].push(k.value); } });
+  var medByObj = {};
+  Object.keys(kpiByKey).forEach(function(k){ medByObj[k]=medianArr(kpiByKey[k]); });
+
+  var html = '<div class="opt-section"><div class="opt-section-title">Rendimiento por destino</div>'
+    +'<div style="overflow-x:auto"><table class="camp-table"><thead><tr>'
+    +'<th>Destino</th><th>Campaña / Grupo</th><th>Objetivo</th>'
+    +'<th class="num">Gasto</th><th class="num">KPI</th><th class="num">vs Mediana</th><th>Estado</th>'
+    +'</tr></thead><tbody>';
+
+  dests.forEach(function(d) {
+    var kpi    = destKpi(d);
+    var med    = medByObj[d.obj+'||'+d.grp];
+    var status = getOptStatus(kpi.value, med);
+    var ratio  = (kpi.value&&med) ? kpi.value/med : null;
+    var ratioStr = ratio ? (ratio<1?'':'+')+(((ratio-1)*100).toFixed(0))+'%' : '—';
+    var label  = d.slug.replace(/-/g,' ').replace(/\b\w/g,function(s){return s.toUpperCase();});
+    var campShort = d.campName.length>40 ? d.campName.substring(0,38)+'…' : d.campName;
+    var locShort  = d.locator&&d.locator!==d.campName ? (d.locator.length>38?d.locator.substring(0,36)+'…':d.locator) : '';
+    var campCell  = '<span title="'+d.campName+'">'+campShort+'</span>'
+      + (locShort?'<br><small style="color:var(--muted);font-size:11px">└ '+locShort+'</small>':'');
+    var objBadge = (function(){var c=OBJ_COLORS[d.obj]||'#64748b';return '<span class="camp-badge" style="background:'+c+'22;color:'+c+'">'+d.obj+'</span>';})();
+
+    html += '<tr>'
+      +'<td style="font-weight:600">'+label+'</td>'
+      +'<td class="camp-name-cell">'+campCell+'</td>'
+      +'<td>'+objBadge+'</td>'
+      +'<td class="num">€'+Math.round(d.spend)+'</td>'
+      +'<td class="num">'+(kpi.value?'€'+kpi.value.toFixed(2)+' <small style="opacity:.6">'+kpi.label+'</small>':'—')+'</td>'
+      +'<td class="num">'+ratioStr+'</td>'
+      +'<td><span class="status-badge status-'+status+(getTipText(d.obj,status,kpi.value,med)?' tip':'')
+        +'" '+(getTipText(d.obj,status,kpi.value,med)?'data-tip="'+getTipText(d.obj,status,kpi.value,med)+'"':'')+'>'+OPT_STATUS_LABELS[status]+'</span></td>'
+      +'</tr>';
+  });
+
+  html += '</tbody></table></div></div>';
+  wrap.innerHTML = html;
+}
+
+function calcOptROAS(c) {
+  if (optPlatform==='google') return c.spend>0&&c.convVal>0 ? c.convVal/c.spend : null;
+  return c.spend>0&&c.conv>0 ? (c.conv*232)/c.spend : null;
+}
+
+function genCampText(c, status, kpi, med) {
+  var obj = getCampaignType(c.name);
+  var pctB = (kpi.value&&med) ? Math.round((1-kpi.value/med)*100) : null;
+  var pctA = (kpi.value&&med) ? Math.round((kpi.value/med-1)*100) : null;
+  var spendStr = "€"+Math.round(c.spend);
+  if (status==="escalar") {
+    if (obj==='Conversión') return spendStr+' invertidos. '+kpi.label+' '+pctB+'% por debajo de la mediana. '+(calcOptROAS(c)?'ROAS estimado ×'+calcOptROAS(c).toFixed(0)+'. ':'')+' Candidata a incremento de presupuesto sin sacrificar eficiencia.';
+    if (obj==='Alcance') return 'CPP/CPM '+pctB+'% más eficiente que la mediana. Escalar aumentaría el alcance del top of funnel a menor coste por persona.';
+    if (obj==='Tráfico') return 'CPC '+pctB+'% por debajo de la mediana. Tráfico de calidad a buen precio. Revisar impression share antes de escalar.';
+    return 'Rendimiento '+pctB+'% mejor que la mediana para su objetivo. Valorar incremento de presupuesto.';
+  }
+  if (status==="revisar") {
+    if (obj==='Conversión') return kpi.label+' '+pctA+'% sobre mediana. Con '+spendStr+' invertidos el coste es elevado. Revisar creatividades, audiencias y landing. Valorar pausa si no mejora en 7 días.';
+    if (obj==='Alcance') return 'CPP/CPM '+pctA+'% sobre benchmark. Posible saturación de audiencia o segmentación demasiado estrecha. Revisar frecuencia y cobertura.';
+    if (obj==='Tráfico') return 'CPC '+pctA+'% sobre mediana. Revisar relevancia del anuncio, pujas y calidad de la audiencia.';
+    return kpi.label+' '+pctA+'% sobre mediana. Revisar configuración y creatividades de la campaña.';
+  }
+  return '';
+}
+
+function campCardHtml(entry) {
+  var c=entry.c, kpi=entry.kpi, med=entry.med, status=entry.status;
+  if (!kpi.value) return "";
+  var roas = calcOptROAS(c);
+  var name = c.name.length>46 ? c.name.substring(0,44)+"…" : c.name;
+  var stats = " · "+kpi.label+" €"+kpi.value.toFixed(2);
+  if (roas) stats += " · ROAS ×"+roas.toFixed(0);
+  var desc = genCampText(c, status, kpi, med);
+  return "<div style=\"margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)\">"
+    +"<div style=\"font-weight:700;font-size:13px;margin-bottom:5px\" title=\""+c.name+stats+"\">"
+    +name+stats+"</div>"
+    +"<div style=\"color:var(--muted);font-size:12px;line-height:1.55\">"+desc+"</div>"
+    +"</div>";
+}
+
+function renderOptRecs() {
+  var wrap = document.getElementById("opt-recs-wrap");
+  if (!wrap) return;
+  var allCamps = Object.values(getCampAggMap(fromDate, toDate, optPlatform)).filter(function(c){return c.spend>0.5;});
+  var camps    = optObjective==="all" ? allCamps : allCamps.filter(function(c){return getCampaignType(c.name)===optObjective;});
+  var medByObj = buildMedianByObj(allCamps);
+
+  var revisar=[], escalar=[];
+  camps.slice().sort(function(a,b){return b.spend-a.spend;}).forEach(function(c) {
+    var obj=getCampaignType(c.name), kpi=getPrimaryKpi(c,obj), med=medByObj[obj+'||'+getCampGroup(c.name)];
+    var status=getOptStatus(kpi.value,med);
+    var entry={c:c,obj:obj,kpi:kpi,med:med,status:status};
+    if (status==="revisar") revisar.push(entry);
+    if (status==="escalar"&&c.spend>5) escalar.push(entry);
+  });
+
+  // Sort escalar: best ratio first; revisar: most spend first
+  escalar.sort(function(a,b){
+    var ra=a.kpi.value&&a.med?a.kpi.value/a.med:1, rb=b.kpi.value&&b.med?b.kpi.value/b.med:1;
+    return ra-rb;
+  });
+  revisar.sort(function(a,b){return b.c.spend-a.c.spend;});
+
+  var topCards   = escalar.slice(0,4).map(campCardHtml).join("");
+  var worstCards = revisar.slice(0,4).map(campCardHtml).join("");
+
+  var panelStyle = "background:var(--surface);border-radius:14px;padding:22px 24px;border:1px solid var(--border)";
+  var headerTop   = "<div style=\"font-weight:700;font-size:14px;margin-bottom:18px\">🏆 Top performers — mantener y escalar</div>";
+  var headerWorst = "<div style=\"font-weight:700;font-size:14px;margin-bottom:18px\">⚠ Bajo rendimiento — revisar o pausar</div>";
+  var empty = "<div style=\"color:var(--muted);font-size:13px\">Sin campañas en esta categoría para el período.</div>";
+
+  var html = "<div class=\"opt-section\">"
+    +"<div class=\"opt-section-title\">Análisis de campañas</div>"
+    +"<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:16px\">"
+    +"<div style=\""+panelStyle+"\">"+headerTop+(topCards||empty)+"</div>"
+    +"<div style=\""+panelStyle+"\">"+headerWorst+(worstCards||empty)+"</div>"
+    +"</div></div>";
+
+  // Destination insights below
+  var src = optPlatform==="google"?GADS_RAW:optPlatform==="tiktok"?TKTOK_ADS_RAW:META_ADS_RAW;
+  if (src) {
+    var destMap={};
+    Object.keys(src).forEach(function(campName){
+      if(getCampKind(campName)!=="Por destino") return;
+      src[campName].forEach(function(r){
+        if(!inRange(r[0])) return;
+        var ns=optPlatform==="google"?r[4]:r[6]; if(!ns) return;
+        var slug=extractDestSlug(ns); if(!slug) return;
+        if(!destMap[slug]) destMap[slug]={slug:slug,spend:0,conv:0};
+        var d=destMap[slug];
+        if(optPlatform==="google"){d.spend+=r[6]||0;d.conv+=r[11]||0;}
+        else if(optPlatform==="tiktok"){d.spend+=r[8]||0;d.conv+=r[14]||0;}
+        else{d.spend+=r[8]||0;d.conv+=r[16]||0;}
+      });
+    });
+    var dests=Object.values(destMap).filter(function(d){return d.spend>5;});
+    var cpaVals=dests.filter(function(d){return d.conv>0;}).map(function(d){return d.spend/d.conv;});
+    var medCpa=medianArr(cpaVals);
+    if (medCpa&&dests.length) {
+      var destRev=dests.filter(function(d){return d.conv>0&&d.spend/d.conv>medCpa*1.8&&d.spend>15;}).sort(function(a,b){return b.spend-a.spend;});
+      var destEsc=dests.filter(function(d){return d.conv>0&&d.spend/d.conv<medCpa*0.7&&d.spend>10;}).sort(function(a,b){return a.spend/a.conv-b.spend/b.conv;});
+
+      if (destRev.length||destEsc.length) {
+        var destTopCards="", destWrstCards="";
+        destEsc.slice(0,4).forEach(function(d){
+          var label=d.slug.replace(/-/g," ").replace(/\b\w/g,function(s){return s.toUpperCase();});
+          var cpa=d.spend/d.conv, roas=(d.conv*232)/d.spend;
+          var pctB=Math.round((1-cpa/medCpa)*100);
+          destTopCards+="<div style=\"margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)\">"
+            +"<div style=\"font-weight:700;font-size:13px;margin-bottom:5px\">"+label+" · CPA €"+cpa.toFixed(1)+" · ROAS ×"+roas.toFixed(0)+"</div>"
+            +"<div style=\"color:var(--muted);font-size:12px;line-height:1.55\">CPA "+pctB+"% por debajo de la mediana (€"+medCpa.toFixed(1)+"). Forzar presupuesto adicional o activar campaña específica para este destino.</div>"
+            +"</div>";
+        });
+        destRev.slice(0,4).forEach(function(d){
+          var label=d.slug.replace(/-/g," ").replace(/\b\w/g,function(s){return s.toUpperCase();});
+          var cpa=d.spend/d.conv;
+          var pctA=Math.round((cpa/medCpa-1)*100);
+          destWrstCards+="<div style=\"margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)\">"
+            +"<div style=\"font-weight:700;font-size:13px;margin-bottom:5px\">"+label+" · CPA €"+cpa.toFixed(1)+"</div>"
+            +"<div style=\"color:var(--muted);font-size:12px;line-height:1.55\">CPA "+pctA+"% sobre mediana (€"+medCpa.toFixed(1)+"). Reducir inversión o revisar anuncios específicos del destino.</div>"
+            +"</div>";
+        });
+
+        html += "<div class=\"opt-section\">"
+          +"<div class=\"opt-section-title\">Análisis por destino</div>"
+          +"<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:16px\">"
+          +"<div style=\""+panelStyle+"\"><div style=\"font-weight:700;font-size:14px;margin-bottom:18px\">🎯 Destinos eficientes — priorizar</div>"+(destTopCards||empty)+"</div>"
+          +"<div style=\""+panelStyle+"\"><div style=\"font-weight:700;font-size:14px;margin-bottom:18px\">📉 Destinos con alto CPA — revisar</div>"+(destWrstCards||empty)+"</div>"
+          +"</div></div>";
+      }
+    }
+  }
+
+  wrap.innerHTML = html;
+}
 </script>
 </body>
 </html>

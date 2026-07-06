@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kampaoh · GSC</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --surface2: #222536;
+  --border: #2e3149;
+  --text: #e8eaf0;
+  --muted: #7b7f9e;
+  --accent: #6366f1;
+  --green: #10b981;
+  --orange: #f59e0b;
+  --clicks: #34d399;
+  --impr: #818cf8;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; }
+
+header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+header h1 { font-size: 18px; font-weight: 700; }
+header h1 span { color: var(--accent); }
+.meta-info { color: var(--muted); font-size: 12px; }
+.meta-info strong { color: var(--text); }
+
+nav { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; gap: 0; overflow-x: auto; }
+.nav-link { padding: 10px 16px; font-size: 12px; font-weight: 600; color: var(--muted); text-decoration: none; border-bottom: 2px solid transparent; white-space: nowrap; }
+.nav-link.active { color: var(--accent); border-bottom-color: var(--accent); }
+.nav-link:hover { color: var(--text); }
+
+.period-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 32px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.compare-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 8px 32px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.period-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-right: 4px; }
+.period-btn, .compare-btn { padding: 5px 13px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; transition: all .15s; }
+.period-btn:hover, .compare-btn:hover { border-color: var(--accent); color: var(--accent); }
+.period-btn.active, .compare-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.date-sep { color: var(--muted); font-size: 12px; }
+.date-input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 4px 8px; font-size: 12px; cursor: pointer; }
+.date-input:focus { outline: none; border-color: var(--accent); }
+.delay-note { margin-left: auto; font-size: 11px; color: var(--muted); }
+.compare-warning { font-size: 11px; color: var(--orange); display: none; }
+.kpi-delta { font-size: 11px; margin-top: 4px; }
+.delta-up   { color: var(--green); }
+.delta-down { color: #f87171; }
+.delta-flat { color: var(--muted); }
+
+.main { padding: 24px 32px; display: flex; flex-direction: column; gap: 24px; }
+
+/* KPIs */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; }
+.kpi-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
+.kpi-value { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.kpi-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.kpi-clicks  .kpi-value { color: var(--clicks); }
+.kpi-impr    .kpi-value { color: var(--impr); }
+.kpi-ctr     .kpi-value { color: var(--orange); }
+.kpi-pos     .kpi-value { color: var(--green); }
+
+/* Chart */
+.chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; }
+.card-title { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 16px; }
+.chart-wrap { position: relative; height: 200px; }
+
+/* Tables */
+.tables-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.table-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; }
+.table-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 12px; }
+.search-input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 5px 10px; font-size: 12px; width: 160px; }
+.search-input:focus { outline: none; border-color: var(--accent); }
+.search-input::placeholder { color: var(--muted); }
+.tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
+.tbl th { color: var(--muted); font-weight: 600; text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); cursor: pointer; white-space: nowrap; user-select: none; }
+.tbl th:hover { color: var(--text); }
+.tbl th.sort-asc::after  { content: ' ↑'; color: var(--accent); }
+.tbl th.sort-desc::after { content: ' ↓'; color: var(--accent); }
+.tbl td { padding: 7px 8px; border-bottom: 1px solid rgba(46,49,73,0.5); color: var(--text); }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr:hover td { background: rgba(99,102,241,0.05); }
+.tbl td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.tbl td.url { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+.tbl td.url:hover { color: var(--text); }
+.pill-ctr { display: inline-block; padding: 1px 6px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+.ctr-hi  { background: rgba(16,185,129,0.15); color: #34d399; }
+.ctr-mid { background: rgba(245,158,11,0.15); color: #fbbf24; }
+.ctr-lo  { background: rgba(239,68,68,0.12);  color: #f87171; }
+.pos-val { font-variant-numeric: tabular-nums; }
+.pos-top  { color: #34d399; }
+.pos-mid  { color: #fbbf24; }
+.pos-low  { color: #f87171; }
+
+/* Inner tabs */
+.inner-nav { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; }
+.inner-tab { padding: 9px 18px; font-size: 12px; font-weight: 600; color: var(--muted); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; font-family: inherit; }
+.inner-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.inner-tab:hover { color: var(--text); }
+/* Keywords view */
+.kw-update-btn { padding: 6px 16px; background: var(--accent); border: none; border-radius: 6px; color: #fff; font-size: 12px; font-weight: 600; cursor: pointer; }
+.kw-update-btn:hover { background: #818cf8; }
+.kw-topbar { display: flex; align-items: center; gap: 12px; }
+.kw-status { font-size: 12px; color: var(--muted); }
+.kw-group { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.kw-group-header { padding: 12px 18px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); background: var(--surface2); }
+.kw-group-label { font-size: 13px; font-weight: 700; }
+.kw-group-url { font-size: 11px; color: var(--muted); font-family: monospace; }
+/* Day grid */
+.kw-body { padding: 14px 18px; display: flex; flex-direction: column; gap: 18px; }
+.kw-kw-label { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+.kw-kw-summary { font-size: 11px; color: var(--muted); font-weight: 400; }
+.kw-days-scroll { overflow-x: auto; padding-bottom: 4px; }
+.kw-days-grid { display: flex; gap: 5px; width: max-content; }
+.kw-day { width: 48px; height: 54px; border-radius: 7px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: 1px solid var(--border); flex-shrink: 0; cursor: default; }
+.kd-date { font-size: 9px; color: var(--muted); }
+.kd-pos  { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+.kw-day.kd-top  { background: rgba(16,185,129,0.15);  border-color: rgba(16,185,129,0.45); }
+.kw-day.kd-top  .kd-pos { color: #34d399; }
+.kw-day.kd-mid  { background: rgba(245,158,11,0.13);  border-color: rgba(245,158,11,0.4); }
+.kw-day.kd-mid  .kd-pos { color: #fbbf24; }
+.kw-day.kd-low  { background: rgba(248,113,113,0.11); border-color: rgba(248,113,113,0.35); }
+.kw-day.kd-low  .kd-pos { color: #f87171; }
+.kw-day.kd-vlow { background: rgba(239,68,68,0.08);   border-color: rgba(239,68,68,0.25); }
+.kw-day.kd-vlow .kd-pos { color: #ef4444; font-size: 13px; }
+.kw-day.kd-none { background: transparent; border-color: rgba(46,49,73,0.45); opacity: 0.45; }
+.kw-day.kd-none .kd-pos { color: var(--muted); font-size: 13px; }
+.kw-metric-toggle { display:flex; gap:4px; margin-left:auto; }
+.kw-metric-btn { padding:4px 11px; border:1px solid var(--border); border-radius:5px; background:transparent; color:var(--muted); font-size:11px; font-weight:500; cursor:pointer; transition:all .15s; }
+.kw-metric-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+.kw-metric-btn:hover:not(.active) { border-color:var(--accent); color:var(--text); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Kampaoh &middot; <span>GSC</span></h1>
+  <div class="meta-info">es.kampaoh.com &nbsp;·&nbsp; Actualizado: <strong id="updated">—</strong> <span style="font-size:11px;opacity:.45;font-weight:400">(GSC tiene 2-3 días de retraso)</span></div>
+</header>
+
+<nav>
+  <a href="index.html" class="nav-link">Inversión Publicitaria</a>
+  <a href="ga4.html" class="nav-link">Propiedades Vistas · GA4</a>
+  <a href="busqueda-be.html" class="nav-link">Búsqueda BE</a>
+  <a href="gsc.html" class="nav-link active">GSC</a>
+  <a href="funnel.html" class="nav-link">Funnel</a>
+  <a href="tiempo.html" class="nav-link">Tiempo</a>
+</nav>
+
+<div class="period-bar">
+  <span class="period-label">Período</span>
+  <button class="period-btn" data-days="7"  onclick="setPeriod(7)">Ult. 7 días</button>
+  <button class="period-btn active" data-days="30" onclick="setPeriod(30)">Ult. 30 días</button>
+  <button class="period-btn" data-days="90" onclick="setPeriod(90)">Ult. 90 días</button>
+  <span class="date-sep">·</span>
+  <span class="period-label" style="margin:0">Personalizado</span>
+  <input type="date" class="date-input" id="from-input" onchange="setCustom()">
+  <span class="date-sep">→</span>
+  <input type="date" class="date-input" id="to-input" onchange="setCustom()">
+  <span class="delay-note">⚠ GSC ~2 días de retraso</span>
+</div>
+<div class="compare-bar">
+  <span class="period-label">Comparar con</span>
+  <button class="compare-btn active" data-cmp="none" onclick="setCompare('none')">Sin comparación</button>
+  <button class="compare-btn" data-cmp="prev" onclick="setCompare('prev')">Período anterior</button>
+  <button class="compare-btn" data-cmp="year" onclick="setCompare('year')">Año anterior</button>
+  <span class="compare-warning" id="compare-warning">⚠ No hay datos del año anterior en GSC (máx. 16 meses)</span>
+</div>
+
+<div class="inner-nav">
+  <button class="inner-tab active" id="tab-general"  onclick="switchView('general')">Vista general</button>
+  <button class="inner-tab"        id="tab-keywords" onclick="switchView('keywords')">Keywords principales</button>
+</div>
+
+<div class="main" id="view-general">
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi-card kpi-clicks">
+      <div class="kpi-label">Clicks orgánicos</div>
+      <div class="kpi-value" id="kpi-clicks">—</div>
+      <div class="kpi-sub" id="kpi-clicks-sub"></div>
+      <div id="kpi-clicks-delta"></div>
+    </div>
+    <div class="kpi-card kpi-impr">
+      <div class="kpi-label">Impresiones</div>
+      <div class="kpi-value" id="kpi-impr">—</div>
+      <div class="kpi-sub" id="kpi-impr-sub"></div>
+      <div id="kpi-impr-delta"></div>
+    </div>
+    <div class="kpi-card kpi-ctr">
+      <div class="kpi-label">CTR medio</div>
+      <div class="kpi-value" id="kpi-ctr">—</div>
+      <div class="kpi-sub">clicks / impresiones</div>
+      <div id="kpi-ctr-delta"></div>
+    </div>
+    <div class="kpi-card kpi-pos">
+      <div class="kpi-label">Posición media</div>
+      <div class="kpi-value" id="kpi-pos">—</div>
+      <div class="kpi-sub">en resultados de Google</div>
+      <div id="kpi-pos-delta"></div>
+    </div>
+  </div>
+
+  <!-- Tendencia -->
+  <div class="chart-card">
+    <div class="card-title">Tendencia · Clicks e Impresiones</div>
+    <div class="chart-wrap"><canvas id="chart-trend"></canvas></div>
+  </div>
+
+  <!-- Tablas -->
+  <div class="tables-row">
+    <div class="table-card">
+      <div class="table-header">
+        <span class="card-title" style="margin:0">Top Queries</span>
+        <input class="search-input" id="q-filter" placeholder="Filtrar query..." oninput="renderQueries()">
+      </div>
+      <div style="overflow-x:auto">
+        <table class="tbl" id="tbl-queries">
+          <thead><tr>
+            <th onclick="sortTable('queries','query',1)">Query</th>
+            <th class="num sort-desc" onclick="sortTable('queries','clicks',0)" id="th-q-clicks">Clicks</th>
+            <th class="num" onclick="sortTable('queries','impressions',0)">Impr.</th>
+            <th class="num" onclick="sortTable('queries','ctr',0)">CTR</th>
+            <th class="num" onclick="sortTable('queries','position',1)">Pos.</th>
+          </tr></thead>
+          <tbody id="tbody-queries"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <span class="card-title" style="margin:0">Top Páginas</span>
+        <input class="search-input" id="p-filter" placeholder="Filtrar URL..." oninput="renderPages()">
+      </div>
+      <div style="overflow-x:auto">
+        <table class="tbl" id="tbl-pages">
+          <thead><tr>
+            <th onclick="sortTable('pages','page',1)">Página</th>
+            <th class="num sort-desc" onclick="sortTable('pages','clicks',0)" id="th-p-clicks">Clicks</th>
+            <th class="num" onclick="sortTable('pages','impressions',0)">Impr.</th>
+            <th class="num" onclick="sortTable('pages','ctr',0)">CTR</th>
+            <th class="num" onclick="sortTable('pages','position',1)">Pos.</th>
+          </tr></thead>
+          <tbody id="tbody-pages"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="main" id="view-keywords" style="display:none">
+  <div class="kw-topbar">
+    <button class="kw-update-btn" onclick="loadKeywords()">⟳ Actualizar</button>
+    <span class="kw-status" id="kw-status">Selecciona el período y pulsa "Actualizar" para cargar</span>
+    <div class="kw-metric-toggle">
+      <button class="kw-metric-btn active" id="kwm-position"    onclick="setKwMetric('position')">Posición</button>
+      <button class="kw-metric-btn"        id="kwm-impressions" onclick="setKwMetric('impressions')">Impresiones</button>
+      <button class="kw-metric-btn"        id="kwm-clicks"      onclick="setKwMetric('clicks')">Clics</button>
+    </div>
+  </div>
+  <div id="kw-groups">
+    <p style="color:var(--muted);font-size:12px">Cargando configuración...</p>
+  </div>
+</div>
+
+<script>
+var FULL_DATA  = null;
+var activeDays = 30;
+var compareMode = 'none'; // 'none' | 'prev' | 'year'
+var customFrom  = null, customTo = null;
+var trendChart  = null;
+var qSort = { col: 'clicks', dir: -1 };
+var pSort = { col: 'clicks', dir: -1 };
+
+// Estado computado
+var curByDate = [], curSummary = {}, curQueries = [], curPages = [];
+var cmpByDate = [], cmpSummary  = null;
+
+function n(v)   { return v == null ? '—' : v.toLocaleString('es'); }
+function fmt(v) { return v >= 1e6 ? (v/1e6).toFixed(1)+'M' : v >= 1e3 ? (v/1e3).toFixed(1)+'k' : String(v); }
+function ctrClass(c) { return c >= 10 ? 'ctr-hi' : c >= 3 ? 'ctr-mid' : 'ctr-lo'; }
+function posClass(p) { return p <= 3 ? 'pos-top' : p <= 10 ? 'pos-mid' : 'pos-low'; }
+
+function isoAddDays(iso, nd) {
+  var d = new Date(iso + 'T12:00:00Z');
+  d.setUTCDate(d.getUTCDate() + nd);
+  return d.toISOString().slice(0, 10);
+}
+function isoDiffDays(from, to) {
+  return Math.round((new Date(to + 'T12:00:00Z') - new Date(from + 'T12:00:00Z')) / 86400000);
+}
+function sliceByDate(from, to) {
+  return FULL_DATA.byDate.filter(function(r) { return r.date >= from && r.date <= to; });
+}
+function summaryFromSlice(slice, position) {
+  var cl = slice.reduce(function(s, r) { return s + r.clicks; }, 0);
+  var im = slice.reduce(function(s, r) { return s + r.impressions; }, 0);
+  return { clicks: cl, impressions: im, ctr: im ? parseFloat((cl/im*100).toFixed(1)) : 0, position: position || '—' };
+}
+
+function applyPeriod() {
+  var from, to;
+  if (customFrom && customTo) {
+    from = customFrom; to = customTo;
+    var span = isoDiffDays(from, to) + 1;
+    var near = span <= 10 ? '7' : span <= 50 ? '30' : '90';
+    curQueries = FULL_DATA.periods[near].queries;
+    curPages   = FULL_DATA.periods[near].pages;
+    curByDate  = sliceByDate(from, to);
+    curSummary = summaryFromSlice(curByDate, null);
+  } else {
+    var p = FULL_DATA.periods[String(activeDays)];
+    from = p.dateFrom; to = p.dateTo;
+    curQueries = p.queries;
+    curPages   = p.pages;
+    curByDate  = sliceByDate(from, to);
+    curSummary = summaryFromSlice(curByDate, p.summary ? p.summary.position : null);
+  }
+
+  cmpByDate  = [];
+  cmpSummary = null;
+  document.getElementById('compare-warning').style.display = 'none';
+
+  if (compareMode !== 'none') {
+    var span2 = isoDiffDays(from, to);
+    var cFrom, cTo;
+    if (compareMode === 'prev') {
+      cTo   = isoAddDays(from, -1);
+      cFrom = isoAddDays(cTo, -span2);
+    } else {
+      cFrom = isoAddDays(from, -365);
+      cTo   = isoAddDays(to,   -365);
+    }
+    cmpByDate = sliceByDate(cFrom, cTo);
+    if (compareMode === 'year' && cmpByDate.length < 3) {
+      document.getElementById('compare-warning').style.display = '';
+    }
+    if (cmpByDate.length > 0) {
+      cmpSummary = summaryFromSlice(cmpByDate, null);
+    }
+  }
+}
+
+function setPeriod(days) {
+  activeDays  = days;
+  customFrom  = null; customTo = null;
+  document.getElementById('from-input').value = '';
+  document.getElementById('to-input').value   = '';
+  document.querySelectorAll('.period-btn[data-days]').forEach(function(b) {
+    b.classList.toggle('active', parseInt(b.dataset.days) === days);
+  });
+  applyPeriod();
+  renderKPIs();
+  renderTrend();
+  var p = FULL_DATA.periods[String(days)];
+  loadTablesFromServer(p.dateFrom, p.dateTo);
+  if (document.getElementById('view-keywords').style.display !== 'none') loadKeywords();
+}
+
+function setCustom() {
+  var f = document.getElementById('from-input').value;
+  var t = document.getElementById('to-input').value;
+  if (!f || !t || f >= t) return;
+  customFrom = f; customTo = t;
+  document.querySelectorAll('.period-btn[data-days]').forEach(function(b) { b.classList.remove('active'); });
+  applyPeriod();
+  renderKPIs();
+  renderTrend();
+  loadTablesFromServer(f, t);
+  if (document.getElementById('view-keywords').style.display !== 'none') loadKeywords();
+}
+
+function loadTablesFromServer(from, to) {
+  var loading = '<tr><td colspan="5" style="color:var(--muted);text-align:center;padding:20px">Consultando GSC...</td></tr>';
+  document.getElementById('tbody-queries').innerHTML = loading;
+  document.getElementById('tbody-pages').innerHTML   = loading;
+  fetch('/api/gsc?from=' + from + '&to=' + to)
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.error) throw new Error(d.error);
+      curQueries = d.queries;
+      curPages   = d.pages;
+      if (d.byDate && d.byDate.length) { curByDate = d.byDate; }
+      if (d.summary) { curSummary = d.summary; }
+      renderKPIs();
+      renderTrend();
+      renderQueries();
+      renderPages();
+    })
+    .catch(function(e) {
+      var err = '<tr><td colspan="5" style="color:#f87171;text-align:center;padding:20px">Error: ' + e.message + '</td></tr>';
+      document.getElementById('tbody-queries').innerHTML = err;
+      document.getElementById('tbody-pages').innerHTML   = err;
+    });
+}
+
+function setCompare(mode) {
+  compareMode = mode;
+  document.querySelectorAll('.compare-btn').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.cmp === mode);
+  });
+  applyPeriod();
+  renderAll();
+}
+
+function deltaHtml(curr, prev) {
+  if (prev == null || prev === 0 || prev === '—') return '';
+  var pct = Math.round((curr - prev) / prev * 100);
+  var sign = pct >= 0 ? '+' : '';
+  var cls  = pct > 2 ? 'delta-up' : pct < -2 ? 'delta-down' : 'delta-flat';
+  return '<span class="kpi-delta '+cls+'">'+sign+pct+'% vs anterior</span>';
+}
+
+function renderKPIs() {
+  document.getElementById('updated').textContent = FULL_DATA.updated;
+  var s = curSummary, c = cmpSummary;
+  document.getElementById('kpi-clicks').textContent     = fmt(s.clicks);
+  document.getElementById('kpi-clicks-sub').textContent = n(s.clicks) + ' clicks';
+  document.getElementById('kpi-clicks-delta').innerHTML = c ? deltaHtml(s.clicks, c.clicks) : '';
+  document.getElementById('kpi-impr').textContent       = fmt(s.impressions);
+  document.getElementById('kpi-impr-sub').textContent   = n(s.impressions) + ' impresiones';
+  document.getElementById('kpi-impr-delta').innerHTML   = c ? deltaHtml(s.impressions, c.impressions) : '';
+  document.getElementById('kpi-ctr').textContent        = s.ctr + '%';
+  document.getElementById('kpi-ctr-delta').innerHTML    = c ? deltaHtml(s.ctr, c.ctr) : '';
+  document.getElementById('kpi-pos').textContent        = s.position || '—';
+  document.getElementById('kpi-pos-delta').innerHTML    = '';
+}
+
+function renderTrend() {
+  var labels = curByDate.map(function(r) { return r.date.slice(5); });
+  var clicks  = curByDate.map(function(r) { return r.clicks; });
+  var impr    = curByDate.map(function(r) { return r.impressions; });
+  var datasets = [
+    { label: 'Clicks',      data: clicks, borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.08)',  borderWidth: 2,   pointRadius: 2, tension: 0.3, yAxisID: 'y'  },
+    { label: 'Impresiones', data: impr,   borderColor: '#818cf8', backgroundColor: 'rgba(129,140,248,0.06)', borderWidth: 1.5, pointRadius: 2, tension: 0.3, yAxisID: 'y2' },
+  ];
+  if (cmpByDate.length > 0) {
+    var cC = cmpByDate.map(function(r) { return r.clicks; }).slice(0, labels.length);
+    var cI = cmpByDate.map(function(r) { return r.impressions; }).slice(0, labels.length);
+    datasets.push(
+      { label: 'Clicks (ant.)', data: cC, borderColor: 'rgba(52,211,153,0.4)',   borderDash: [5,3], borderWidth: 1.5, pointRadius: 0, tension: 0.3, yAxisID: 'y'  },
+      { label: 'Impr. (ant.)',  data: cI, borderColor: 'rgba(129,140,248,0.4)',  borderDash: [5,3], borderWidth: 1.5, pointRadius: 0, tension: 0.3, yAxisID: 'y2' }
+    );
+  }
+  if (trendChart) trendChart.destroy();
+  trendChart = new Chart(document.getElementById('chart-trend'), {
+    type: 'line',
+    data: { labels: labels, datasets: datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { labels: { color: '#7b7f9e', font: { size: 11 } } } },
+      scales: {
+        x:  { ticks: { color: '#7b7f9e', font: { size: 10 }, maxTicksLimit: 10 }, grid: { color: '#2e3149' } },
+        y:  { position: 'left',  ticks: { color: '#34d399', font: { size: 10 } }, grid: { color: '#2e3149' } },
+        y2: { position: 'right', ticks: { color: '#818cf8', font: { size: 10 } }, grid: { display: false } },
+      }
+    }
+  });
+}
+
+function renderQueries() {
+  var filter = document.getElementById('q-filter').value.toLowerCase();
+  var rows = curQueries.filter(function(r) { return !filter || r.query.toLowerCase().includes(filter); });
+  rows.sort(function(a, b) { return qSort.dir * (typeof a[qSort.col] === 'string' ? a[qSort.col].localeCompare(b[qSort.col]) : a[qSort.col] - b[qSort.col]); });
+  var html = '';
+  rows.slice(0, 100).forEach(function(r) {
+    html += '<tr><td title="'+r.query+'">'+r.query+'</td>' +
+      '<td class="num">'+n(r.clicks)+'</td>' +
+      '<td class="num">'+n(r.impressions)+'</td>' +
+      '<td class="num"><span class="pill-ctr '+ctrClass(r.ctr)+'">'+r.ctr+'%</span></td>' +
+      '<td class="num pos-val '+posClass(r.position)+'">'+r.position+'</td></tr>';
+  });
+  document.getElementById('tbody-queries').innerHTML = html || '<tr><td colspan="5" style="color:var(--muted);text-align:center;padding:20px">Sin resultados</td></tr>';
+}
+
+function renderPages() {
+  var filter = document.getElementById('p-filter').value.toLowerCase();
+  var rows = curPages.filter(function(r) { return !filter || r.page.toLowerCase().includes(filter); });
+  rows.sort(function(a, b) { return pSort.dir * (typeof a[pSort.col] === 'string' ? a[pSort.col].localeCompare(b[pSort.col]) : a[pSort.col] - b[pSort.col]); });
+  var html = '';
+  rows.slice(0, 100).forEach(function(r) {
+    html += '<tr><td class="url" title="'+r.page+'">'+r.page+'</td>' +
+      '<td class="num">'+n(r.clicks)+'</td>' +
+      '<td class="num">'+n(r.impressions)+'</td>' +
+      '<td class="num"><span class="pill-ctr '+ctrClass(r.ctr)+'">'+r.ctr+'%</span></td>' +
+      '<td class="num pos-val '+posClass(r.position)+'">'+r.position+'</td></tr>';
+  });
+  document.getElementById('tbody-pages').innerHTML = html || '<tr><td colspan="5" style="color:var(--muted);text-align:center;padding:20px">Sin resultados</td></tr>';
+}
+
+function sortTable(type, col, asc) {
+  if (type === 'queries') { qSort.col = col; qSort.dir = asc ? 1 : -1; renderQueries(); }
+  else                    { pSort.col = col; pSort.dir = asc ? 1 : -1; renderPages(); }
+}
+
+function renderAll() { renderKPIs(); renderTrend(); renderQueries(); renderPages(); }
+
+// ── Inner tab switch ──────────────────────────────────────────────────────
+function switchView(view) {
+  document.getElementById('view-general').style.display  = view === 'general'  ? '' : 'none';
+  document.getElementById('view-keywords').style.display = view === 'keywords' ? '' : 'none';
+  document.getElementById('tab-general').classList.toggle('active',  view === 'general');
+  document.getElementById('tab-keywords').classList.toggle('active', view === 'keywords');
+  if (view === 'keywords') {
+    if (!kwTargets.length) {
+      fetch('keyword-targets.json?t=' + Date.now())
+        .then(function(r) { return r.json(); })
+        .then(function(d) { kwTargets = Array.isArray(d) ? d : []; renderKwGroups(); loadKeywords(); })
+        .catch(function() {
+          document.getElementById('kw-groups').innerHTML =
+            '<p style="color:var(--muted);font-size:12px">No se encontró keyword-targets.json.</p>';
+        });
+    } else {
+      loadKeywords();
+    }
+  }
+}
+
+// ── Keywords principales ──────────────────────────────────────────────────
+var kwTargets = [];
+var kwData    = {};
+var kwMetric  = 'position';
+
+function fmtMetricVal(v) {
+  if (v === null || v === undefined) return '—';
+  if (v >= 10000) return Math.round(v / 1000) + 'k';
+  if (v >= 1000)  return (v / 1000).toFixed(1).replace('.0', '') + 'k';
+  return String(Math.round(v));
+}
+
+function setKwMetric(m) {
+  kwMetric = m;
+  document.querySelectorAll('.kw-metric-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('kwm-' + m).classList.add('active');
+  if (!Object.keys(kwData).length) return;
+  var period = getKwPeriod();
+  kwTargets.forEach(function(t) {
+    t.keywords.forEach(function(kw) {
+      var cached = kwData[t.id + '|' + kw];
+      if (cached !== undefined) renderKwDays(t.id, kw, cached, period);
+    });
+  });
+}
+
+function kwSafeId(s) {
+  return s.replace(/[^a-z0-9]/gi, '-').replace(/-+/g, '-').toLowerCase();
+}
+
+function getKwPeriod() {
+  if (customFrom && customTo) return { from: customFrom, to: customTo };
+  if (FULL_DATA && FULL_DATA.periods && FULL_DATA.periods[String(activeDays)]) {
+    var p = FULL_DATA.periods[String(activeDays)];
+    return { from: p.dateFrom, to: p.dateTo };
+  }
+  var today = new Date().toISOString().slice(0, 10);
+  return { from: isoAddDays(today, -29), to: today };
+}
+
+function renderKwGroups() {
+  var container = document.getElementById('kw-groups');
+  if (!kwTargets.length) {
+    container.innerHTML = '<p style="color:var(--muted);font-size:12px;padding:4px 0">No hay keywords configuradas en keyword-targets.json.</p>';
+    return;
+  }
+  var html = '';
+  kwTargets.forEach(function(t) {
+    var pageShort = t.page.replace('https://es.kampaoh.com', '');
+    html += '<div class="kw-group">' +
+      '<div class="kw-group-header">' +
+        '<span class="kw-group-label">' + t.label + '</span>' +
+        '<span class="kw-group-url">' + pageShort + '</span>' +
+        '<a href="' + t.page + '" target="_blank" rel="noopener" style="margin-left:auto;font-size:11px;color:var(--muted);text-decoration:none">↗ ver LP</a>' +
+      '</div>' +
+      '<div class="kw-body">' +
+        t.keywords.map(function(kw) {
+          var kid = kwSafeId(t.id + '-' + kw);
+          return '<div>' +
+            '<div class="kw-kw-label">' + kw + '<span class="kw-kw-summary" id="kws-' + kid + '"></span></div>' +
+            '<div class="kw-days-scroll"><div class="kw-days-grid" id="kwg-' + kid + '">' +
+              '<span style="color:var(--muted);font-size:11px;padding:6px 0;display:block">Cargando...</span>' +
+            '</div></div>' +
+          '</div>';
+        }).join('') +
+      '</div>' +
+    '</div>';
+  });
+  container.innerHTML = html;
+}
+
+function renderKwDays(targetId, kw, rows, period) {
+  var kid   = kwSafeId(targetId + '-' + kw);
+  var grid  = document.getElementById('kwg-' + kid);
+  var sumEl = document.getElementById('kws-' + kid);
+  if (!grid) return;
+
+  var byDate = {};
+  (rows || []).forEach(function(r) { if (r.position > 0) byDate[r.date] = r; });
+
+  var days = [];
+  var cur = new Date(period.from + 'T12:00:00Z');
+  var end = new Date(period.to   + 'T12:00:00Z');
+  while (cur <= end) { days.push(cur.toISOString().slice(0, 10)); cur.setUTCDate(cur.getUTCDate() + 1); }
+
+  var withData = Object.values(byDate);
+  if (sumEl) {
+    if (withData.length) {
+      if (kwMetric === 'position') {
+        var avgPos  = withData.reduce(function(s, r) { return s + r.position; }, 0) / withData.length;
+        var bestPos = Math.min.apply(null, withData.map(function(r) { return r.position; }));
+        sumEl.textContent = ' · media ' + avgPos.toFixed(1) + ' · mejor ' + bestPos.toFixed(1) + ' · ' + withData.length + '/' + days.length + ' días con datos';
+      } else if (kwMetric === 'impressions') {
+        var totalImpr = withData.reduce(function(s, r) { return s + r.impressions; }, 0);
+        sumEl.textContent = ' · total ' + fmtMetricVal(totalImpr) + ' impr. · media/día ' + fmtMetricVal(totalImpr / withData.length) + ' · ' + withData.length + '/' + days.length + ' días';
+      } else {
+        var totalClks = withData.reduce(function(s, r) { return s + r.clicks; }, 0);
+        sumEl.textContent = ' · total ' + fmtMetricVal(totalClks) + ' clics · media/día ' + fmtMetricVal(totalClks / withData.length) + ' · ' + withData.length + '/' + days.length + ' días';
+      }
+    } else {
+      sumEl.textContent = ' · sin datos en este período';
+    }
+  }
+
+  if (!days.length) { grid.innerHTML = '<span style="color:var(--muted);font-size:11px">Sin días</span>'; return; }
+
+  var maxVal = 0;
+  if (kwMetric !== 'position' && withData.length) {
+    withData.forEach(function(r) {
+      var v = kwMetric === 'impressions' ? r.impressions : r.clicks;
+      if (v > maxVal) maxVal = v;
+    });
+  }
+
+  grid.innerHTML = days.map(function(date) {
+    var r  = byDate[date];
+    var mm = date.slice(5, 7), dd = date.slice(8, 10);
+    if (!r) {
+      return '<div class="kw-day kd-none" title="' + dd + '/' + mm + ' · sin datos">' +
+        '<span class="kd-date">' + dd + '/' + mm + '</span>' +
+        '<span class="kd-pos">—</span>' +
+      '</div>';
+    }
+    var tip = dd + '/' + mm + ' · pos ' + r.position.toFixed(1) + ' · ' + r.impressions + ' impr. · ' + r.clicks + ' clicks';
+    var cls, valStr;
+    if (kwMetric === 'position') {
+      var posRnd = Math.round(r.position);
+      cls    = posRnd <= 3 ? 'kd-top' : posRnd <= 10 ? 'kd-mid' : posRnd <= 20 ? 'kd-low' : 'kd-vlow';
+      valStr = String(posRnd);
+    } else {
+      var val = kwMetric === 'impressions' ? r.impressions : r.clicks;
+      var pct = maxVal > 0 ? val / maxVal : 0;
+      cls     = val === 0 ? 'kd-none' : pct >= 0.75 ? 'kd-top' : pct >= 0.5 ? 'kd-mid' : pct >= 0.25 ? 'kd-low' : 'kd-vlow';
+      valStr  = fmtMetricVal(val);
+    }
+    return '<div class="kw-day ' + cls + '" title="' + tip + '">' +
+      '<span class="kd-date">' + dd + '/' + mm + '</span>' +
+      '<span class="kd-pos">' + valStr + '</span>' +
+    '</div>';
+  }).join('');
+}
+
+function loadKeywords() {
+  if (!kwTargets.length) {
+    fetch('keyword-targets.json?t=' + Date.now())
+      .then(function(r) { return r.json(); })
+      .then(function(d) { kwTargets = Array.isArray(d) ? d : []; renderKwGroups(); loadKeywords(); })
+      .catch(function() { document.getElementById('kw-status').textContent = 'Error cargando keyword-targets.json'; });
+    return;
+  }
+  var period = getKwPeriod();
+  kwData = {};
+  renderKwGroups();
+
+  var all = [];
+  kwTargets.forEach(function(t) { t.keywords.forEach(function(kw) { all.push({ t: t, kw: kw }); }); });
+  if (!all.length) return;
+
+  var done = 0;
+  document.getElementById('kw-status').textContent = 'Consultando GSC... (0/' + all.length + ')';
+
+  all.forEach(function(item) {
+    var kid = kwSafeId(item.t.id + '-' + item.kw);
+    var g   = document.getElementById('kwg-' + kid);
+    if (g) g.innerHTML = '<span style="color:var(--muted);font-size:11px;padding:6px 0;display:block">Consultando GSC...</span>';
+
+    fetch('/api/gsc-keyword?from=' + period.from + '&to=' + period.to +
+          '&page=' + encodeURIComponent(item.t.page) +
+          '&query=' + encodeURIComponent(item.kw))
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        done++;
+        if (d.error) throw new Error(d.error);
+        kwData[item.t.id + '|' + item.kw] = d.rows || [];
+        renderKwDays(item.t.id, item.kw, d.rows || [], period);
+        document.getElementById('kw-status').textContent = done < all.length
+          ? 'Consultando GSC... (' + done + '/' + all.length + ')'
+          : 'Actualizado · ' + period.from + ' → ' + period.to;
+      })
+      .catch(function(e) {
+        done++;
+        var g2 = document.getElementById('kwg-' + kwSafeId(item.t.id + '-' + item.kw));
+        if (g2) g2.innerHTML = '<span style="color:#f87171;font-size:11px">Error: ' + e.message + '</span>';
+        if (done === all.length) document.getElementById('kw-status').textContent = 'Completado con errores';
+      });
+  });
+}
+
+fetch('gsc-data.json?t=' + Date.now())
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    // Compatibilidad con formato antiguo (sin .periods)
+    if (!d.periods) {
+      var dt = d.dateTo || d.updated;
+      FULL_DATA = {
+        updated: d.updated,
+        byDate:  d.byDate || [],
+        periods: {
+          '7':  { dateFrom: isoAddDays(dt, -6),  dateTo: dt, summary: d.summary, queries: d.queries, pages: d.pages },
+          '30': { dateFrom: isoAddDays(dt, -29), dateTo: dt, summary: d.summary, queries: d.queries, pages: d.pages },
+          '90': { dateFrom: isoAddDays(dt, -89), dateTo: dt, summary: d.summary, queries: d.queries, pages: d.pages },
+        }
+      };
+    } else {
+      FULL_DATA = d;
+    }
+    applyPeriod();
+    renderAll();
+  })
+  .catch(function(e) { console.error(e); });
+</script>
+</body>
+</html>

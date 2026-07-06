@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kampaoh · Tiempo</title>
+  <style>
+    :root {
+      --bg:      #f4f6ff;
+      --surface: #ffffff;
+      --surface2:#eef0fa;
+      --border:  #dde1f0;
+      --text:    #1a1d2e;
+      --muted:   #6870a0;
+      --accent:  #6366f1;
+      --amber:   #d97706;
+      --red:     #dc2626;
+      --blue:    #2563eb;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; font-size: 14px; }
+
+    /* ── Header / Nav ── */
+    header { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 14px 32px; display: flex; justify-content: space-between; align-items: center; }
+    .header-title { font-size: 15px; font-weight: 700; }
+    .header-title span { color: var(--accent); }
+    .header-meta { font-size: 11px; color: var(--muted); display: flex; gap: 14px; }
+    nav { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; overflow-x: auto; }
+    .nav-link { padding: 10px 16px; font-size: 12px; font-weight: 600; color: var(--muted); text-decoration: none; border-bottom: 2px solid transparent; white-space: nowrap; }
+    .nav-link.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .nav-link:hover { color: var(--text); }
+
+    /* ── Controls ── */
+    .controls-bar { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 10px 32px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .btn-group { display: flex; gap: 3px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 3px; }
+    .btn { padding: 5px 14px; font-size: 12px; font-weight: 600; background: transparent; border: none; color: var(--muted); border-radius: 6px; cursor: pointer; transition: all .15s; }
+    .btn.active { background: var(--accent); color: #fff; }
+    .btn:hover:not(.active) { color: var(--text); }
+    .sep { width: 1px; background: var(--border); margin: 0 4px; align-self: stretch; }
+    .filter-pill { padding: 4px 12px; font-size: 11px; font-weight: 600; background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: 20px; cursor: pointer; transition: all .15s; }
+    .filter-pill.active { background: #1e2140; border-color: var(--accent); color: var(--accent); }
+    .filter-pill:hover:not(.active) { border-color: #404560; color: var(--text); }
+    .wind-legend { display: flex; gap: 10px; align-items: center; margin-left: auto; font-size: 10px; color: var(--muted); }
+    .wl-item { display: flex; align-items: center; gap: 3px; }
+    .filter-label { font-size: 11px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+
+    /* ── Alert strip ── */
+    .alert-strip { padding: 10px 32px; background: #fff5f5; border-bottom: 1px solid #fecaca; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .alert-strip-title { font-size: 11px; font-weight: 700; color: var(--red); white-space: nowrap; margin-right: 6px; }
+    .a-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 7px; font-size: 11px; border: 1px solid; }
+    .a-chip .dest { font-weight: 700; color: var(--text); }
+    .a-chip .info { color: var(--muted); }
+    .a-chip.wind  { background: #e0f8ff; border-color: #7dd3fc; }
+    .a-chip.rain  { background: #eff6ff; border-color: #93c5fd; }
+    .a-chip.snow  { background: #f0f2ff; border-color: #a5b4fc; }
+    .a-chip.heat  { background: #fff1f1; border-color: #fca5a5; }
+    .a-chip.cold  { background: #f0f2ff; border-color: #a5b4fc; }
+    .a-chip.storm { background: #f5f3ff; border-color: #c4b5fd; }
+
+    /* ── Loading ── */
+    .loading { text-align: center; padding: 80px 32px; color: var(--muted); }
+    .spinner { width: 26px; height: 26px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Table wrapper ── */
+    .table-outer { padding: 20px 0 48px; }
+    .table-scroll { overflow-x: auto; overflow-y: visible; }
+
+    /* ── Table ── */
+    table { border-collapse: collapse; min-width: 100%; }
+    thead th { background: var(--surface2); border-bottom: 2px solid var(--border); position: sticky; top: 0; z-index: 10; }
+    th.th-name {
+      text-align: left; padding: 8px 14px 8px 32px;
+      font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted);
+      min-width: 170px; max-width: 170px; width: 170px;
+      position: sticky; left: 0; z-index: 20;
+      background: var(--surface2);
+    }
+    th.th-day {
+      text-align: center; padding: 6px 4px;
+      min-width: 78px; width: 78px;
+      border-left: 1px solid var(--border);
+    }
+    th.th-day.today { background: #6366f118; }
+    .dh-lbl { font-size: 11px; font-weight: 700; color: var(--text); }
+    .dh-date { font-size: 10px; color: var(--muted); margin-top: 1px; }
+
+    /* Destination row */
+    tr.tr-dest { border-bottom: 1px solid #2a2d42; }
+    tr.tr-dest:hover td { background: #1e2238 !important; }
+    tr.tr-dest:hover td.td-name { background: #1e2238 !important; }
+    tr.tr-dest.has-alert td.td-name { border-left: 2px solid #ef444450; }
+
+    /* Region separator row */
+    tr.tr-region td {
+      background: var(--surface2);
+      padding: 5px 14px 5px 32px;
+      font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+      border-top: 2px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Name cell */
+    td.td-name {
+      position: sticky; left: 0; z-index: 5;
+      background: var(--surface);
+      padding: 6px 12px 6px 30px;
+      min-width: 170px; max-width: 170px; width: 170px;
+      vertical-align: middle;
+      border-right: 1px solid var(--border);
+    }
+    .nm { font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nm-badges { display: flex; gap: 3px; margin-top: 2px; flex-wrap: wrap; }
+    .bsm { font-size: 9px; padding: 1px 5px; border-radius: 6px; font-weight: 700; }
+    .bsm.wind  { background: #06b6d420; color: #67e8f9; }
+    .bsm.rain  { background: #3b82f620; color: #93c5fd; }
+    .bsm.snow  { background: #e0e7ff20; color: #c7d2fe; }
+    .bsm.heat  { background: #ef444420; color: #fca5a5; }
+    .bsm.cold  { background: #818cf820; color: #a5b4fc; }
+    .bsm.storm { background: #8b5cf620; color: #c4b5fd; }
+
+    /* Day cell */
+    td.td-day {
+      text-align: center; vertical-align: middle;
+      padding: 5px 3px;
+      border-left: 1px solid var(--border);
+      background: var(--surface);
+    }
+    td.td-day.today { background: #252a48; }
+    td.td-day.has-wind-alert { background: #2a1f1f; }
+
+    .cell { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+    .c-ico { font-size: 20px; line-height: 1.1; }
+    .c-temps { display: flex; gap: 4px; align-items: baseline; }
+    .c-hi { font-size: 12px; font-weight: 700; color: var(--amber); font-variant-numeric: tabular-nums; }
+    .c-hi.t-extreme { color: #ef4444; }
+    .c-hi.t-hot     { color: #f97316; }
+    .c-hi.t-warm    { color: var(--amber); }
+    .c-hi.t-cool    { color: #60a5fa; }
+    .c-lo { font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .c-wind { font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; display: flex; align-items: center; gap: 2px; line-height: 1; }
+    .c-wind .wi { font-size: 10px; opacity: .7; }
+    .c-wind.w-calm     { color: #374151; }
+    .c-wind.w-light    { color: var(--muted); }
+    .c-wind.w-notable  { color: #f59e0b; }
+    .c-wind.w-strong   { color: #f97316; }
+    .c-wind.w-extreme  { color: #ef4444; }
+    .c-rain { font-size: 9px; color: #60a5fa; font-variant-numeric: tabular-nums; }
+    .c-nodata { font-size: 10px; color: #2d3148; }
+
+    /* ── Cards layout ── */
+    .cards-outer { padding: 20px 0 60px; }
+    .cards-list  { padding: 0 32px; display: flex; flex-direction: column; gap: 14px; }
+
+    .dest-card {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 16px; overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,.05);
+      transition: box-shadow .15s, border-color .15s;
+    }
+    .dest-card:hover     { border-color: #a5b4fc; box-shadow: 0 4px 16px rgba(99,102,241,.1); }
+    .dest-card.has-alerts { border-color: #fca5a5; }
+
+    /* Card header */
+    .card-top {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding: 16px 20px 14px; border-bottom: 1px solid var(--border); gap: 16px;
+    }
+    .card-dest-name { font-size: 20px; font-weight: 800; color: var(--text); line-height: 1.2; }
+    .card-region    { font-size: 11px; color: #aab0cc; margin-top: 4px; }
+    .card-peak      { font-size: 30px; font-weight: 900; line-height: 1; text-align: right; flex-shrink: 0; }
+    .card-peak.pk-extreme { color: #b91c1c; }
+    .card-peak.pk-high    { color: #dc2626; }
+    .card-peak.pk-warn    { color: #ea580c; }
+    .card-peak.pk-mild    { color: #d97706; }
+    .card-peak.pk-low     { color: #9ca3af; }
+    .card-peak-sub  { font-size: 11px; color: #aab0cc; text-align: right; margin-top: 4px; font-weight: 600; }
+
+    /* Alert bar inside card */
+    .card-alert-bar {
+      padding: 6px 20px; background: #fff8f8; border-bottom: 1px solid #fecaca;
+      display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+    }
+    .cab-lbl { font-size: 11px; font-weight: 800; color: #dc2626; white-space: nowrap; margin-right: 2px; }
+    .atag {
+      display: inline-flex; align-items: center; gap: 3px; padding: 2px 10px;
+      border-radius: 20px; font-size: 10px; font-weight: 700; border: 1px solid;
+    }
+    .atag.wa { background: #e0f7ff; border-color: #7dd3fc; color: #0284c7; }
+    .atag.ha { background: #fff1f1; border-color: #fca5a5; color: #dc2626; }
+
+    /* Day pills */
+    .card-days { display: flex; }
+    .day-pill {
+      flex: 1; min-width: 68px;
+      padding: 10px 4px 14px; text-align: center;
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      background: #fff;
+    }
+    .day-pill:last-child { border-right: none; }
+
+    .day-pill.dp-today  { background: #f3f4ff; }
+    .day-pill.sev-1     { background: #fffbeb; }
+    .day-pill.sev-2     { background: #fef3c7; }
+    .day-pill.sev-3     { background: #fee2e2; }
+    .day-pill.sev-4     { background: #fecaca; }
+    .day-pill.dp-today.sev-1 { background: #f5f3ff; }
+    .day-pill.dp-today.sev-2 { background: #fdecc0; }
+    .day-pill.dp-today.sev-3 { background: #ffd5d5; }
+    .day-pill.dp-today.sev-4 { background: #ffbcbc; }
+
+    .dp-day  { font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+    .dp-date { font-size: 9px; color: #c8cde8; margin-bottom: 1px; }
+    .dp-ico  { font-size: 22px; line-height: 1; margin: 3px 0; }
+    .dp-hi   { font-size: 16px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
+    .dp-hi.t-extreme { color: #dc2626; }
+    .dp-hi.t-hot     { color: #ea580c; }
+    .dp-hi.t-warm    { color: #d97706; }
+    .dp-hi.t-cool    { color: #2563eb; }
+    .dp-lo   { font-size: 11px; color: #9ca3af; font-variant-numeric: tabular-nums; }
+    .dp-wind {
+      display: flex; align-items: center; gap: 2px; margin-top: 3px;
+      font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums;
+    }
+    .dp-wind .wi   { font-size: 9px; opacity: .7; }
+    .dp-wind.w-none { color: #d1d5db; }
+    .dp-wind.w-calm { color: #9ca3af; }
+    .dp-wind.w-l1   { color: #4b5563; }
+    .dp-wind.w-l2   { color: #d97706; }
+    .dp-wind.w-l3   { color: #ea580c; }
+    .dp-wind.w-l4   { color: #dc2626; }
+    .dp-rain { font-size: 9px; color: #3b82f6; margin-top: 1px; }
+    .dp-wind-val {
+      display: flex; align-items: center; gap: 3px; margin-top: 3px;
+      font-size: 16px; font-weight: 800; font-variant-numeric: tabular-nums;
+    }
+    .dp-wind-val .wi { font-size: 11px; opacity: .7; }
+    .dp-wind-val.w-none { color: #d1d5db; }
+    .dp-wind-val.w-calm { color: #9ca3af; }
+    .dp-wind-val.w-l1   { color: #4b5563; }
+    .dp-wind-val.w-l2   { color: #d97706; }
+    .dp-wind-val.w-l3   { color: #ea580c; }
+    .dp-wind-val.w-l4   { color: #dc2626; }
+    .dp-unit { font-size: 9px; color: #9ca3af; margin-top: 1px; }
+
+    /* ── Mode bar ── */
+    .mode-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 32px; border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+    .mode-toggle { display: flex; border: 2px solid var(--accent); border-radius: 12px; overflow: hidden; }
+    .mode-btn {
+      padding: 10px 36px; font-size: 15px; font-weight: 700;
+      background: transparent; border: none; color: var(--accent); cursor: pointer; transition: all .15s;
+    }
+    .mode-btn.active { background: var(--accent); color: #fff; }
+    .mode-btn:hover:not(.active) { background: #eff0ff; }
+    .mode-sub { font-size: 11px; color: var(--muted); margin-top: 8px; }
+    .day-toggle {
+      display: flex; gap: 3px; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 3px;
+    }
+    .day-btn {
+      padding: 6px 18px; font-size: 12px; font-weight: 700;
+      background: transparent; border: none; color: var(--muted); border-radius: 6px;
+      cursor: pointer; transition: all .15s;
+    }
+    .day-btn.active { background: var(--accent); color: #fff; }
+    .day-btn:hover:not(.active) { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">Kampaoh <span>·</span> Tiempo por Destinos</div>
+  <div class="header-meta">
+    <span id="updated-ts">—</span>
+    <span style="opacity:.45">Open-Meteo</span>
+  </div>
+</header>
+
+<nav>
+  <a href="index.html" class="nav-link">Inversión Publicitaria</a>
+  <a href="ga4.html" class="nav-link">Propiedades Vistas · GA4</a>
+  <a href="busqueda-be.html" class="nav-link">Búsqueda BE</a>
+  <a href="gsc.html" class="nav-link">GSC</a>
+  <a href="funnel.html" class="nav-link">Funnel</a>
+  <a href="tiempo.html" class="nav-link active">Tiempo</a>
+</nav>
+
+<div class="mode-bar">
+  <div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="mode-temp" onclick="setMode('temp')">🌡 Temperatura</button>
+      <button class="mode-btn" id="mode-wind" onclick="setMode('wind')">💨 Viento</button>
+    </div>
+    <div class="mode-sub" id="mode-sub">Ordenados por temperatura máxima · de mayor a menor</div>
+  </div>
+  <div class="day-toggle">
+    <button class="day-btn active" id="btn7" onclick="setDays(7)">7 días</button>
+    <button class="day-btn" id="btn14" onclick="setDays(14)">14 días</button>
+  </div>
+</div>
+
+<div id="alert-strip" style="display:none" class="alert-strip">
+  <span class="alert-strip-title" id="alert-count"></span>
+  <div id="alert-chips"></div>
+</div>
+
+<div class="cards-outer">
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <div id="load-msg" style="font-size:13px;margin-bottom:4px">Conectando con Open-Meteo...</div>
+    <div id="load-sub" style="font-size:11px;color:#4b5060">Cargando previsión para los ~85 destinos Kampaoh</div>
+  </div>
+  <div id="cards-wrap" style="display:none"></div>
+</div>
+
+<script>
+// ─── Destinos (agrupados por zona, en orden geográfico) ──────────────────────
+var GRUPOS = [
+  { label: 'Cádiz · Huelva · Sevilla', country: 'es', dests: [
+    {slug:'tarifa',             name:'Kampaoh Tarifa',                  lat:36.014, lon:-5.601},
+    {slug:'valdvaqueros',       name:'Kampaoh Valdevaqueros',            lat:36.080, lon:-5.680},
+    {slug:'paloma',             name:'Kampaoh Paloma',                   lat:36.025, lon:-5.620},
+    {slug:'los-canos',          name:'Kampaoh Los Caños',                lat:36.213, lon:-6.043},
+    {slug:'trafalgar',          name:'Kampaoh Trafalgar',                lat:36.183, lon:-6.033},
+    {slug:'conil',              name:'Kampaoh Conil',                    lat:36.280, lon:-6.090},
+    {slug:'el-palmar',          name:'Kampaoh El Palmar',                lat:36.270, lon:-6.010},
+    {slug:'grazalema',          name:'Kampaoh Grazalema',                lat:36.760, lon:-5.370},
+    {slug:'lago-de-arcos',      name:'Kampaoh Lago de Arcos',            lat:36.750, lon:-5.800},
+    {slug:'puerto-santa-maria', name:'Kampaoh El Puerto de Santa María', lat:36.603, lon:-6.232},
+    {slug:'isla-cristina',      name:'Kampaoh Isla Cristina',            lat:37.200, lon:-7.320},
+    {slug:'donana',             name:'Kampaoh Doñana',                   lat:37.010, lon:-6.570},
+    {slug:'el-rocio',           name:'Kampaoh El Rocío',                 lat:37.130, lon:-6.490},
+    {slug:'pedroso',            name:'Kampaoh El Pedroso',               lat:37.845, lon:-5.765},
+  ]},
+  { label: 'Málaga · Granada · Almería', country: 'es', dests: [
+    {slug:'estepona',           name:'Kampaoh Estepona',                 lat:36.430, lon:-5.140},
+    {slug:'marbella',           name:'Kampaoh Marbella',                 lat:36.510, lon:-4.890},
+    {slug:'benajarafe',         name:'Kampaoh Benajarafe',               lat:36.730, lon:-4.120},
+    {slug:'costa-del-sol',      name:'Kampaoh Costa del Sol',            lat:36.700, lon:-4.400},
+    {slug:'sierra-nevada',      name:'Kampaoh Sierra Nevada',            lat:37.156, lon:-3.452},
+    {slug:'roquetas',           name:'Kampaoh Roquetas',                 lat:36.760, lon:-2.620},
+    {slug:'los-escullos',       name:'Kampaoh Los Escullos',             lat:36.840, lon:-2.030},
+  ]},
+  { label: 'Andalucía Interior', country: 'es', dests: [
+    {slug:'cordoba',            name:'Kampaoh Córdoba',                  lat:37.880, lon:-4.780},
+    {slug:'cazorla',            name:'Kampaoh Cazorla',                  lat:37.920, lon:-3.000},
+    {slug:'la-bolera',          name:'Kampaoh La Bolera',                lat:37.990, lon:-2.670},
+  ]},
+  { label: 'Murcia · Costa Blanca', country: 'es', dests: [
+    {slug:'cabo-blanco',        name:'Kampaoh Cabo Blanco',              lat:37.600, lon:-0.730},
+    {slug:'costa-blanca',       name:'Kampaoh Costa Blanca',             lat:37.864, lon:-0.771},
+    {slug:'crevillent',         name:'Kampaoh Crevillent',               lat:38.250, lon:-0.810},
+    {slug:'villajoyosa',        name:'Kampaoh La Vila Joiosa',           lat:38.510, lon:-0.230},
+    {slug:'playa-de-levante',   name:'Kampaoh Playa de Levante',         lat:38.539, lon:-0.117},
+    {slug:'fonts-dalgar',       name:"Kampaoh Fonts d'Algar",            lat:38.644, lon: 0.082},
+  ]},
+  { label: 'Valencia · Castellón', country: 'es', dests: [
+    {slug:'oliva',              name:'Kampaoh Oliva',                    lat:38.930, lon:-0.110},
+    {slug:'playa-de-sueca',     name:'Kampaoh Playa de Sueca',           lat:39.210, lon:-0.310},
+    {slug:'cova-negra',         name:'Kampaoh Cova Negra',               lat:38.971, lon: 0.178},
+    {slug:'moncofar',           name:'Kampaoh Moncófar',                 lat:39.820, lon:-0.150},
+    {slug:'navajas',            name:'Kampaoh Navajas',                  lat:39.870, lon:-0.520},
+    {slug:'benicassim',         name:'Kampaoh Benicassim',               lat:40.060, lon: 0.070},
+    {slug:'kikopark-playa',     name:'Kampaoh KikoPark Playa',           lat:40.060, lon: 0.069},
+    {slug:'kikopark-rural',     name:'Kampaoh KikoParkRural',            lat:39.580, lon:-1.415},
+    {slug:'kikopark',           name:'Kampaoh KikoPark',                 lat:40.061, lon: 0.068},
+  ]},
+  { label: 'Cataluña · Aragón', country: 'es', dests: [
+    {slug:'almadrava',          name:'Kampaoh Almadrava',                lat:40.880, lon: 0.800},
+    {slug:'delta-ebro',         name:'Kampaoh Delta del Ebro',           lat:40.720, lon: 0.870},
+    {slug:'cambrils',           name:'Kampaoh Cambrils',                 lat:41.070, lon: 1.060},
+    {slug:'costa-dorada',       name:'Kampaoh Costa Dorada',             lat:41.100, lon: 1.200},
+    {slug:'blanes',             name:'Kampaoh Blanes',                   lat:41.670, lon: 2.800},
+    {slug:'calella',            name:'Kampaoh Calella de Palafrugell',   lat:41.886, lon: 3.170},
+    {slug:'pintens',            name:'Kampaoh Pintens',                  lat:41.580, lon: 2.640},
+    {slug:'tossa-de-mar',       name:'Kampaoh Tossa de Mar',             lat:41.720, lon: 2.930},
+    {slug:'platjadaro',         name:"Kampaoh Platja d'Aro",             lat:41.820, lon: 3.060},
+    {slug:'palamos',            name:'Kampaoh Palamós Internacional',    lat:41.850, lon: 3.130},
+    {slug:'costa-brava',        name:'Kampaoh Costa Brava',              lat:41.972, lon: 3.155},
+    {slug:'neptuno',            name:'Kampaoh Neptuno Pals',             lat:41.968, lon: 3.148},
+    {slug:'esponella',          name:'Kampaoh Esponellà',                lat:42.140, lon: 2.870},
+    {slug:'alquezar',           name:'Kampaoh Alquézar',                 lat:42.180, lon: 0.010},
+  ]},
+  { label: 'Interior · Baleares', country: 'es', dests: [
+    {slug:'cabaneros',          name:'Kampaoh Cabañeros',                lat:39.380, lon:-4.620},
+    {slug:'picos-de-urbion',    name:'Kampaoh Picos de Urbión',          lat:41.803, lon:-2.780},
+    {slug:'menorca',            name:'Kampaoh Menorca',                  lat:39.938, lon: 3.958},
+  ]},
+  { label: 'Cantabria · Asturias', country: 'es', dests: [
+    {slug:'arenas',             name:'Kampaoh Las Arenas',               lat:43.391, lon:-4.493},
+    {slug:'santillana-del-mar', name:'Kampaoh Santillana del Mar',       lat:43.380, lon:-4.100},
+    {slug:'ruiloba',            name:'Kampaoh Ruiloba',                  lat:43.378, lon:-4.292},
+    {slug:'oyambre',            name:'Kampaoh Oyambre',                  lat:43.400, lon:-4.320},
+    {slug:'somo-playa',         name:'Kampaoh Somo Playa',               lat:43.470, lon:-3.690},
+    {slug:'somo-parque',        name:'Kampaoh Somo Parque',              lat:43.465, lon:-3.688},
+    {slug:'somo',               name:'Kampaoh Somo',                     lat:43.464, lon:-3.687},
+    {slug:'la-franca',          name:'Kampaoh La Franca',                lat:43.400, lon:-4.530},
+    {slug:'llanes',             name:'Kampaoh Llanes',                   lat:43.420, lon:-4.760},
+    {slug:'deva',               name:'Kampaoh Deva',                     lat:43.534, lon:-5.675},
+    {slug:'bufones-de-pria',    name:'Kampaoh Bufones de Pría',          lat:43.443, lon:-5.058},
+    {slug:'playa-troenzo',      name:'Kampaoh Playa de Troenzo',         lat:43.426, lon:-4.774},
+    {slug:'castrillon',         name:'Kampaoh Castrillón',               lat:43.570, lon:-5.970},
+  ]},
+  { label: 'País Vasco · Navarra', country: 'es', dests: [
+    {slug:'zumaia',             name:'Kampaoh Zumaia',                   lat:43.300, lon:-2.250},
+    {slug:'sierra-de-urbasa',   name:'Kampaoh Sierra de Urbasa',         lat:42.863, lon:-2.105},
+    {slug:'mendigorria',        name:'Kampaoh Mendigorría',              lat:42.630, lon:-1.840},
+  ]},
+  { label: 'Galicia', country: 'es', dests: [
+    {slug:'rianxo',             name:'Kampaoh Rianxo',                   lat:42.660, lon:-8.820},
+    {slug:'ria-de-arousa-playa',name:'Kampaoh Ría de Arousa Playa',      lat:42.520, lon:-8.870},
+    {slug:'ria-de-arousa-rural',name:'Kampaoh Ría de Arousa Rural',      lat:42.530, lon:-8.850},
+    {slug:'bayona-playa',       name:'Kampaoh Bayona Playa',             lat:42.120, lon:-8.850},
+    {slug:'bayona',             name:'Kampaoh Bayona',                   lat:42.118, lon:-8.849},
+    {slug:'ria-de-vigo',        name:'Kampaoh Ría de Vigo',              lat:42.306, lon:-8.698},
+    {slug:'rio-mino',           name:'Kampaoh Río Miño',                 lat:41.870, lon:-8.830},
+  ]},
+  { label: '🇵🇹 Portugal Norte · Centro', country: 'pt', dests: [
+    {slug:'ancora',             name:'Kampaoh Âncora',                   lat:41.830, lon:-8.740},
+    {slug:'praia-de-angeiras',  name:'Kampaoh Praia de Angeiras',        lat:41.330, lon:-8.730},
+    {slug:'porto',              name:'Kampaoh Porto',                    lat:41.150, lon:-8.610},
+    {slug:'vagueira',           name:'Kampaoh Vagueira',                 lat:40.560, lon:-8.740},
+    {slug:'gala',               name:'Kampaoh Gala',                     lat:40.140, lon:-8.840},
+    {slug:'mira',               name:'Kampaoh Mira',                     lat:40.430, lon:-8.790},
+    {slug:'san-pedro-moel',     name:'Kampaoh São Pedro de Moel',        lat:39.760, lon:-9.030},
+    {slug:'peniche',            name:'Kampaoh Peniche',                  lat:39.360, lon:-9.380},
+    {slug:'sao-martinho-porto', name:'Kampaoh São Martinho do Porto',    lat:39.530, lon:-9.130},
+  ]},
+  { label: '🇵🇹 Portugal Sur · Algarve', country: 'pt', dests: [
+    {slug:'meco',               name:'Kampaoh Praia do Meco',            lat:38.428, lon:-9.143},
+    {slug:'sesimbra',           name:'Kampaoh Sesimbra',                 lat:38.440, lon:-9.100},
+    {slug:'lisboa',             name:'Kampaoh Lisboa',                   lat:38.710, lon:-9.140},
+    {slug:'tavira',             name:'Kampaoh Tavira',                   lat:37.130, lon:-7.650},
+    {slug:'lagoa',              name:'Kampaoh Lagoa',                    lat:37.130, lon:-8.460},
+  ]},
+];
+
+// Lista plana de todos los destinos
+var DESTINOS = [];
+GRUPOS.forEach(function(g) {
+  g.dests.forEach(function(d) {
+    d.country = g.country;
+    d.group   = g.label;
+    DESTINOS.push(d);
+  });
+});
+
+// ─── Estado ──────────────────────────────────────────────────────────────────
+var weatherData    = {};
+var currentDays    = 7;
+var currentFilter  = 'all';
+var currentTempMin = 0;
+var currentWindMin = 0;
+var currentMode    = 'temp';
+
+// ─── WMO icon ────────────────────────────────────────────────────────────────
+function wmoIcon(code) {
+  if (code == null) return '—';
+  if (code === 0)   return '☀️';
+  if (code <= 2)    return '🌤️';
+  if (code === 3)   return '☁️';
+  if (code <= 48)   return '🌫️';
+  if (code <= 57)   return '🌦️';
+  if (code <= 67)   return '🌧️';
+  if (code <= 77)   return '❄️';
+  if (code <= 82)   return '🌦️';
+  if (code <= 86)   return '❄️';
+  if (code <= 99)   return '⛈️';
+  return '?';
+}
+
+// ─── Día label ───────────────────────────────────────────────────────────────
+var DIAS_S = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+var MESES  = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+function dayLabel(dateStr, idx) {
+  if (idx === 0) return 'Hoy';
+  if (idx === 1) return 'Mañ';
+  if (!dateStr) return '—';
+  var d = new Date(dateStr + 'T12:00:00');
+  return DIAS_S[d.getDay()];
+}
+function shortDate(dateStr) {
+  if (!dateStr) return '';
+  var d = new Date(dateStr + 'T12:00:00');
+  return d.getDate() + ' ' + MESES[d.getMonth()];
+}
+
+// ─── Alertas ─────────────────────────────────────────────────────────────────
+function getAlerts(dest, daily, nDays) {
+  var a = [], n = Math.min(nDays, (daily.time||[]).length);
+  for (var i = 0; i < n; i++) {
+    var dl    = dayLabel((daily.time||[])[i]||'', i);
+    var wind  = (daily.windspeed_10m_max||[])[i];
+    var rain  = (daily.precipitation_sum||[])[i];
+    var snow  = (daily.snowfall_sum||[])[i];
+    var tmax  = (daily.temperature_2m_max||[])[i];
+    var tmin  = (daily.temperature_2m_min||[])[i];
+    var wcode = (daily.weathercode||[])[i];
+    if (wind  != null && wind  >= 60) a.push({slug:dest.slug, name:dest.name, type:'wind',  day:i, dl:dl, val:Math.round(wind)+' km/h'});
+    if (rain  != null && rain  >= 25) a.push({slug:dest.slug, name:dest.name, type:'rain',  day:i, dl:dl, val:Math.round(rain)+' mm'});
+    if (snow  != null && snow  >=  1) a.push({slug:dest.slug, name:dest.name, type:'snow',  day:i, dl:dl, val:Math.round(snow)+' cm'});
+    if (tmax  != null && tmax  >= 38) a.push({slug:dest.slug, name:dest.name, type:'heat',  day:i, dl:dl, val:Math.round(tmax)+'°'});
+    if (tmin  != null && tmin  <=  0) a.push({slug:dest.slug, name:dest.name, type:'cold',  day:i, dl:dl, val:Math.round(tmin)+'°'});
+    if (wcode != null && wcode >= 95) a.push({slug:dest.slug, name:dest.name, type:'storm', day:i, dl:dl, val:''});
+  }
+  return a;
+}
+
+// ─── API fetch ────────────────────────────────────────────────────────────────
+var BATCH = 25;
+async function fetchBatch(dests) {
+  var url = 'https://api.open-meteo.com/v1/forecast'
+    + '?latitude='  + dests.map(function(d){return d.lat;}).join(',')
+    + '&longitude=' + dests.map(function(d){return d.lon;}).join(',')
+    + '&daily=weathercode,temperature_2m_max,temperature_2m_min,'
+    +         'precipitation_sum,precipitation_probability_max,'
+    +         'windspeed_10m_max,snowfall_sum'
+    + '&timezone=auto&forecast_days=14';
+  var r = await fetch(url);
+  if (!r.ok) throw new Error('HTTP '+r.status);
+  var data = await r.json();
+  return Array.isArray(data) ? data : [data];
+}
+
+async function loadAll() {
+  var chunks = [];
+  for (var i = 0; i < DESTINOS.length; i += BATCH) chunks.push(DESTINOS.slice(i, i + BATCH));
+  var sets = await Promise.all(chunks.map(function(ch, ci) {
+    document.getElementById('load-msg').textContent = 'Cargando bloque '+(ci+1)+'/'+chunks.length+'...';
+    return fetchBatch(ch).catch(function(){ return ch.map(function(){return null;}); });
+  }));
+  var flat = sets.flat();
+  DESTINOS.forEach(function(d, idx) {
+    weatherData[d.slug] = flat[idx] ? (flat[idx].daily || null) : null;
+  });
+}
+
+// ─── Clases de viento ────────────────────────────────────────────────────────
+function windClass(v) {
+  if (v == null || v < 15) return 'w-none';
+  if (v < 20) return 'w-calm';
+  if (v < 30) return 'w-l1';
+  if (v < 45) return 'w-l2';
+  if (v < 60) return 'w-l3';
+  return 'w-l4';
+}
+function dayAlertLevel(wind, tmax) {
+  var wl = 0, hl = 0;
+  if (wind != null) {
+    if (wind >= 60) wl = 4;
+    else if (wind >= 45) wl = 3;
+    else if (wind >= 30) wl = 2;
+    else if (wind >= 20) wl = 1;
+  }
+  if (tmax != null) {
+    if (tmax >= 40) hl = 4;
+    else if (tmax >= 38) hl = 3;
+    else if (tmax >= 35) hl = 2;
+  }
+  return { wl: wl, hl: hl, level: Math.max(wl, hl) };
+}
+function getCardAlerts(daily, nDays) {
+  var alerts = [], n = Math.min(nDays, (daily.time||[]).length);
+  for (var i = 0; i < n; i++) {
+    var wind = (daily.windspeed_10m_max||[])[i];
+    var tmax = (daily.temperature_2m_max||[])[i];
+    var dt   = (daily.time||[])[i] || '';
+    var lbl  = dayLabel(dt, i);
+    var al   = dayAlertLevel(wind, tmax);
+    if (al.wl >= 2) alerts.push({ type:'wind', day:i, lbl:lbl, val:Math.round(wind)+' km/h', level:al.wl });
+    if (al.hl >= 2) alerts.push({ type:'heat', day:i, lbl:lbl, val:Math.round(tmax)+'°',     level:al.hl });
+  }
+  return alerts;
+}
+function tempClass(v) {
+  if (v == null) return '';
+  if (v >= 38) return 't-extreme';
+  if (v >= 33) return 't-hot';
+  if (v >= 27) return 't-warm';
+  if (v <= 10) return 't-cool';
+  return '';
+}
+
+// ─── Helpers de modo ─────────────────────────────────────────────────────────
+function getMaxMetric(daily, nDays, mode) {
+  if (!daily) return null;
+  var n = Math.min(nDays, (daily.time||[]).length);
+  var max = null;
+  var key = mode === 'wind' ? 'windspeed_10m_max' : 'temperature_2m_max';
+  for (var i = 0; i < n; i++) {
+    var v = (daily[key]||[])[i];
+    if (v != null && (max === null || v > max)) max = v;
+  }
+  return max;
+}
+function setMode(m) {
+  currentMode = m;
+  document.getElementById('mode-temp').classList.toggle('active', m === 'temp');
+  document.getElementById('mode-wind').classList.toggle('active', m === 'wind');
+  document.getElementById('mode-sub').textContent = m === 'temp'
+    ? 'Ordenados por temperatura máxima · de mayor a menor'
+    : 'Ordenados por viento máximo · de mayor a menor';
+  if (Object.keys(weatherData).length > 0) buildTable();
+}
+
+// ─── Render cards ────────────────────────────────────────────────────────────
+function buildTable() {
+  var wrap = document.getElementById('cards-wrap');
+  wrap.innerHTML = '';
+  document.getElementById('alert-strip').style.display = 'none';
+
+  var sampleDaily = null;
+  for (var si = 0; si < DESTINOS.length; si++) {
+    if (weatherData[DESTINOS[si].slug]) { sampleDaily = weatherData[DESTINOS[si].slug]; break; }
+  }
+  var days = Math.min(currentDays, sampleDaily ? (sampleDaily.time||[]).length : 7);
+  var peakKey = currentMode === 'wind' ? 'windspeed_10m_max' : 'temperature_2m_max';
+
+  // Sort all destinations by max metric DESC (flat list, no region grouping)
+  var sorted = DESTINOS.slice()
+    .filter(function(d) { return weatherData[d.slug]; })
+    .sort(function(a, b) {
+      var va = getMaxMetric(weatherData[a.slug], days, currentMode);
+      var vb = getMaxMetric(weatherData[b.slug], days, currentMode);
+      return (vb || 0) - (va || 0);
+    });
+
+  var listDiv = document.createElement('div');
+  listDiv.className = 'cards-list';
+
+  sorted.forEach(function(dest) {
+    var daily = weatherData[dest.slug];
+    var n = Math.min(days, (daily.time||[]).length);
+
+    // Find peak value and the day it occurs
+    var rawPeak = null, peakIdx = -1;
+    for (var pi = 0; pi < n; pi++) {
+      var pv = (daily[peakKey]||[])[pi];
+      if (pv != null && (rawPeak === null || pv > rawPeak)) { rawPeak = pv; peakIdx = pi; }
+    }
+    var peakVal    = rawPeak !== null ? Math.round(rawPeak) : null;
+    var peakDt     = peakIdx >= 0 ? ((daily.time||[])[peakIdx] || '') : '';
+    var peakDayLbl = peakIdx >= 0 ? dayLabel(peakDt, peakIdx) : '';
+
+    // Badge color
+    var pkCls = 'pk-low';
+    if (currentMode === 'temp') {
+      if (peakVal >= 40) pkCls = 'pk-extreme';
+      else if (peakVal >= 38) pkCls = 'pk-high';
+      else if (peakVal >= 35) pkCls = 'pk-warn';
+      else if (peakVal >= 30) pkCls = 'pk-mild';
+    } else {
+      if (peakVal >= 60) pkCls = 'pk-extreme';
+      else if (peakVal >= 45) pkCls = 'pk-high';
+      else if (peakVal >= 30) pkCls = 'pk-warn';
+      else if (peakVal >= 20) pkCls = 'pk-mild';
+    }
+
+    var peakStr = peakVal !== null
+      ? (currentMode === 'temp' ? peakVal + '°' : peakVal + ' km/h')
+      : '—';
+
+    var cardAlerts = getCardAlerts(daily, days);
+    var card = document.createElement('div');
+    card.className = 'dest-card' + (cardAlerts.length > 0 ? ' has-alerts' : '');
+
+    // Card header: name + region (left), peak badge (right)
+    var top = document.createElement('div');
+    top.className = 'card-top';
+    top.innerHTML = '<div>'
+      + '<div class="card-dest-name">' + dest.name + '</div>'
+      + '<div class="card-region">' + dest.group + '</div>'
+      + '</div>'
+      + '<div style="text-align:right">'
+      + '<div class="card-peak ' + pkCls + '">' + peakStr + '</div>'
+      + (peakDayLbl ? '<div class="card-peak-sub">' + peakDayLbl + '</div>' : '')
+      + '</div>';
+    card.appendChild(top);
+
+    // Alert bar filtered by mode
+    var modeAlerts = cardAlerts.filter(function(a) {
+      return currentMode === 'wind' ? a.type === 'wind' : a.type === 'heat';
+    });
+    if (modeAlerts.length > 0) {
+      var aBar = document.createElement('div');
+      aBar.className = 'card-alert-bar';
+      aBar.innerHTML = '<span class="cab-lbl">⚠</span>'
+        + modeAlerts.map(function(a) {
+            return ' <span class="atag ' + (a.type === 'wind' ? 'wa' : 'ha') + '">'
+              + (a.type === 'wind' ? '💨' : '🌡') + ' ' + a.lbl + ' · ' + a.val + '</span>';
+          }).join('');
+      card.appendChild(aBar);
+    }
+
+    // Day pills
+    var dRow = document.createElement('div');
+    dRow.className = 'card-days';
+
+    for (var i = 0; i < days; i++) {
+      var code = (daily.weathercode||[])[i];
+      var tmax = (daily.temperature_2m_max||[])[i];
+      var tmin = (daily.temperature_2m_min||[])[i];
+      var wind = (daily.windspeed_10m_max||[])[i];
+      var prob = (daily.precipitation_probability_max||[])[i];
+      var dt   = (daily.time||[])[i] || '';
+      var al   = dayAlertLevel(wind, tmax);
+      var sevLevel = currentMode === 'temp' ? al.hl : al.wl;
+
+      var pill = document.createElement('div');
+      pill.className = 'day-pill'
+        + (i === 0 ? ' dp-today' : '')
+        + (sevLevel > 0 ? ' sev-' + sevLevel : '');
+
+      var pillContent = '<div class="dp-day">' + dayLabel(dt, i) + '</div>'
+        + '<div class="dp-date">' + shortDate(dt) + '</div>';
+
+      if (currentMode === 'temp') {
+        pillContent += '<div class="dp-ico">' + wmoIcon(code) + '</div>'
+          + '<div class="dp-hi ' + tempClass(tmax) + '">' + (tmax != null ? Math.round(tmax) + '°' : '—') + '</div>'
+          + '<div class="dp-lo">' + (tmin != null ? Math.round(tmin) + '°' : '') + '</div>';
+      } else {
+        pillContent += wind != null
+          ? '<div class="dp-wind-val ' + windClass(wind) + '">' + Math.round(wind) + '</div>'
+            + '<div class="dp-unit">km/h</div>'
+          : '<div class="dp-wind-val w-none">—</div>';
+      }
+      pillContent += (prob != null && prob >= 20 ? '<div class="dp-rain">' + prob + '%</div>' : '');
+      pill.innerHTML = pillContent;
+
+      dRow.appendChild(pill);
+    }
+    card.appendChild(dRow);
+    listDiv.appendChild(card);
+  });
+
+  wrap.appendChild(listDiv);
+  document.getElementById('cards-wrap').style.display = '';
+  document.getElementById('updated-ts').textContent =
+    'Actualizado ' + new Date().toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'});
+}
+
+function renderAlertStrip(allAlerts) {
+  var strip = document.getElementById('alert-strip');
+  var chips = document.getElementById('alert-chips');
+  if (allAlerts.length === 0) { strip.style.display = 'none'; return; }
+  strip.style.display = 'flex';
+  document.getElementById('alert-count').textContent =
+    '⚠ ' + allAlerts.length + ' alerta' + (allAlerts.length > 1 ? 's' : '') + ' · 7 días —';
+
+  var seen = new Set();
+  var unique = allAlerts.filter(function(a) {
+    var k = a.slug+'|'+a.type+'|'+a.day;
+    if (seen.has(k)) return false; seen.add(k); return true;
+  });
+  var ord = {storm:0,heat:1,cold:2,wind:3,rain:4,snow:5};
+  unique.sort(function(a,b){ return a.day - b.day || (ord[a.type]||9)-(ord[b.type]||9); });
+  var emo = {wind:'💨',rain:'🌧️',snow:'❄️',heat:'🌡️',cold:'🥶',storm:'⛈️'};
+  chips.innerHTML = unique.slice(0,30).map(function(a){
+    return '<span class="a-chip '+a.type+'">'
+      +emo[a.type]+' <span class="dest">'+a.name+'</span>'
+      +' <span class="info">'+a.dl+(a.val?' · '+a.val:'')+'</span>'
+      +'</span>';
+  }).join('');
+}
+
+// ─── Controles ────────────────────────────────────────────────────────────────
+function setDays(n) {
+  currentDays = n;
+  document.getElementById('btn7').classList.toggle('active', n===7);
+  document.getElementById('btn14').classList.toggle('active', n===14);
+  if (Object.keys(weatherData).length > 0) buildTable();
+}
+function setFilter(f) {
+  currentFilter = f;
+  ['all','alert','es','pt'].forEach(function(id){
+    document.getElementById('f-'+id).classList.toggle('active', id===f);
+  });
+  if (Object.keys(weatherData).length > 0) buildTable();
+}
+function setTempFilter(v) {
+  currentTempMin = v;
+  [0,25,30,35,38].forEach(function(x){
+    document.getElementById('t-'+x).classList.toggle('active', x===v);
+  });
+  if (Object.keys(weatherData).length > 0) buildTable();
+}
+function setWindFilter(v) {
+  currentWindMin = v;
+  [0,25,40,55,70].forEach(function(x){
+    document.getElementById('w-'+x).classList.toggle('active', x===v);
+  });
+  if (Object.keys(weatherData).length > 0) buildTable();
+}
+
+// ─── Init ────────────────────────────────────────────────────────────────────
+(async function() {
+  try {
+    await loadAll();
+    document.getElementById('loading').style.display = 'none';
+    buildTable();
+  } catch(e) {
+    document.getElementById('load-msg').textContent = 'Error al cargar los datos';
+    document.getElementById('load-sub').textContent = e.message || 'Inténtalo de nuevo';
+  }
+})();
+</script>
+</body>
+</html>

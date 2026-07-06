@@ -17,15 +17,7 @@ const TIKTOK_ADGROUPS_PATH = path.join(__dirname, "tiktok-adgroups-data.json");
 const DATA_PATH       = path.join(__dirname, "data.json");
 const CAMPAIGNS_PATH  = path.join(__dirname, "campaigns-data.json");
 
-const DESTINOS = ["las-arenas","isla-cristina","trafalgar","costa-brava","canos","los-canos","somo-playa","somo","tarifa","ria-de-vigo","roquetas","llanes","tossa-de-mar","cambrils","paloma","kikopark-playa","kikopark","cova-negra","alquezar","bayona-playa","bayona","benicassim","blanes","navajas","lago-de-arcos","sierra-nevada","picos-urbion","picos","el-palmar","palmar"];
-
-function extractDestination(name) {
-  const lower = name.toLowerCase();
-  for (const dest of DESTINOS) {
-    if (lower.includes(dest)) return dest;
-  }
-  return "sin-etiquetar";
-}
+const { extractDestination } = require("./destinos-config");
 
 function daysAgo(n) {
   const d = new Date();
@@ -170,8 +162,15 @@ async function refreshTikTok(dateFrom, dateTo) {
 
   adRaw.forEach(item => {
     const date = item.dimensions.stat_time_day.slice(0, 10);
-    const adName = item.metrics.ad_name || "";
-    const dest = extractDestination(adName);
+    const adName      = item.metrics.ad_name      || "";
+    const adgroupName = item.metrics.adgroup_name  || "";
+    const campName    = item.metrics.campaign_name || "";
+    // Cascada: ad name → adgroup name → campaign name
+    const dest = extractDestination(adName) !== "sin-etiquetar"
+      ? extractDestination(adName)
+      : extractDestination(adgroupName) !== "sin-etiquetar"
+        ? extractDestination(adgroupName)
+        : extractDestination(campName);
     const spend = parseFloat(item.metrics.spend) || 0;
 
     if (!destByDate[date]) destByDate[date] = {};

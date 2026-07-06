@@ -21,23 +21,24 @@ const CAMPAIGNS_PATH         = path.join(__dirname, "campaigns-data.json");
 const GADS_PATH              = path.join(__dirname, "gads-data.json");
 const GOOGLE_ADGROUPS_PATH   = path.join(__dirname, "google-adgroups-data.json");
 
-// Destinos conocidos (misma lista que meta-refresh.js)
-const DESTINOS = ["las-arenas","isla-cristina","trafalgar","costa-brava","canos","los-canos","somo-playa","somo","tarifa","ria-de-vigo","roquetas","llanes","tossa-de-mar","cambrils","paloma","kikopark-playa","kikopark","cova-negra","alquezar","bayona-playa","bayona","benicassim","blanes","navajas","lago-de-arcos","sierra-nevada","picos-urbion","picos","el-palmar","palmar"];
+const { extractDestination, normalize } = require("./destinos-config");
 
 function extractDestinationFromAdGroup(name) {
-  // Patrón: Search_[Tipo]_DESTINO (e.g. Search_No-Marca_las-arenas, Search_Marca_tarifa)
-  const lower = name.toLowerCase().trim();
-  const match = lower.match(/^search_[^_]+_([\w\-]+(?:_[\w\-]+)*)$/);
+  // 1. Patrón: Search_[Tipo]_DESTINO (e.g. Search_No-Marca_las-arenas, Search_Marca_tarifa)
+  //    Usa nombre normalizado para manejar tildes (doñana, los-caños, etc.)
+  const norm = normalize(name);
+  const match = norm.match(/^search[_-][^_]+[_-]([\w\-]+(?:[_-][\w\-]+)*)$/);
   if (match) {
     const dest = match[1].replace(/_/g, "-");
-    // Buscar en destinos conocidos
-    for (const d of DESTINOS) {
-      if (dest === d) return d;
-    }
-    // Aceptar slugs desconocidos que tengan formato de destino (sin espacios, 3+ chars)
-    if (dest.length >= 3 && !dest.includes(" ")) return dest;
+    // Buscar en destinos conocidos (ya normalizados)
+    const known = extractDestination(dest);
+    if (known !== "sin-etiquetar") return known;
+    // Aceptar slugs desconocidos con formato válido (sin espacios, 3+ chars)
+    if (dest.length >= 3) return dest;
   }
-  return "sin-etiquetar";
+
+  // 2. Fallback: buscar destino conocido en cualquier parte del nombre
+  return extractDestination(name);
 }
 
 function daysAgo(n) {

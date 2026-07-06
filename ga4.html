@@ -60,7 +60,7 @@
 
   main { padding: 24px 32px 32px; max-width: 1400px; margin: 0 auto; }
 
-  .kpi-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 24px; }
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
   .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; border-top: 3px solid; }
   .kpi.kpi-views { border-top-color: var(--views); }
   .kpi.kpi-cart { border-top-color: var(--cart); }
@@ -131,10 +131,11 @@
 
 <nav>
   <a href="index.html" class="nav-link">Inversión Publicitaria</a>
-  <a href="objetivos.html" class="nav-link">Por objetivo</a>
   <a href="ga4.html" class="nav-link active">Propiedades Vistas · GA4</a>
-  <a href="google.html" class="nav-link">Google Ads · Optimización</a>
-  <a href="destinos-tipo.html" class="nav-link">Mix por Destino</a>
+  <a href="busqueda-be.html" class="nav-link">Búsqueda BE</a>
+  <a href="gsc.html" class="nav-link">GSC</a>
+  <a href="funnel.html" class="nav-link">Funnel</a>
+  <a href="tiempo.html" class="nav-link">Tiempo</a>
 </nav>
 
 <div class="period-bar">
@@ -157,6 +158,16 @@
       <div class="value" id="kpi-views">—</div>
       <div class="sub" id="kpi-views-sub">view_item</div>
       <div class="delta" id="kpi-views-delta"></div>
+    </div>
+    <div class="kpi kpi-cart">
+      <div class="label">Añadido al carrito</div>
+      <div class="value" id="kpi-cart">—</div>
+      <div class="sub" id="kpi-cart-sub">add_to_cart</div>
+    </div>
+    <div class="kpi kpi-checkout">
+      <div class="label">Inicio de checkout</div>
+      <div class="value" id="kpi-checkout">—</div>
+      <div class="sub" id="kpi-checkout-sub">begin_checkout</div>
     </div>
     <div class="kpi kpi-purchases">
       <div class="label">Reservas completadas</div>
@@ -198,6 +209,7 @@
 <script>
 fetch('ga4-data.json').then(function(r){return r.json();}).then(function(data){
   var GA4_ROWS = data.rows;
+  var GA4_EVENTS = data.events || {};
   var GA4_DATE_MAX = data.updated;
   var _d = GA4_DATE_MAX.split('-');
   var GA4_UPDATED = _d[2]+'/'+_d[1]+'/'+_d[0];
@@ -264,6 +276,20 @@ fetch('ga4-data.json').then(function(r){return r.json();}).then(function(data){
     return Object.values(map);
   }
 
+  function aggregateEvents(from, to) {
+    var fNum = parseInt(toYMD(from)), tNum = parseInt(toYMD(to));
+    var sums = {};
+    for (var dateStr in GA4_EVENTS) {
+      var d = parseInt(dateStr);
+      if (d < fNum || d > tNum) continue;
+      var evs = GA4_EVENTS[dateStr];
+      for (var ev in evs) {
+        sums[ev] = (sums[ev] || 0) + evs[ev];
+      }
+    }
+    return sums;
+  }
+
   // Sort state
   var sortCol = "views", sortDir = -1;
   var currentFrom = "", currentTo = "";
@@ -288,39 +314,30 @@ fetch('ga4-data.json').then(function(r){return r.json();}).then(function(data){
   }
 
   var COLS = [
-    { key: "name",           label: "Propiedad",        cls: "" },
-    { key: "views",          label: "Vistas",            cls: "views-val" },
-    { key: "views_prev",     label: "Vistas año ant.",   cls: "pct-val" },
-    { key: "views_pct",      label: "Δ vistas",          cls: "pct-val", noSort: true },
-    { key: "purchases",      label: "Reservas",          cls: "purchase-val" },
-    { key: "purchases_prev", label: "Reservas año ant.", cls: "purchase-val" },
-    { key: "purchases_pct",  label: "Δ reservas",        cls: "pct-val", noSort: true },
-    { key: "cvr_view",       label: "Vista→Reserva",     cls: "pct-val" },
+    { key: "name",      label: "Propiedad",  cls: "" },
+    { key: "views",     label: "Vistas",     cls: "views-val" },
+    { key: "cart",      label: "Carrito",    cls: "cart-val" },
+    { key: "cvr_cart",  label: "Vis.→Cart",  cls: "pct-val", noSort: true },
+    { key: "checkout",  label: "Checkout",   cls: "checkout-val" },
+    { key: "cvr_chk",   label: "Cart→Chk.",  cls: "pct-val", noSort: true },
+    { key: "purchases", label: "Reservas",   cls: "purchase-val" },
+    { key: "cvr_view",  label: "Vis.→Res.",  cls: "pct-val", noSort: true },
   ];
 
   function renderDashboard(from, to) {
     currentFrom = from; currentTo = to;
     var rows = aggregate(from, to);
 
-    // Previous year period for YoY
+    // Previous year period for YoY (KPIs only)
     var fromP = shiftYearBack(from), toP = shiftYearBack(to);
     var prevRows = aggregate(fromP, toP);
-    var prevMap = {};
-    for (var i = 0; i < prevRows.length; i++) prevMap[prevRows[i].name] = prevRows[i];
-
-    // Enrich rows with previous year values and delta
-    for (var i = 0; i < rows.length; i++) {
-      var pr = prevMap[rows[i].name];
-      rows[i].views_prev     = pr ? pr.views     : null;
-      rows[i].purchases_prev = pr ? pr.purchases : null;
-      rows[i].views_yoy_raw     = (pr && pr.views     > 0) ? (rows[i].views     - pr.views)     / pr.views     * 100 : null;
-      rows[i].purchases_yoy_raw = (pr && pr.purchases > 0) ? (rows[i].purchases - pr.purchases) / pr.purchases * 100 : null;
-    }
 
     // Totals
-    var totV = 0, totP = 0, totVP = 0, totPP = 0;
+    var totV = 0, totC = 0, totCh = 0, totP = 0, totVP = 0, totPP = 0;
     for (var i = 0; i < rows.length; i++) {
       totV  += rows[i].views;
+      totC  += rows[i].cart;
+      totCh += rows[i].checkout;
       totP  += rows[i].purchases;
     }
     for (var i = 0; i < prevRows.length; i++) {
@@ -328,45 +345,72 @@ fetch('ga4-data.json').then(function(r){return r.json();}).then(function(data){
       totPP += prevRows[i].purchases;
     }
 
+    // Event totals (view_room, add_payment_info) from events dict
+    var evTotals   = aggregateEvents(from, to);
+    var totRoom    = evTotals["view_room"]        || 0;
+    var totPayment = evTotals["add_payment_info"] || 0;
+
     // KPIs
-    document.getElementById("kpi-views").textContent    = n(totV);
-    document.getElementById("kpi-purchases").textContent= n(totP);
-    document.getElementById("kpi-views-sub").textContent    = fmtDisplay(toYMD(from)) + " – " + fmtDisplay(toYMD(to));
-    document.getElementById("kpi-purchases-sub").textContent= pct(totP,  totV) + " conv. vista→reserva";
+    document.getElementById("kpi-views").textContent     = n(totV);
+    document.getElementById("kpi-cart").textContent      = n(totC);
+    document.getElementById("kpi-checkout").textContent  = n(totCh);
+    document.getElementById("kpi-purchases").textContent = n(totP);
+    document.getElementById("kpi-views-sub").textContent     = fmtDisplay(toYMD(from)) + " – " + fmtDisplay(toYMD(to));
+    document.getElementById("kpi-cart-sub").textContent      = pct(totC, totV) + " de vistas";
+    document.getElementById("kpi-checkout-sub").textContent  = pct(totCh, totC) + " del carrito";
+    document.getElementById("kpi-purchases-sub").textContent = pct(totP, totV) + " conv. total";
     var vLabel = totVP ? "<span style='color:var(--muted);font-size:11px'>Año ant.: " + n(totVP) + " &nbsp;</span>" : "";
     var pLabel = totPP ? "<span style='color:var(--muted);font-size:11px'>Año ant.: " + n(totPP) + " &nbsp;</span>" : "";
     document.getElementById("kpi-views-delta").innerHTML    = vLabel + yoyHtml(totV, totVP, true);
     document.getElementById("kpi-purchases-delta").innerHTML= pLabel + yoyHtml(totP, totPP, true);
 
-    // Funnel
+    // Funnel — build steps dynamically, include events if data exists
     var funnelEl = document.getElementById("funnel");
-    var steps = [
-      { label: "Vistas",   val: totV, color: "var(--views)",     pctOf: null },
-      { label: "Reservas", val: totP, color: "var(--purchases)", pctOf: totV },
-    ];
-    var html = "";
-    for (var si = 0; si < steps.length; si++) {
-      var s = steps[si];
-      var barW = totV > 0 ? Math.round(s.val / totV * 100) : 0;
-      var pctLabel = s.pctOf !== null ? (" · " + pct(s.val, s.pctOf) + " del paso anterior") : "";
-      html += "<div class='funnel-item'>";
-      html += "<div class='funnel-label'><span style='color:" + s.color + "'>" + s.label + "</span><span style='color:var(--text);font-weight:700'>" + n(s.val) + "</span></div>";
-      html += "<div class='funnel-bar-bg'><div class='funnel-bar' style='width:" + barW + "%;background:" + s.color + "'></div></div>";
-      html += "<div class='funnel-pct'>" + barW + "% del total de vistas" + pctLabel + "</div>";
-      html += "</div>";
+    // Build funnel steps: view_room and add_payment_info shown as context steps (no position constraint)
+    var funnelSteps = [];
+    if (totRoom > 0) funnelSteps.push({ label: "Vista habitación", val: totRoom, color: "var(--accent)", ctx: true });
+    funnelSteps.push({ label: "Vista propiedad", val: totV, color: "var(--views)" });
+    funnelSteps.push({ label: "Añadido al carrito", val: totC, color: "var(--cart)" });
+    funnelSteps.push({ label: "Inicio checkout", val: totCh, color: "var(--checkout)" });
+    if (totPayment > 0) funnelSteps.push({ label: "Info de pago", val: totPayment, color: "#a78bfa", ctx: true });
+    funnelSteps.push({ label: "Reserva completada", val: totP, color: "var(--purchases)" });
+    var funnelMax = 1;
+    for (var si = 0; si < funnelSteps.length; si++) { if (funnelSteps[si].val > funnelMax) funnelMax = funnelSteps[si].val; }
+    var funnelHtml = "";
+    for (var si = 0; si < funnelSteps.length; si++) {
+      var s = funnelSteps[si];
+      var barW = Math.round(s.val / funnelMax * 100);
+      // For conversion %, context steps compare to the nearest non-context previous step
+      var prevVal = null;
+      for (var pi = si - 1; pi >= 0; pi--) { if (!funnelSteps[pi].ctx) { prevVal = funnelSteps[pi].val; break; } }
+      var pctLabel = (!s.ctx && prevVal !== null) ? (" · " + pct(s.val, prevVal) + " del anterior") : "";
+      funnelHtml += "<div class='funnel-item'>";
+      funnelHtml += "<div class='funnel-label'><span style='color:" + s.color + ";font-size:11px'>" + s.label + "</span><span style='color:var(--text);font-weight:700'>" + n(s.val) + "</span></div>";
+      funnelHtml += "<div class='funnel-bar-bg'><div class='funnel-bar' style='width:" + barW + "%;background:" + s.color + "'></div></div>";
+      var pctOfMax = barW + "% del máximo";
+      funnelHtml += "<div class='funnel-pct'>" + pctOfMax + pctLabel + "</div>";
+      funnelHtml += "</div>";
     }
-    funnelEl.innerHTML = html;
+    funnelEl.innerHTML = funnelHtml;
 
     // Sort rows
-    rows.sort(function(a,b) {
+    rows.sort(function(a, b) {
       if (sortCol === "name") { return sortDir * a.name.localeCompare(b.name); }
       if (sortCol === "cvr_view") {
         var av = a.views > 0 ? a.purchases / a.views : 0;
         var bv = b.views > 0 ? b.purchases / b.views : 0;
         return sortDir * (bv - av);
       }
-      if (sortCol === "views_pct")     { return sortDir * ((b.views_yoy_raw||0)     - (a.views_yoy_raw||0)); }
-      if (sortCol === "purchases_pct") { return sortDir * ((b.purchases_yoy_raw||0) - (a.purchases_yoy_raw||0)); }
+      if (sortCol === "cvr_cart") {
+        var av = a.views > 0 ? a.cart / a.views : 0;
+        var bv = b.views > 0 ? b.cart / b.views : 0;
+        return sortDir * (bv - av);
+      }
+      if (sortCol === "cvr_chk") {
+        var av = a.cart > 0 ? a.checkout / a.cart : 0;
+        var bv = b.cart > 0 ? b.checkout / b.cart : 0;
+        return sortDir * (bv - av);
+      }
       var av = a[sortCol] !== null && a[sortCol] !== undefined ? a[sortCol] : -Infinity;
       var bv = b[sortCol] !== null && b[sortCol] !== undefined ? b[sortCol] : -Infinity;
       return sortDir * (bv - av);
@@ -408,14 +452,13 @@ fetch('ga4-data.json').then(function(r){return r.json();}).then(function(data){
       var shortName = rw.name.replace("Kampaoh ", "");
       tbodyHtml += "<tr>";
       tbodyHtml += "<td title='" + rw.name + "'>" + shortName + "</td>";
-      var neu = "<span class='yoy-neu'>—</span>";
-      tbodyHtml += "<td class='views-val'>" + n(rw.views) + "</td>";
-      tbodyHtml += "<td class='pct-val'>" + (rw.views_prev !== null ? n(rw.views_prev) : neu) + "</td>";
-      tbodyHtml += "<td class='pct-val'>" + yoyHtml(rw.views, rw.views_prev, true) + "</td>";
+      tbodyHtml += "<td class='views-val'>"    + n(rw.views) + "</td>";
+      tbodyHtml += "<td class='cart-val'>"     + n(rw.cart) + "</td>";
+      tbodyHtml += "<td class='pct-val'>"      + pct(rw.cart, rw.views) + "</td>";
+      tbodyHtml += "<td class='checkout-val'>" + n(rw.checkout) + "</td>";
+      tbodyHtml += "<td class='pct-val'>"      + pct(rw.checkout, rw.cart) + "</td>";
       tbodyHtml += "<td class='purchase-val'>" + n(rw.purchases) + "</td>";
-      tbodyHtml += "<td class='purchase-val'>" + (rw.purchases_prev !== null ? n(rw.purchases_prev) : neu) + "</td>";
-      tbodyHtml += "<td class='pct-val'>" + yoyHtml(rw.purchases, rw.purchases_prev, true) + "</td>";
-      tbodyHtml += "<td class='pct-val'>" + pct(rw.purchases, rw.views) + "</td>";
+      tbodyHtml += "<td class='pct-val'>"      + pct(rw.purchases, rw.views) + "</td>";
       tbodyHtml += "</tr>";
     }
     document.getElementById("tbody").innerHTML = tbodyHtml;
@@ -423,13 +466,13 @@ fetch('ga4-data.json').then(function(r){return r.json();}).then(function(data){
     // Table footer
     document.getElementById("tfoot").innerHTML =
       "<tr class='tfoot-row'><td>TOTAL</td>" +
-      "<td class='views-val'>" + n(totV) + "</td>" +
-      "<td class='pct-val'>" + (totVP ? n(totVP) : "—") + "</td>" +
-      "<td class='pct-val'>" + yoyHtml(totV, totVP, true) + "</td>" +
-      "<td class='purchase-val'>" + n(totP) + "</td>" +
-      "<td class='purchase-val'>" + (totPP ? n(totPP) : "—") + "</td>" +
-      "<td class='pct-val'>" + yoyHtml(totP, totPP, true) + "</td>" +
-      "<td class='pct-val'>" + pct(totP,totV) + "</td></tr>";
+      "<td class='views-val'>"    + n(totV)  + "</td>" +
+      "<td class='cart-val'>"     + n(totC)  + "</td>" +
+      "<td class='pct-val'>"      + pct(totC, totV)  + "</td>" +
+      "<td class='checkout-val'>" + n(totCh) + "</td>" +
+      "<td class='pct-val'>"      + pct(totCh, totC) + "</td>" +
+      "<td class='purchase-val'>" + n(totP)  + "</td>" +
+      "<td class='pct-val'>"      + pct(totP, totV)  + "</td></tr>";
 
     // Top 15 chart
     var top15 = rows.slice().sort(function(a,b){ return b.views - a.views; }).slice(0,15);
@@ -440,8 +483,10 @@ fetch('ga4-data.json').then(function(r){return r.json();}).then(function(data){
         data: {
           labels: top15.map(function(d){ return d.name.replace("Kampaoh ",""); }),
           datasets: [
-            { label: "Vistas",   data: top15.map(function(d){return d.views;}),     backgroundColor: "rgba(99,102,241,0.8)", stack: "s" },
-            { label: "Reservas", data: top15.map(function(d){return d.purchases;}), backgroundColor: "rgba(34,197,94,0.8)",  stack: "s2" }
+            { label: "Vistas",   data: top15.map(function(d){return d.views;}),     backgroundColor: "rgba(99,102,241,0.75)", stack: "s1" },
+            { label: "Carrito",  data: top15.map(function(d){return d.cart;}),      backgroundColor: "rgba(245,158,11,0.75)", stack: "s2" },
+            { label: "Checkout", data: top15.map(function(d){return d.checkout;}),  backgroundColor: "rgba(16,185,129,0.75)", stack: "s3" },
+            { label: "Reservas", data: top15.map(function(d){return d.purchases;}), backgroundColor: "rgba(34,197,94,0.75)",  stack: "s4" }
           ]
         },
         options: {

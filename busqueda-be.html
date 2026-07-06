@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kampaoh · Búsqueda BE</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --surface2: #222536;
+  --border: #2e3149;
+  --text: #e8eaf0;
+  --muted: #7b7f9e;
+  --accent: #6366f1;
+  --search: #f59e0b;
+  --mascota: #10b981;
+  --danger: #ef4444;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; }
+
+header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+header h1 { font-size: 18px; font-weight: 700; }
+header h1 span { color: var(--accent); }
+.meta-info { color: var(--muted); font-size: 12px; }
+.meta-info strong { color: var(--text); }
+
+nav { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; gap: 0; overflow-x: auto; }
+.nav-link { padding: 10px 16px; font-size: 12px; font-weight: 600; color: var(--muted); text-decoration: none; border-bottom: 2px solid transparent; white-space: nowrap; }
+.nav-link.active { color: var(--accent); border-bottom-color: var(--accent); }
+.nav-link:hover { color: var(--text); }
+
+.period-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 32px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.period-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-right: 4px; }
+.period-btn { padding: 5px 13px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; transition: all .15s; }
+.period-btn:hover { border-color: var(--accent); color: var(--accent); }
+.period-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.date-sep { color: var(--border); font-size: 16px; margin: 0 2px; }
+.date-input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 4px 8px; font-size: 12px; cursor: pointer; }
+.date-input:focus { outline: none; border-color: var(--accent); }
+.delay-note { margin-left: auto; font-size: 11px; color: var(--muted); }
+
+.filter-bar { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 10px 32px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.dest-select { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 6px 28px 6px 10px; font-size: 12px; width: 220px; appearance: none; -webkit-appearance: none; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%237b7f9e' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 9px center; }
+.dest-select:focus { outline: none; border-color: var(--accent); }
+.dest-select option { background: var(--surface2); color: var(--text); }
+.toggle-btn { padding: 5px 14px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; transition: all .15s; }
+.toggle-btn:hover { border-color: var(--mascota); color: var(--mascota); }
+.toggle-btn.active { background: var(--mascota); border-color: var(--mascota); color: #fff; font-weight: 600; }
+.filter-count { font-size: 11px; color: var(--muted); margin-left: auto; }
+.export-btn { padding: 5px 14px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 11px; font-weight: 600; cursor: pointer; letter-spacing: 0.4px; }
+.export-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+main { padding: 24px 32px 32px; max-width: 1440px; margin: 0 auto; }
+
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+.kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; border-top: 3px solid; }
+.kpi.kpi-total    { border-top-color: var(--accent); }
+.kpi.kpi-combos   { border-top-color: var(--search); }
+.kpi.kpi-destinos { border-top-color: #a78bfa; }
+.kpi.kpi-mascota  { border-top-color: var(--mascota); }
+.kpi .label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 7px; }
+.kpi .value { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+.kpi.kpi-total    .value { color: var(--accent); }
+.kpi.kpi-combos   .value { color: var(--search); }
+.kpi.kpi-destinos .value { color: #a78bfa; }
+.kpi.kpi-mascota  .value { color: var(--mascota); }
+.kpi .sub { color: var(--muted); font-size: 11px; margin-top: 3px; }
+
+.charts-row { display: grid; grid-template-columns: 1fr 300px; gap: 20px; margin-bottom: 24px; }
+.chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+.chart-card h3 { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 16px; }
+
+.stats-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+.stats-card h3 { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 16px; }
+.stat-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.stat-row:last-child { border-bottom: none; }
+.stat-label { color: var(--muted); }
+.stat-value { font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+
+.top-dest-list { margin-top: 4px; }
+.top-dest-item { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.top-dest-item:last-child { border-bottom: none; }
+.top-dest-rank { color: var(--muted); font-size: 11px; width: 16px; text-align: right; flex-shrink: 0; }
+.top-dest-name { flex: 1; font-size: 12px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.top-dest-bar-bg { width: 60px; background: var(--surface2); border-radius: 3px; height: 5px; flex-shrink: 0; overflow: hidden; }
+.top-dest-bar { height: 100%; border-radius: 3px; background: var(--accent); }
+.top-dest-count { font-size: 11px; color: var(--search); font-weight: 700; width: 36px; text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+
+.table-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.table-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.table-header h3 { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; }
+.table-note { font-size: 11px; color: var(--muted); margin-left: auto; }
+
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 800px; }
+th { padding: 9px 12px; text-align: right; font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; background: var(--surface2); border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; white-space: nowrap; }
+th:first-child { text-align: left; }
+th .sort-arrow { margin-left: 4px; opacity: 0.4; }
+th.sorted .sort-arrow { opacity: 1; color: var(--accent); }
+th:hover { color: var(--text); }
+td { padding: 8px 12px; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.04); font-variant-numeric: tabular-nums; font-size: 12px; }
+td:first-child { text-align: left; font-weight: 600; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.025); }
+.tfoot-row td { font-weight: 700; background: var(--surface2); border-top: 1px solid var(--border); }
+.count-val { color: var(--search); font-weight: 700; }
+.mascota-si { color: var(--mascota); font-weight: 600; }
+.mascota-no { color: var(--muted); }
+.noches-val { color: var(--muted); }
+td.date-val { font-size: 11px; }
+.empty-state { padding: 48px; text-align: center; color: var(--muted); font-size: 13px; }
+
+.badge-zona { display:inline-block; background:#1e3a5f; color:#60a5fa; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700; white-space:nowrap; }
+.badge-prop { display:inline-block; background:#1a3a2a; color:#4ade80; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700; white-space:nowrap; }
+.badge-fds  { display:inline-block; background:rgba(245,158,11,0.15); color:#f59e0b; padding:1px 6px; border-radius:8px; font-size:10px; font-weight:700; margin-left:5px; vertical-align:middle; }
+.badge-ls   { display:inline-block; background:rgba(99,102,241,0.12); color:#818cf8; padding:1px 6px; border-radius:8px; font-size:10px; font-weight:700; margin-left:5px; vertical-align:middle; }
+tr.row-zona td:first-child { border-left:3px solid #3b82f6; padding-left:9px; }
+tr.row-prop td:first-child { border-left:3px solid #22c55e; padding-left:9px; }
+.btn-tipo-zona.active { background:#1e3a5f; border-color:#3b82f6; color:#60a5fa; font-weight:600; }
+.btn-tipo-prop.active { background:#1a3a2a; border-color:#22c55e; color:#4ade80; font-weight:600; }
+.dataset-btn { border-color: var(--accent); color: var(--accent); margin-left: auto; }
+.dataset-btn.active { background: var(--surface2); border-color: var(--muted); color: var(--muted); }
+
+.dataset-note { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 7px 32px; display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); }
+.dataset-note strong { color: var(--text); }
+.dataset-note .dn-icon { font-size: 13px; }
+
+/* ── Month bar ── */
+.month-bar-section { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 32px 10px; }
+.month-bar-title { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+.month-bar-title .mbt-clear { font-size: 10px; color: var(--accent); cursor: pointer; background: none; border: none; padding: 0; font-weight: 600; letter-spacing: 0.3px; }
+.month-chips { display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.month-chip { flex: 1 1 0; padding: 7px 8px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer; text-align: center; min-width: 0; transition: all .15s; }
+.month-chip:hover:not(.mc-empty) { border-color: var(--accent); background: rgba(99,102,241,0.08); }
+.month-chip.mc-active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.month-chip.mc-empty { opacity: 0.28; cursor: default; }
+.mc-label { font-size: 11px; font-weight: 700; display: block; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.3px; }
+.mc-count { font-size: 13px; font-weight: 700; color: var(--search); display: block; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.month-chip.mc-active .mc-count { color: #ffe066; }
+.mc-pct { font-size: 10px; color: var(--muted); display: block; margin-top: 2px; }
+.month-chip.mc-active .mc-pct { color: rgba(255,255,255,0.65); }
+
+.insights-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin-bottom: 24px; }
+.insights-card h3 { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 14px; }
+.insights-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+.insight-chip { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; display: flex; align-items: flex-start; gap: 10px; min-width: 200px; flex: 1 1 200px; }
+.insight-chip .ic-icon { font-size: 18px; line-height: 1; flex-shrink: 0; margin-top: 1px; }
+.insight-chip .ic-body { display: flex; flex-direction: column; gap: 2px; }
+.insight-chip .ic-value { font-size: 15px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+.insight-chip .ic-label { font-size: 11px; color: var(--muted); line-height: 1.35; }
+.insight-chip.ic-hot   { border-color: rgba(245,158,11,0.4); }
+.insight-chip.ic-hot   .ic-value { color: var(--search); }
+.insight-chip.ic-blue  { border-color: rgba(96,165,250,0.35); }
+.insight-chip.ic-blue  .ic-value { color: #60a5fa; }
+.insight-chip.ic-green { border-color: rgba(74,222,128,0.35); }
+.insight-chip.ic-green .ic-value { color: #4ade80; }
+.insight-chip.ic-purple{ border-color: rgba(167,139,250,0.35); }
+.insight-chip.ic-purple .ic-value { color: #a78bfa; }
+.insight-chip.ic-list-chip { align-items: flex-start; min-width: 220px; flex: 1 1 220px; }
+.ic-list-title { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; display: block; }
+.ic-list-row { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+.ic-list-pos { font-size: 10px; color: var(--muted); width: 13px; flex-shrink: 0; }
+.ic-list-name { flex: 1; color: var(--text); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ic-list-pct { font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+
+footer { text-align: center; padding: 20px; color: var(--muted); font-size: 11px; border-top: 1px solid var(--border); margin-top: 28px; }
+
+/* ── Inner nav ── */
+.main-inner-nav { display:flex; background:var(--surface); border-bottom:1px solid var(--border); padding:0 32px; }
+.main-inner-tab { padding:10px 18px; font-size:12px; font-weight:600; color:var(--muted); cursor:pointer; border:none; background:transparent; border-bottom:2px solid transparent; transition:color .15s; }
+.main-inner-tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+.main-inner-tab:hover:not(.active) { color:var(--text); }
+
+/* ── Patrones por destino ── */
+.pt-topbar { display:flex; align-items:center; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
+.pt-type-btn { padding:5px 13px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:12px; cursor:pointer; transition:all .15s; }
+.pt-type-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+.pt-sep { width:1px; height:18px; background:var(--border); margin:0 4px; }
+.pt-min-label { font-size:11px; color:var(--muted); }
+.pt-min-input { width:60px; background:var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:6px; padding:4px 8px; font-size:12px; }
+.pt-count { font-size:11px; color:var(--muted); margin-left:auto; }
+.pt-table-wrap { overflow-x:auto; border-radius:10px; border:1px solid var(--border); }
+.pt-table { width:100%; border-collapse:collapse; min-width:860px; }
+.pt-table th { padding:9px 12px; text-align:right; font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; background:var(--surface2); border-bottom:1px solid var(--border); cursor:pointer; white-space:nowrap; user-select:none; }
+.pt-table th:first-child { text-align:left; }
+.pt-table th.pt-sorted { color:var(--accent); }
+.pt-table th:hover:not(.pt-sorted) { color:var(--text); }
+.pt-table td { padding:7px 12px; text-align:right; border-bottom:1px solid rgba(255,255,255,0.03); font-size:12px; font-variant-numeric:tabular-nums; }
+.pt-table td:first-child { text-align:left; font-weight:600; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.pt-table tr:last-child td { border-bottom:none; }
+.pt-table tr:hover td { filter:brightness(1.18); }
+.pt-insights-section { margin-top:24px; }
+.pt-insights-section > h3 { font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.6px; margin-bottom:14px; }
+.pt-insights-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+.pt-ib { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px 18px; border-top-width:3px; }
+.pt-ib-metric { font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px; }
+.pt-ib-row { display:flex; align-items:center; gap:8px; margin-top:6px; }
+.pt-ib-rank { font-size:11px; color:var(--muted); width:14px; flex-shrink:0; }
+.pt-ib-name { flex:1; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.pt-ib-val { font-size:13px; font-weight:700; font-variant-numeric:tabular-nums; flex-shrink:0; }
+.pt-ib-bar { height:3px; border-radius:2px; margin-top:7px; background:var(--border); }
+.pt-ib-bar-fill { height:100%; border-radius:2px; }
+.pt-ib-note { font-size:11px; color:var(--muted); margin-top:10px; line-height:1.45; border-top:1px solid var(--border); padding-top:8px; }
+@media (max-width:900px) { .pt-insights-grid { grid-template-columns:1fr; } }
+
+@media (max-width: 900px) {
+  .kpi-row { grid-template-columns: repeat(2,1fr); }
+  .charts-row { grid-template-columns: 1fr; }
+  main { padding: 16px; }
+  .delay-note { display: none; }
+  .filter-bar { padding: 10px 16px; }
+  .period-bar { padding: 10px 16px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Kampaoh &middot; <span>Búsqueda BE</span></h1>
+  <div class="meta-info">booking.kampaoh.com &middot; Actualizado: <strong id="updated">—</strong></div>
+</header>
+
+<nav>
+  <a href="index.html" class="nav-link">Inversión Publicitaria</a>
+  <a href="ga4.html" class="nav-link">Propiedades Vistas · GA4</a>
+  <a href="busqueda-be.html" class="nav-link active">Búsqueda BE</a>
+  <a href="gsc.html" class="nav-link">GSC</a>
+  <a href="funnel.html" class="nav-link">Funnel</a>
+  <a href="tiempo.html" class="nav-link">Tiempo</a>
+</nav>
+
+<div class="period-bar">
+  <span class="period-label">Período</span>
+  <button class="period-btn" id="btn-ayer">Ayer</button>
+  <button class="period-btn" id="btn-antes">Anteayer</button>
+  <button class="period-btn active" id="btn-7">Ult. 7 días</button>
+  <button class="period-btn" id="btn-14">Ult. 14 días</button>
+  <span class="period-label" style="margin-left:12px">Personalizado</span>
+  <input type="date" id="date-from" class="date-input">
+  <span class="date-sep">→</span>
+  <input type="date" id="date-to" class="date-input">
+  <span class="delay-note">⏱ GA4 tiene retraso de 2 días</span>
+</div>
+
+<div class="filter-bar">
+  <span class="period-label">Filtros</span>
+  <button id="btn-tipo-zona" class="toggle-btn btn-tipo-zona" style="border-color:#3b82f6;color:#60a5fa">Zona</button>
+  <button id="btn-tipo-prop" class="toggle-btn btn-tipo-prop" style="border-color:#22c55e;color:#4ade80">Kampaoh</button>
+  <select id="filter-dest" class="dest-select"><option value="">Todos los destinos</option></select>
+  <button id="btn-mascota" class="toggle-btn">🐾 Con mascota</button>
+  <button id="btn-proximas" class="toggle-btn active">📅 Solo próximas</button>
+  <button id="btn-dataset" class="toggle-btn dataset-btn">🎯 Intención real</button>
+  <span class="filter-count" id="filter-count"></span>
+  <button id="btn-csv" class="export-btn">⬇ CSV</button>
+</div>
+
+<div class="dataset-note" id="dataset-note">
+  <span class="dn-icon">🎯</span>
+  <span><strong>Intención real</strong> — solo usuarios que ya navegaban dentro del booking engine. Excluye visitas llegadas desde WordPress, anuncios u otras webs con parámetros prerrellenados.</span>
+</div>
+
+<div class="month-bar-section">
+  <div class="month-bar-title">
+    Búsquedas por mes de entrada
+    <button class="mbt-clear" id="btn-clear-month" style="display:none">✕ Quitar filtro mes</button>
+  </div>
+  <div class="month-chips" id="month-chips"></div>
+</div>
+
+<div class="main-inner-nav">
+  <button class="main-inner-tab active" id="tab-main-general"  onclick="switchMainView('general')">Vista general</button>
+  <button class="main-inner-tab"        id="tab-main-patterns" onclick="switchMainView('patterns')">Patrones por destino</button>
+</div>
+
+<main>
+  <div id="view-general">
+  <div class="kpi-row">
+    <div class="kpi kpi-total">
+      <div class="label">Total búsquedas</div>
+      <div class="value" id="kpi-total">—</div>
+      <div class="sub" id="kpi-total-sub"></div>
+    </div>
+    <div class="kpi kpi-combos">
+      <div class="label">Combinaciones únicas</div>
+      <div class="value" id="kpi-combos">—</div>
+      <div class="sub">destino + fechas + ocupantes</div>
+    </div>
+    <div class="kpi kpi-destinos">
+      <div class="label">Destinos buscados</div>
+      <div class="value" id="kpi-destinos">—</div>
+      <div class="sub" id="kpi-destinos-sub"></div>
+    </div>
+    <div class="kpi kpi-mascota">
+      <div class="label">Con mascota</div>
+      <div class="value" id="kpi-mascota">—</div>
+      <div class="sub" id="kpi-mascota-sub"></div>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-card">
+      <h3>Top 15 destinos · búsquedas totales</h3>
+      <canvas id="chartTop" style="max-height:380px"></canvas>
+    </div>
+    <div class="stats-card">
+      <h3>Resumen del período</h3>
+      <div id="stats-content"></div>
+      <h3 style="margin-top:20px">Top destinos</h3>
+      <div id="top-dest-list" class="top-dest-list"></div>
+    </div>
+  </div>
+
+  <div class="insights-card">
+    <h3>Patrones detectados</h3>
+    <div class="insights-grid" id="insights-grid"></div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <h3>Detalle de búsquedas</h3>
+      <span class="table-note" id="table-note"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead id="thead"></thead>
+        <tbody id="tbody"></tbody>
+        <tfoot id="tfoot"></tfoot>
+      </table>
+    </div>
+  </div><!-- /table-card -->
+  </div><!-- /view-general -->
+
+  <div id="view-patterns" style="display:none">
+    <div class="pt-topbar">
+      <button class="pt-type-btn active" id="pt-btn-all"       onclick="setPtType('all')">Todos</button>
+      <button class="pt-type-btn"        id="pt-btn-zona"      onclick="setPtType('zona')">Solo zonas</button>
+      <button class="pt-type-btn"        id="pt-btn-propiedad" onclick="setPtType('propiedad')">Solo Kampaoh</button>
+      <div class="pt-sep"></div>
+      <span class="pt-min-label">Mín. búsquedas</span>
+      <input type="number" class="pt-min-input" id="pt-min" value="30" min="0" onchange="setPtMin(this.value)">
+      <span class="pt-count" id="pt-count"></span>
+    </div>
+    <div class="pt-table-wrap">
+      <table class="pt-table">
+        <thead id="pt-table-head"></thead>
+        <tbody id="pt-table-body"><tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">Cargando…</td></tr></tbody>
+      </table>
+    </div>
+    <div class="pt-insights-section">
+      <h3>Insights por métrica</h3>
+      <div class="pt-insights-grid" id="pt-insights-content"></div>
+    </div>
+  </div><!-- /view-patterns -->
+
+</main>
+
+<footer>Kampaoh &middot; Datos Google Analytics 4 &middot; booking.kampaoh.com</footer>
+
+<script>
+fetch('busqueda-be-data.json').then(function(r){ return r.json(); }).then(function(data) {
+  var ROWS = data.rows || [];
+  var MAX_DATE = data.updated || new Date().toISOString().slice(0,10);
+
+  document.getElementById('updated').textContent = (function(){
+    var p = MAX_DATE.split('-');
+    return p[2]+'/'+p[1]+'/'+p[0];
+  })();
+
+  // ── Helpers ──────────────────────────────────────────────────────────
+  function toYMD(d) { return d.replace(/-/g,''); }
+  function n(v) { return (v||0).toLocaleString('es-ES'); }
+  function pct(a,b) { return b>0 ? (a/b*100).toFixed(1)+'%' : '—'; }
+  function nights(ci, co) {
+    var d1=new Date(ci+'T00:00:00'), d2=new Date(co+'T00:00:00');
+    var n=Math.round((d2-d1)/86400000);
+    return n>0?n:'?';
+  }
+  function dayType(iso) {
+    var d = new Date(iso + 'T12:00:00');
+    var day = d.getDay(); // 0=Dom, 5=Vie, 6=Sáb
+    return (day === 5 || day === 6 || day === 0) ? 'fds' : 'ls';
+  }
+
+  function fmtDate(iso) {
+    if(!iso) return '—';
+    var p=iso.split('-'), m=["","ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+    return p[2]+' '+m[parseInt(p[1])]+' '+p[0];
+  }
+  function addDays(iso,n) {
+    var d=new Date(iso+'T00:00:00'); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10);
+  }
+  function startOfMonth(iso) { return iso.slice(0,7)+'-01'; }
+  function prevMonthRange() {
+    var d=new Date(MAX_DATE+'T00:00:00'), y=d.getFullYear(), m=d.getMonth();
+    var f=new Date(y,m-1,1), l=new Date(y,m,0);
+    function pad(x){return String(x).padStart(2,'0');}
+    return {from:f.getFullYear()+'-'+pad(f.getMonth()+1)+'-01',
+            to:l.getFullYear()+'-'+pad(l.getMonth()+1)+'-'+pad(l.getDate())};
+  }
+  function presetRange(preset) {
+    var today=new Date().toISOString().slice(0,10);
+    var to=today<MAX_DATE?today:MAX_DATE;
+    if(preset==='yesterday')     return {from:addDays(today,-1),to:addDays(today,-1)};
+    if(preset==='day_before')    return {from:addDays(today,-2),to:addDays(today,-2)};
+    if(preset==='last_7_days')  return {from:addDays(today,-6),to};
+    if(preset==='last_14_days') return {from:addDays(today,-13),to};
+    if(preset==='last_30_days') return {from:addDays(today,-29),to};
+    if(preset==='this_month')   return {from:startOfMonth(to),to};
+    if(preset==='last_month')   return prevMonthRange();
+    return {from:addDays(today,-6),to};
+  }
+  function todayISO() { return new Date().toISOString().slice(0,10); }
+
+  // ── Aggregation ───────────────────────────────────────────────────────
+  function aggregate(from, to) {
+    var f=toYMD(from), t=toYMD(to);
+    var map={};
+    for(var i=0;i<ROWS.length;i++){
+      var r=ROWS[i], d=String(r[0]);
+      if(d<f||d>t) continue;
+      // Schema v2 has type at r[1] (10 fields); v1 has no type (9 fields)
+      var v2=r.length>=10;
+      var tp=v2?r[1]:'zona';
+      var li=v2?2:1; // label index
+      if(r[li]&&r[li].startsWith('KKampaoh')) continue;
+      var key=tp+'|'+r[li]+'|'+r[li+1]+'|'+r[li+2]+'|'+r[li+3]+'|'+r[li+4]+'|'+r[li+5]+'|'+r[li+6];
+      if(!map[key]) map[key]={type:tp,label:r[li],checkin:r[li+1],checkout:r[li+2],adults:r[li+3],children:r[li+4],babies:r[li+5],fpa:r[li+6],count:0};
+      map[key].count+=v2?r[9]:r[8];
+    }
+    return Object.values(map);
+  }
+
+  function applyFilters(rows, destText, mascolaOnly, proximasOnly, monthFilter, typeFlt) {
+    var today=todayISO();
+    return rows.filter(function(r){
+      if(typeFlt && r.type !== typeFlt) return false;
+      if(destText && r.label.toLowerCase().indexOf(destText.toLowerCase())===-1) return false;
+      if(mascolaOnly && r.fpa!==1) return false;
+      if(proximasOnly && r.checkin<today) return false;
+      if(monthFilter && r.checkin.slice(0,7)!==monthFilter) return false;
+      return true;
+    });
+  }
+
+  function aggregateByDest(rows) {
+    var map={};
+    rows.forEach(function(r){ map[r.label]=(map[r.label]||0)+r.count; });
+    return Object.entries(map).sort(function(a,b){return b[1]-a[1];});
+  }
+
+  // ── State ─────────────────────────────────────────────────────────────
+  var sortCol='count', sortDir=1;
+  var currentFrom='', currentTo='';
+  var mascolaActive=false, proximasActive=true;
+  var destFilter='';
+  var selectedMonth=null;
+  var typeFilter=null; // null | 'zona' | 'propiedad'
+  var chartInst=null;
+
+  var COLS=[
+    {key:'type',     label:'Tipo',       cls:'', noSort:true},
+    {key:'label',    label:'Destino',    cls:''},
+    {key:'checkin',  label:'Check-in',   cls:'date-val'},
+    {key:'checkout', label:'Check-out',  cls:'date-val'},
+    {key:'nights',   label:'Noches',     cls:'noches-val', noSort:true},
+    {key:'adults',   label:'Adultos',    cls:''},
+    {key:'children', label:'Niños',      cls:''},
+    {key:'babies',   label:'Bebés',      cls:''},
+    {key:'fpa',      label:'Mascota',    cls:''},
+    {key:'count',    label:'Búsquedas',  cls:'count-val'},
+  ];
+
+  // ── Month bar ─────────────────────────────────────────────────────────
+  var MES=['','ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+
+  function renderMonthBar(allRows) {
+    // Build month→count map from all rows (no dest/mascota filter, full picture)
+    var mmap={};
+    var grand=0;
+    allRows.forEach(function(r){
+      var m=r.checkin.slice(0,7);
+      mmap[m]=(mmap[m]||0)+r.count;
+      grand+=r.count;
+    });
+
+    // Generate month range: from today's month up to 2027-09
+    function pad(x){return String(x).padStart(2,'0');}
+    var today=todayISO(), tyear=parseInt(today.slice(0,4)), tmon=parseInt(today.slice(5,7));
+    var months=[];
+    var y=tyear, m=tmon;
+    while(y<2027||(y===2027&&m<=9)){
+      months.push(y+'-'+pad(m));
+      m++; if(m>12){m=1;y++;}
+    }
+
+    var html='';
+    months.forEach(function(ym){
+      var cnt=mmap[ym]||0;
+      var p=grand>0?(cnt/grand*100).toFixed(1)+'%':'0%';
+      var yp=ym.split('-'), label=MES[parseInt(yp[1])]+' '+yp[0].slice(2);
+      var isEmpty=cnt===0;
+      var isActive=selectedMonth===ym;
+      html+='<button class="month-chip'+(isActive?' mc-active':'')+(isEmpty?' mc-empty':'')+'" data-ym="'+ym+'"'+(isEmpty?' disabled':'')+'>'+
+        '<span class="mc-label">'+label+'</span>'+
+        '<span class="mc-count">'+(cnt?n(cnt):'—')+'</span>'+
+        '<span class="mc-pct">'+p+'</span>'+
+        '</button>';
+    });
+
+    document.getElementById('month-chips').innerHTML=html;
+    document.getElementById('btn-clear-month').style.display=selectedMonth?'inline':'none';
+
+    document.getElementById('month-chips').querySelectorAll('.month-chip:not(.mc-empty)').forEach(function(btn){
+      btn.onclick=function(){
+        var ym=this.getAttribute('data-ym');
+        selectedMonth=(selectedMonth===ym)?null:ym;
+        renderDashboard(currentFrom,currentTo);
+      };
+    });
+  }
+
+  // ── Render ────────────────────────────────────────────────────────────
+  function renderDashboard(from, to) {
+    currentFrom=from; currentTo=to;
+    var allRows=aggregate(from,to);
+    var rowsForBar=applyFilters(allRows, destFilter, false, false, null, typeFilter);
+    renderMonthBar(rowsForBar);
+    var rows=applyFilters(allRows, destFilter, mascolaActive, proximasActive, selectedMonth, typeFilter);
+
+    // Sort
+    rows.sort(function(a,b){
+      if(sortCol==='label')    return sortDir*a.label.localeCompare(b.label);
+      if(sortCol==='checkin')  return sortDir*a.checkin.localeCompare(b.checkin);
+      if(sortCol==='checkout') return sortDir*a.checkout.localeCompare(b.checkout);
+      if(sortCol==='nights') {
+        var an=nights(a.checkin,a.checkout), bn=nights(b.checkin,b.checkout);
+        return sortDir*((bn==='?'?0:bn)-(an==='?'?0:an));
+      }
+      var av=a[sortCol]!==null&&a[sortCol]!==undefined?a[sortCol]:-Infinity;
+      var bv=b[sortCol]!==null&&b[sortCol]!==undefined?b[sortCol]:-Infinity;
+      return sortDir*(bv-av);
+    });
+
+    // Totals
+    var totCount=0, totMascota=0, destSet=new Set();
+    var sumNights=0, sumAdults=0, sumChildren=0, weightedN=0;
+    rows.forEach(function(r){
+      totCount+=r.count;
+      if(r.fpa===1) totMascota+=r.count;
+      destSet.add(r.label);
+      var n2=typeof nights(r.checkin,r.checkout)==='number'?nights(r.checkin,r.checkout):0;
+      sumNights+=n2*r.count;
+      sumAdults+=r.adults*r.count;
+      if(r.children>0||r.babies>0) sumChildren+=r.count;
+      weightedN+=r.count;
+    });
+
+    // KPIs
+    document.getElementById('kpi-total').textContent=n(totCount);
+    document.getElementById('kpi-total-sub').textContent=fmtDate(from)+' – '+fmtDate(to);
+    document.getElementById('kpi-combos').textContent=n(rows.length);
+    document.getElementById('kpi-destinos').textContent=n(destSet.size);
+    document.getElementById('kpi-destinos-sub').textContent='destinos distintos';
+    document.getElementById('kpi-mascota').textContent=pct(totMascota,totCount);
+    document.getElementById('kpi-mascota-sub').textContent=n(totMascota)+' búsquedas con mascota';
+
+    // Filter count
+    document.getElementById('filter-count').textContent=
+      rows.length===allRows.length
+        ? rows.length+' combinaciones'
+        : rows.length+' de '+allRows.length+' combinaciones';
+
+    // Stats card
+    var avgN=weightedN>0?(sumNights/weightedN).toFixed(1):'—';
+    var avgA=weightedN>0?(sumAdults/weightedN).toFixed(1):'—';
+    var pctNinos=pct(sumChildren,weightedN);
+    var totZona=0, totProp=0;
+    rows.forEach(function(r){ if(r.type==='zona') totZona+=r.count; else totProp+=r.count; });
+    var monthMap={};
+    rows.forEach(function(r){ var m=r.checkin.slice(0,7); monthMap[m]=(monthMap[m]||0)+r.count; });
+    var topMonth=Object.entries(monthMap).sort(function(a,b){return b[1]-a[1];})[0];
+    var topMonthLabel=topMonth?topMonth[0]:'—';
+
+    document.getElementById('stats-content').innerHTML=
+      '<div class="stat-row"><span class="stat-label">Búsq. zona</span><span class="stat-value" style="color:#60a5fa">'+n(totZona)+'</span></div>'+
+      '<div class="stat-row"><span class="stat-label">Búsq. Kampaoh</span><span class="stat-value" style="color:#4ade80">'+n(totProp)+'</span></div>'+
+      '<div class="stat-row"><span class="stat-label">Media noches</span><span class="stat-value">'+avgN+'</span></div>'+
+      '<div class="stat-row"><span class="stat-label">Media adultos</span><span class="stat-value">'+avgA+'</span></div>'+
+      '<div class="stat-row"><span class="stat-label">Con niños/bebés</span><span class="stat-value">'+pctNinos+'</span></div>'+
+      '<div class="stat-row"><span class="stat-label">Con mascota</span><span class="stat-value" style="color:var(--mascota)">'+pct(totMascota,totCount)+'</span></div>'+
+      '<div class="stat-row"><span class="stat-label">Mes entrada top</span><span class="stat-value">'+topMonthLabel+'</span></div>';
+
+    // Top dest list (sidebar)
+    var byDest=aggregateByDest(rows).slice(0,8);
+    var maxD=byDest.length>0?byDest[0][1]:1;
+    var topHtml='';
+    byDest.forEach(function(d,i){
+      var barW=Math.round(d[1]/maxD*100);
+      topHtml+='<div class="top-dest-item">'+
+        '<span class="top-dest-rank">'+(i+1)+'</span>'+
+        '<span class="top-dest-name" title="'+d[0]+'">'+d[0]+'</span>'+
+        '<div class="top-dest-bar-bg"><div class="top-dest-bar" style="width:'+barW+'%"></div></div>'+
+        '<span class="top-dest-count">'+n(d[1])+'</span>'+
+        '</div>';
+    });
+    document.getElementById('top-dest-list').innerHTML=topHtml||'<span style="color:var(--muted);font-size:12px">Sin datos</span>';
+
+    // Chart
+    var top15=aggregateByDest(rows).slice(0,15);
+    if(chartInst){chartInst.destroy();chartInst=null;}
+    if(typeof Chart!=='undefined'&&top15.length>0){
+      chartInst=new Chart(document.getElementById('chartTop'),{
+        type:'bar',
+        data:{
+          labels:top15.map(function(d){return d[0];}),
+          datasets:[{
+            label:'Búsquedas',
+            data:top15.map(function(d){return d[1];}),
+            backgroundColor:'rgba(245,158,11,0.75)',
+          }]
+        },
+        options:{
+          indexAxis:'y', responsive:true,
+          plugins:{legend:{display:false}},
+          scales:{
+            x:{ticks:{color:'#7b7f9e',font:{size:10}},grid:{color:'rgba(255,255,255,0.05)'}},
+            y:{ticks:{color:'#e8eaf0',font:{size:11}},grid:{display:false}}
+          }
+        }
+      });
+    }
+
+    // Table header
+    var theadHtml='<tr>';
+    COLS.forEach(function(col){
+      var isSorted=col.key===sortCol;
+      var arrow=isSorted?(sortDir===1?' ↓':' ↑'):' ↕';
+      if(col.noSort){
+        theadHtml+='<th style="cursor:default">'+col.label+'</th>';
+      } else {
+        theadHtml+='<th data-col="'+col.key+'" class="'+(isSorted?'sorted':'')+'">'+col.label+'<span class="sort-arrow">'+arrow+'</span></th>';
+      }
+    });
+    theadHtml+='</tr>';
+    document.getElementById('thead').innerHTML=theadHtml;
+
+    // Click handlers
+    document.getElementById('thead').querySelectorAll('th').forEach(function(th){
+      th.onclick=function(){
+        var col=th.getAttribute('data-col');
+        if(!col)return;
+        if(sortCol===col){sortDir*=-1;}else{sortCol=col;sortDir=1;}
+        renderDashboard(currentFrom,currentTo);
+      };
+    });
+
+    // Table body
+    var MAX_ROWS=200;
+    var shown=rows.slice(0,MAX_ROWS);
+    var tbodyHtml='';
+    if(shown.length===0){
+      tbodyHtml='<tr><td colspan="10" class="empty-state">No hay búsquedas con los filtros seleccionados</td></tr>';
+    } else {
+      shown.forEach(function(r){
+        var ni=nights(r.checkin,r.checkout);
+        var isZona=r.type==='zona';
+        tbodyHtml+='<tr class="'+(isZona?'row-zona':'row-prop')+'">'+
+          '<td>'+(isZona?'<span class="badge-zona">Zona</span>':'<span class="badge-prop">Kampaoh</span>')+'</td>'+
+          '<td title="'+r.label+'">'+r.label+'</td>'+
+          '<td class="date-val">'+r.checkin+'<span class="badge-'+(dayType(r.checkin))+'">'+(dayType(r.checkin)==='fds'?'FDS':'LS')+'</span></td>'+
+          '<td class="date-val">'+r.checkout+'</td>'+
+          '<td class="noches-val">'+ni+'</td>'+
+          '<td>'+r.adults+'</td>'+
+          '<td>'+(r.children||'—')+'</td>'+
+          '<td>'+(r.babies||'—')+'</td>'+
+          '<td class="'+(r.fpa?'mascota-si':'mascota-no')+'">'+(r.fpa?'sí':'no')+'</td>'+
+          '<td class="count-val">'+n(r.count)+'</td>'+
+          '</tr>';
+      });
+    }
+    document.getElementById('tbody').innerHTML=tbodyHtml;
+
+    // Insights
+    renderInsights(rows);
+
+    // Si la vista activa es patrones, actualizarla también
+    if (typeof currentMainView !== 'undefined' && currentMainView === 'patterns') renderPatterns(allRows);
+
+    // Table note
+    var noteEl=document.getElementById('table-note');
+    if(rows.length>MAX_ROWS){
+      noteEl.textContent='Mostrando '+MAX_ROWS+' de '+n(rows.length)+' combinaciones — aplica filtros para ver más';
+    } else {
+      noteEl.textContent='Haz clic en una columna para ordenar';
+    }
+
+    // Table footer
+    document.getElementById('tfoot').innerHTML=
+      '<tr class="tfoot-row"><td></td><td>TOTAL ('+n(rows.length)+' combos)</td>'+
+      '<td></td><td></td><td></td><td></td><td></td><td></td><td></td>'+
+      '<td class="count-val">'+n(totCount)+'</td></tr>';
+  }
+
+  // ── Period buttons ────────────────────────────────────────────────────
+  var btnMap={'btn-ayer':'yesterday','btn-antes':'day_before','btn-7':'last_7_days','btn-14':'last_14_days'};
+  var btnIds=Object.keys(btnMap);
+
+  function setActiveBtn(activeId){
+    btnIds.forEach(function(id){
+      var b=document.getElementById(id);
+      if(b) b.className='period-btn'+(id===activeId?' active':'');
+    });
+  }
+  function applyPreset(preset,btnId){
+    var r=presetRange(preset);
+    setActiveBtn(btnId);
+    document.getElementById('date-from').value=r.from;
+    document.getElementById('date-to').value=r.to;
+    renderDashboard(r.from,r.to);
+  }
+  btnIds.forEach(function(id){
+    document.getElementById(id).onclick=function(){ applyPreset(btnMap[id],id); };
+  });
+
+  function onDateChange(){
+    var from=document.getElementById('date-from').value;
+    var to=document.getElementById('date-to').value;
+    if(!from||!to||from>to) return;
+    if(to>MAX_DATE){document.getElementById('date-to').value=MAX_DATE;to=MAX_DATE;}
+    setActiveBtn(null);
+    renderDashboard(from,to);
+  }
+  document.getElementById('date-from').addEventListener('change',onDateChange);
+  document.getElementById('date-to').addEventListener('change',onDateChange);
+  document.getElementById('date-from').max=MAX_DATE;
+  document.getElementById('date-to').max=MAX_DATE;
+
+  // ── Filters ────────────────────────────────────────────────────────────
+  var MESES = ['','ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+
+  function renderInsights(rows) {
+    var grid = document.getElementById('insights-grid');
+    if (!rows.length) { grid.innerHTML = '<span style="color:var(--muted);font-size:12px">Sin datos suficientes</span>'; return; }
+
+    var total = rows.reduce(function(s,r){ return s+r.count; }, 0);
+    var chips = [];
+
+    // 1 · Mes de entrada más buscado
+    var mmap = {};
+    rows.forEach(function(r){ var m=r.checkin.slice(0,7); mmap[m]=(mmap[m]||0)+r.count; });
+    var topM = Object.entries(mmap).sort(function(a,b){return b[1]-a[1];})[0];
+    if (topM) {
+      var p = Math.round(topM[1]/total*100);
+      var parts = topM[0].split('-');
+      var label = MESES[parseInt(parts[1])].toUpperCase()+' '+parts[0];
+      chips.push({ icon:'🔥', value: p+'%', label:'de búsquedas para '+label, cls:'ic-hot' });
+    }
+
+    // 2 · Estancia más buscada
+    var nbmap = {};
+    rows.forEach(function(r){
+      var ni = nights(r.checkin,r.checkout);
+      if (typeof ni !== 'number') return;
+      var bucket = ni===1?'1 noche':ni<=3?ni+' noches':ni<=7?'4–7 noches':'8+ noches';
+      nbmap[bucket]=(nbmap[bucket]||0)+r.count;
+    });
+    var topNb = Object.entries(nbmap).sort(function(a,b){return b[1]-a[1];})[0];
+    if (topNb) {
+      var p2 = Math.round(topNb[1]/total*100);
+      chips.push({ icon:'🌙', value: p2+'%', label:'prefieren estancias de '+topNb[0], cls:'ic-purple' });
+    }
+
+    // 3 · Adultos más frecuente
+    var admap = {};
+    rows.forEach(function(r){ var k=(r.adults||0); admap[k]=(admap[k]||0)+r.count; });
+    var topAd = Object.entries(admap).sort(function(a,b){return b[1]-a[1];})[0];
+    var avgAd = total>0 ? (rows.reduce(function(s,r){return s+(r.adults||0)*r.count;},0)/total).toFixed(1) : '—';
+    if (topAd) {
+      chips.push({ icon:'👥', value: topAd[0]+' adultos', label:'grupo más frecuente · media '+avgAd, cls:'ic-blue' });
+    }
+
+    // 4 · Familias con niños
+    var famCount = rows.reduce(function(s,r){ return s+((r.children>0||r.babies>0)?r.count:0); },0);
+    var famPct = Math.round(famCount/total*100);
+    chips.push({ icon:'👨‍👩‍👧', value: famPct+'%', label:'búsquedas incluyen niños o bebés', cls: famPct>30?'ic-hot':'' });
+
+    // 5 · Mascotas
+    var petCount = rows.reduce(function(s,r){ return s+(r.fpa===1?r.count:0); },0);
+    var petPct = (petCount/total*100).toFixed(1);
+    chips.push({ icon:'🐾', value: petPct+'%', label:'buscan alojamiento con mascota', cls:'ic-green' });
+
+    // 6 · Llegadas en fin de semana
+    var fdsCount = rows.reduce(function(s,r){ return s+(dayType(r.checkin)==='fds'?r.count:0); },0);
+    var fdsPct = Math.round(fdsCount/total*100);
+    chips.push({ icon:'📅', value: fdsPct+'%', label:'llegan en viernes, sábado o domingo', cls: fdsPct>60?'ic-hot':'' });
+
+    // 7 · Horizonte de búsqueda
+    var today = todayISO();
+    var next30 = rows.reduce(function(s,r){
+      var diff=(new Date(r.checkin+'T00:00:00')-new Date(today+'T00:00:00'))/86400000;
+      return s+(diff>=0&&diff<=30?r.count:0);
+    },0);
+    var next30pct = Math.round(next30/total*100);
+    if (next30pct > 0) {
+      chips.push({ icon:'⏱', value: next30pct+'%', label:'busca para los próximos 30 días', cls: next30pct>40?'ic-hot':'' });
+    }
+
+    // 8 · Destino más buscado (solo si no hay filtro de destino)
+    if (!destFilter) {
+      var topDest = aggregateByDest(rows)[0];
+      if (topDest) {
+        var dp = Math.round(topDest[1]/total*100);
+        chips.push({ icon:'📍', value: dp+'%', label:'va a '+topDest[0].replace(/\s*·?\s*Kampaoh\s*$/i,''), cls:'ic-purple' });
+      }
+    }
+
+    // Umbral mínimo de búsquedas para rankings por destino (0.3% del total, entre 30 y 500)
+    var minDestCount = Math.min(500, Math.max(30, Math.round(total * 0.003)));
+
+    // 9 · Destinos con más mascotas (solo sin filtro de destino)
+    if (!destFilter) {
+      var dPets={}, dTot={};
+      rows.forEach(function(r){
+        var k=(r.label||'').replace(/\s*·?\s*Kampaoh\s*$/i,'').trim();
+        if(!k) return;
+        dTot[k]=(dTot[k]||0)+r.count;
+        if(r.fpa===1) dPets[k]=(dPets[k]||0)+r.count;
+      });
+      var topPets=Object.keys(dTot)
+        .filter(function(k){ return dTot[k]>=minDestCount; })
+        .map(function(k){ return {label:k, pct:Math.round((dPets[k]||0)/dTot[k]*100)}; })
+        .sort(function(a,b){ return b.pct-a.pct; })
+        .slice(0,3);
+      if(topPets.length>=2)
+        chips.push({type:'list', icon:'🐾', title:'Destinos con más mascotas', items:topPets, pctColor:'#34d399', cls:'ic-green'});
+    }
+
+    // 10 · Destinos más de finde vs semana (solo sin filtro de destino)
+    if (!destFilter) {
+      var dFds={}, dLs={}, dTot2={};
+      rows.forEach(function(r){
+        var k=(r.label||'').replace(/\s*·?\s*Kampaoh\s*$/i,'').trim();
+        if(!k) return;
+        dTot2[k]=(dTot2[k]||0)+r.count;
+        if(dayType(r.checkin)==='fds') dFds[k]=(dFds[k]||0)+r.count;
+        else dLs[k]=(dLs[k]||0)+r.count;
+      });
+      var elig=Object.keys(dTot2).filter(function(k){ return dTot2[k]>=minDestCount; });
+      var topFds=elig
+        .map(function(k){ return {label:k, pct:Math.round((dFds[k]||0)/dTot2[k]*100)}; })
+        .sort(function(a,b){ return b.pct-a.pct; }).slice(0,3);
+      var topLs=elig
+        .map(function(k){ return {label:k, pct:Math.round((dLs[k]||0)/dTot2[k]*100)}; })
+        .sort(function(a,b){ return b.pct-a.pct; }).slice(0,3);
+      if(topFds.length>=2)
+        chips.push({type:'list', icon:'🏄', title:'Más buscados en finde (vie–dom)', items:topFds, pctColor:'#a78bfa', cls:'ic-purple'});
+      if(topLs.length>=2)
+        chips.push({type:'list', icon:'💼', title:'Más buscados entre semana (lun–jue)', items:topLs, pctColor:'#60a5fa', cls:'ic-blue'});
+    }
+
+    grid.innerHTML = chips.map(function(c){
+      if(c.type==='list'){
+        return '<div class="insight-chip ic-list-chip '+(c.cls||'')+'">'+
+          '<span class="ic-icon">'+c.icon+'</span>'+
+          '<div class="ic-body">'+
+            '<span class="ic-list-title">'+c.title+'</span>'+
+            c.items.map(function(item,i){
+              return '<div class="ic-list-row">'+
+                '<span class="ic-list-pos">'+(i+1)+'.</span>'+
+                '<span class="ic-list-name">'+item.label+'</span>'+
+                '<span class="ic-list-pct" style="color:'+c.pctColor+'">'+item.pct+'%</span>'+
+              '</div>';
+            }).join('')+
+          '</div>'+
+        '</div>';
+      }
+      return '<div class="insight-chip '+(c.cls||'')+'">'+
+        '<span class="ic-icon">'+c.icon+'</span>'+
+        '<div class="ic-body"><span class="ic-value">'+c.value+'</span><span class="ic-label">'+c.label+'</span></div>'+
+        '</div>';
+    }).join('');
+  }
+
+  function populateDestSelect() {
+    var counts = {};
+    ROWS.forEach(function(r) {
+      var label = r.length >= 10 ? r[2] : r[1];
+      if (!label || label === '(not set)') return;
+      if (label.length < 3) return;
+      if (/^\d+$/.test(label)) return;           // solo números
+      if (/^[A-Z0-9\-]{8,}$/.test(label)) return; // IDs tipo ASIN
+      counts[label] = (counts[label] || 0) + (r.length >= 10 ? r[9] : r[8]);
+    });
+    var sorted = Object.keys(counts).sort(function(a,b){ return counts[b]-counts[a]; });
+    var sel = document.getElementById('filter-dest');
+    sel.innerHTML = '<option value="">Todos los destinos</option>';
+    sorted.forEach(function(l){
+      var o = document.createElement('option');
+      o.value = l; o.textContent = l;
+      sel.appendChild(o);
+    });
+  }
+
+  document.getElementById('filter-dest').onchange=function(){
+    destFilter=this.value;
+    renderDashboard(currentFrom,currentTo);
+  };
+
+  document.getElementById('btn-tipo-zona').onclick=function(){
+    typeFilter=(typeFilter==='zona')?null:'zona';
+    document.getElementById('btn-tipo-zona').className='toggle-btn btn-tipo-zona'+(typeFilter==='zona'?' active':'');
+    document.getElementById('btn-tipo-prop').className='toggle-btn btn-tipo-prop'+(typeFilter==='propiedad'?' active':'');
+    renderDashboard(currentFrom,currentTo);
+  };
+  document.getElementById('btn-tipo-prop').onclick=function(){
+    typeFilter=(typeFilter==='propiedad')?null:'propiedad';
+    document.getElementById('btn-tipo-zona').className='toggle-btn btn-tipo-zona'+(typeFilter==='zona'?' active':'');
+    document.getElementById('btn-tipo-prop').className='toggle-btn btn-tipo-prop'+(typeFilter==='propiedad'?' active':'');
+    renderDashboard(currentFrom,currentTo);
+  };
+
+  document.getElementById('btn-mascota').onclick=function(){
+    mascolaActive=!mascolaActive;
+    this.className='toggle-btn'+(mascolaActive?' active':'');
+    renderDashboard(currentFrom,currentTo);
+  };
+
+  document.getElementById('btn-proximas').onclick=function(){
+    proximasActive=!proximasActive;
+    this.className='toggle-btn'+(proximasActive?' active':'');
+    renderDashboard(currentFrom,currentTo);
+  };
+
+  // ── CSV export ─────────────────────────────────────────────────────────
+  document.getElementById('btn-csv').onclick=function(){
+    var r=presetRange('last_30_days');
+    if(currentFrom) r={from:currentFrom,to:currentTo};
+    var allRows=aggregate(r.from,r.to);
+    var rows=applyFilters(allRows,destFilter,mascolaActive,proximasActive,selectedMonth,typeFilter);
+    rows.sort(function(a,b){return b.count-a.count;});
+    var lines=['Tipo,Destino,Check-in,Check-out,Noches,Adultos,Niños,Bebés,Mascota,Búsquedas'];
+    rows.forEach(function(row){
+      var ni=nights(row.checkin,row.checkout);
+      lines.push([
+        row.type||'zona',
+        '"'+(row.label||'').replace(/"/g,'""')+'"',
+        row.checkin,row.checkout,ni,
+        row.adults,row.children,row.babies,
+        row.fpa?'sí':'no',row.count
+      ].join(','));
+    });
+    var blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8;'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url; a.download='busquedas-be-'+r.from+'-'+r.to+'.csv';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  document.getElementById('btn-clear-month').onclick=function(){
+    selectedMonth=null;
+    renderDashboard(currentFrom,currentTo);
+  };
+
+  // ── Initial render ─────────────────────────────────────────────────────
+  populateDestSelect();
+  applyPreset('last_7_days','btn-7');
+
+  // ── Toggle intención real / todo el tráfico ──────────────────────────
+  var datasetMode = 'filtered';
+
+  document.getElementById('btn-dataset').onclick = function() {
+    datasetMode = datasetMode === 'filtered' ? 'all' : 'filtered';
+    var isAll = datasetMode === 'all';
+    this.textContent = isAll ? '🌐 Todo el tráfico' : '🎯 Intención real';
+    this.className = 'toggle-btn dataset-btn' + (isAll ? ' active' : '');
+    var noteEl = document.getElementById('dataset-note');
+    if (noteEl) noteEl.innerHTML = isAll
+      ? '<span class="dn-icon">🌐</span><span><strong>Todo el tráfico</strong> — incluye cualquier visita con fechas independientemente del origen: anuncios, orgánico, WordPress con parámetros prerrellenados y directo.</span>'
+      : '<span class="dn-icon">🎯</span><span><strong>Intención real</strong> — solo usuarios que ya navegaban dentro del booking engine. Excluye visitas llegadas desde WordPress, anuncios u otras webs con parámetros prerrellenados.</span>';
+    var file = isAll ? 'busqueda-be-data-all.json' : 'busqueda-be-data.json';
+    fetch(file + '?t=' + Date.now())
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        ROWS = d.rows || [];
+        MAX_DATE = d.updated || new Date().toISOString().slice(0,10);
+        destFilter = '';
+        populateDestSelect();
+        document.getElementById('filter-dest').value = '';
+        var from = document.getElementById('date-from').value;
+        var to   = document.getElementById('date-to').value;
+        renderDashboard(from, to);
+      })
+      .catch(function(e){
+        console.error('fetch/parse error:', e);
+        alert(isAll
+          ? 'Sin datos completos — ejecuta: node busqueda-be-refresh.js --all'
+          : 'Error cargando datos filtrados');
+      });
+  };
+
+  // ── Patrones por destino ─────────────────────────────────────────────────
+  var ptTypeFilter = 'all';
+  var ptMinCount   = 30;
+  var ptSortCol    = 'total';
+  var ptSortDir    = -1;
+  var currentMainView = 'general';
+
+  window.switchMainView = function(view) {
+    currentMainView = view;
+    document.getElementById('view-general').style.display  = view === 'general'  ? '' : 'none';
+    document.getElementById('view-patterns').style.display = view === 'patterns' ? '' : 'none';
+    document.getElementById('tab-main-general').classList.toggle('active',  view === 'general');
+    document.getElementById('tab-main-patterns').classList.toggle('active', view === 'patterns');
+    if (view === 'patterns' && currentFrom && currentTo) renderPatterns(aggregate(currentFrom, currentTo));
+  };
+
+  window.setPtType = function(type) {
+    ptTypeFilter = type;
+    ['all','zona','propiedad'].forEach(function(t) {
+      document.getElementById('pt-btn-' + t).classList.toggle('active', t === type);
+    });
+    if (currentFrom && currentTo) renderPatterns(aggregate(currentFrom, currentTo));
+  };
+
+  window.setPtMin = function(val) {
+    var v = parseInt(val); if (!isNaN(v) && v >= 0) ptMinCount = v;
+    if (currentFrom && currentTo) renderPatterns(aggregate(currentFrom, currentTo));
+  };
+
+  window.ptSort = function(col) {
+    if (ptSortCol === col) ptSortDir *= -1; else { ptSortCol = col; ptSortDir = -1; }
+    if (currentFrom && currentTo) renderPatterns(aggregate(currentFrom, currentTo));
+  };
+
+  function renderPatterns(allAggRows) {
+    var rows = ptTypeFilter === 'all' ? allAggRows : allAggRows.filter(function(r){ return r.type === ptTypeFilter; });
+
+    // Agregar por destino
+    var destMap = {};
+    rows.forEach(function(r) {
+      var k = r.label;
+      if (!destMap[k]) destMap[k] = { label:k, type:r.type, total:0, mascotas:0, fds:0, ls:0, nightsSum:0, nightsN:0, ninos:0, bebes:0 };
+      var d = destMap[k];
+      d.total += r.count;
+      if (r.fpa === 1) d.mascotas += r.count;
+      if (dayType(r.checkin) === 'fds') d.fds += r.count; else d.ls += r.count;
+      var ni = nights(r.checkin, r.checkout);
+      if (typeof ni === 'number' && ni > 0) { d.nightsSum += ni * r.count; d.nightsN += r.count; }
+      if (r.children > 0) d.ninos += r.count;
+      if (r.babies  > 0) d.bebes += r.count;
+    });
+
+    var dests = Object.values(destMap).filter(function(d){ return d.total >= ptMinCount; });
+    dests.forEach(function(d) {
+      d.pctMascotas = d.total > 0 ? d.mascotas / d.total * 100 : 0;
+      d.pctFds      = d.total > 0 ? d.fds      / d.total * 100 : 0;
+      d.pctLs       = d.total > 0 ? d.ls       / d.total * 100 : 0;
+      d.avgNights   = d.nightsN > 0 ? d.nightsSum / d.nightsN : 0;
+      d.pctNinos    = d.total > 0 ? d.ninos / d.total * 100 : 0;
+      d.pctBebes    = d.total > 0 ? d.bebes / d.total * 100 : 0;
+    });
+
+    var sortFns = {
+      label:       function(a,b){ return ptSortDir * a.label.localeCompare(b.label); },
+      total:       function(a,b){ return ptSortDir * (a.total - b.total); },
+      pctMascotas: function(a,b){ return ptSortDir * (a.pctMascotas - b.pctMascotas); },
+      pctFds:      function(a,b){ return ptSortDir * (a.pctFds - b.pctFds); },
+      pctLs:       function(a,b){ return ptSortDir * (a.pctLs - b.pctLs); },
+      avgNights:   function(a,b){ return ptSortDir * (a.avgNights - b.avgNights); },
+      pctNinos:    function(a,b){ return ptSortDir * (a.pctNinos - b.pctNinos); },
+      pctBebes:    function(a,b){ return ptSortDir * (a.pctBebes - b.pctBebes); },
+    };
+    dests.sort(sortFns[ptSortCol] || sortFns.total);
+
+    // Máximos para heatmap
+    function maxOf(field) { return Math.max.apply(null, dests.map(function(d){ return d[field]; }).concat([1])); }
+    var mx = { total:maxOf('total'), pctMascotas:maxOf('pctMascotas'), pctFds:maxOf('pctFds'), pctLs:maxOf('pctLs'), avgNights:maxOf('avgNights'), pctNinos:maxOf('pctNinos'), pctBebes:maxOf('pctBebes') };
+    var clr = { total:'245,158,11', pctMascotas:'16,185,129', pctFds:'245,158,11', pctLs:'99,102,241', avgNights:'167,139,250', pctNinos:'251,146,60', pctBebes:'45,212,191' };
+
+    function cell(val, display, col) {
+      var op = mx[col] > 0 ? 0.06 + (val / mx[col]) * 0.36 : 0.06;
+      return '<td style="background:rgba(' + clr[col] + ',' + op.toFixed(2) + ')">' + display + '</td>';
+    }
+    function arrow(col) {
+      if (col !== ptSortCol) return '<span style="opacity:.3"> ↕</span>';
+      return '<span style="color:var(--accent)"> ' + (ptSortDir === -1 ? '↓' : '↑') + '</span>';
+    }
+    function th(col, lbl) {
+      return '<th onclick="ptSort(\'' + col + '\')" class="' + (col === ptSortCol ? 'pt-sorted' : '') + '">' + lbl + arrow(col) + '</th>';
+    }
+
+    document.getElementById('pt-table-head').innerHTML =
+      '<tr>' + th('label','Destino') + th('total','Búsquedas') +
+      th('pctMascotas','🐾 Mascotas %') + th('pctFds','🏖 Finde %') +
+      th('pctLs','💼 L–J %') + th('avgNights','🌙 Noches') +
+      th('pctNinos','👶 Niños %') + th('pctBebes','🍼 Bebés %') + '</tr>';
+
+    if (!dests.length) {
+      document.getElementById('pt-table-body').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">Sin destinos con ≥ ' + ptMinCount + ' búsquedas</td></tr>';
+    } else {
+      document.getElementById('pt-table-body').innerHTML = dests.map(function(d) {
+        var badge = d.type === 'zona' ? '<span class="badge-zona" style="font-size:9px;padding:1px 5px;margin-right:5px">Z</span>' : '<span class="badge-prop" style="font-size:9px;padding:1px 5px;margin-right:5px">K</span>';
+        return '<tr>' +
+          '<td title="' + d.label + '">' + badge + d.label + '</td>' +
+          cell(d.total,       n(d.total),                                        'total')       +
+          cell(d.pctMascotas, d.pctMascotas.toFixed(1) + '%',                   'pctMascotas') +
+          cell(d.pctFds,      d.pctFds.toFixed(1) + '%',                        'pctFds')      +
+          cell(d.pctLs,       d.pctLs.toFixed(1) + '%',                         'pctLs')       +
+          cell(d.avgNights,   d.avgNights > 0 ? d.avgNights.toFixed(1) : '—',  'avgNights')   +
+          cell(d.pctNinos,    d.pctNinos.toFixed(1) + '%',                      'pctNinos')    +
+          cell(d.pctBebes,    d.pctBebes.toFixed(1) + '%',                      'pctBebes')    +
+        '</tr>';
+      }).join('');
+    }
+
+    document.getElementById('pt-count').textContent = dests.length + ' destinos';
+    renderPatternInsights(dests);
+  }
+
+  function renderPatternInsights(dests) {
+    if (!dests.length) { document.getElementById('pt-insights-content').innerHTML = ''; return; }
+    var totalAll = dests.reduce(function(s,d){ return s + d.total; }, 0) || 1;
+    var avgMasc  = dests.reduce(function(s,d){ return s + d.mascotas; }, 0) / totalAll * 100;
+    var avgFds   = dests.reduce(function(s,d){ return s + d.fds; }, 0)      / totalAll * 100;
+    var avgNino  = dests.reduce(function(s,d){ return s + d.ninos; }, 0)    / totalAll * 100;
+    var avgBebe  = dests.reduce(function(s,d){ return s + d.bebes; }, 0)    / totalAll * 100;
+    var sumNS = dests.reduce(function(s,d){ return s + d.nightsSum; }, 0);
+    var sumNN = dests.reduce(function(s,d){ return s + d.nightsN; }, 0);
+    var avgNights = sumNN > 0 ? sumNS / sumNN : 0;
+
+    function top3(field) { return dests.slice().sort(function(a,b){ return b[field] - a[field]; }).slice(0, 3); }
+
+    function block(color, icon, title, field, unit, tops, avg, note) {
+      var maxV = tops.length > 0 ? tops[0][field] : 1;
+      var rows = tops.map(function(d, i) {
+        var bw = maxV > 0 ? Math.round(d[field] / maxV * 100) : 0;
+        return '<div class="pt-ib-row">' +
+          '<span class="pt-ib-rank">' + (i+1) + '</span>' +
+          '<span class="pt-ib-name" title="' + d.label + '">' + d.label + '</span>' +
+          '<span class="pt-ib-val" style="color:' + color + '">' + (unit === 'n' ? d[field].toFixed(1) : d[field].toFixed(1) + '%') + '</span>' +
+        '</div>' +
+        '<div class="pt-ib-bar"><div class="pt-ib-bar-fill" style="width:' + bw + '%;background:' + color + '"></div></div>';
+      }).join('');
+      return '<div class="pt-ib" style="border-top-color:' + color + '">' +
+        '<div class="pt-ib-metric">' + icon + ' ' + title + '</div>' +
+        rows +
+        '<div class="pt-ib-note">' + note + '</div>' +
+      '</div>';
+    }
+
+    var t3masc = top3('pctMascotas');
+    var t3fds  = top3('pctFds');
+    var t3ls   = top3('pctLs');
+    var t3nigh = top3('avgNights');
+    var t3nino = top3('pctNinos');
+    var t3bebe = top3('pctBebes');
+
+    var noteMasc = t3masc.length ? 'Media global: ' + avgMasc.toFixed(1) + '% con mascota. ' + (t3masc[0] && avgMasc > 0 ? t3masc[0].label + ' destaca ' + (t3masc[0].pctMascotas / avgMasc).toFixed(1) + '× sobre la media — priorizar creatividades pet-friendly.' : '') : '';
+    var noteFds  = t3fds.length  ? 'Media finde: ' + avgFds.toFixed(1) + '%. Destinos >70% son escapadas cortas de 1–2 noches, ideal para activar campañas viernes–sábado.' : '';
+    var noteLs   = t3ls.length   ? 'Media L–J: ' + (100 - avgFds).toFixed(1) + '%. Perfil teletrabajador o familiar escolar. Mayor flexibilidad de fechas.' : '';
+    var noteNigh = t3nigh.length ? 'Media global: ' + avgNights.toFixed(1) + ' noches. Destinos de estancias largas tienen mayor ticket y menor sensibilidad al precio.' : '';
+    var noteNino = t3nino.length ? 'Media niños: ' + avgNino.toFixed(1) + '%. Activar mensajes de facilidades familia en los destinos con mayor índice.' : '';
+    var noteBebe = t3bebe.length ? 'Media bebés: ' + avgBebe.toFixed(1) + '%. Útil para validar si el destino ofrece cunas, tronas y servicios de bebé.' : '';
+
+    document.getElementById('pt-insights-content').innerHTML =
+      block('#10b981','🐾','Mascotas',    'pctMascotas','%', t3masc, avgMasc,  noteMasc) +
+      block('#f59e0b','🏖','Fin de semana','pctFds',     '%', t3fds,  avgFds,   noteFds)  +
+      block('#818cf8','💼','Entre semana', 'pctLs',      '%', t3ls,   100-avgFds, noteLs)  +
+      block('#a78bfa','🌙','Noches media', 'avgNights',  'n', t3nigh, avgNights,noteNigh) +
+      block('#fb923c','👶','Con niños',    'pctNinos',   '%', t3nino, avgNino,  noteNino) +
+      block('#2dd4bf','🍼','Con bebés',    'pctBebes',   '%', t3bebe, avgBebe,  noteBebe);
+  }
+
+}).catch(function(e){
+  console.error('Error cargando busqueda-be-data.json:',e);
+  document.querySelector('main').innerHTML='<div style="padding:48px;text-align:center;color:var(--muted)">Sin datos — ejecuta node busqueda-be-refresh.js para generar</div>';
+});
+</script>
+</body>
+</html>
