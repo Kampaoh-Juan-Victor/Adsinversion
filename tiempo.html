@@ -270,6 +270,41 @@
     }
     .day-btn.active { background: var(--accent); color: #fff; }
     .day-btn:hover:not(.active) { color: var(--text); }
+
+    /* ── Mobile responsive ── */
+    @media (max-width: 640px) {
+      header { padding: 10px 14px; }
+      .header-title { font-size: 13px; }
+      .header-meta { font-size: 10px; gap: 8px; }
+
+      nav { padding: 0 6px; }
+      .nav-link { padding: 10px 10px; font-size: 11px; }
+
+      .mode-bar { padding: 12px 14px; flex-wrap: wrap; gap: 8px; }
+      .mode-btn { padding: 8px 16px; font-size: 13px; }
+      .day-toggle { margin-left: auto; }
+
+      .cards-list { padding: 0 10px; gap: 10px; }
+
+      .card-top { padding: 12px 14px 10px; gap: 10px; }
+      .card-dest-name { font-size: 16px; }
+      .card-peak { font-size: 24px; }
+      .card-region { font-size: 10px; }
+
+      .card-alert-bar { padding: 6px 14px; }
+
+      .card-days { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .day-pill { min-width: 56px; padding: 8px 3px 10px; }
+      .dp-ico  { font-size: 18px; }
+      .dp-hi   { font-size: 14px; }
+      .dp-wind-val { font-size: 14px; }
+      .dp-lo   { font-size: 10px; }
+      .dp-day  { font-size: 9px; }
+      .dp-date { font-size: 8px; }
+
+      .alert-strip { padding: 8px 14px; }
+      .a-chip { font-size: 10px; }
+    }
   </style>
 </head>
 <body>
