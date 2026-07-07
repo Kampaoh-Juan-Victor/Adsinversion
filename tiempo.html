@@ -261,6 +261,31 @@
     .mode-btn.active { background: var(--accent); color: #fff; }
     .mode-btn:hover:not(.active) { background: #eff0ff; }
     .mode-sub { font-size: 11px; color: var(--muted); margin-top: 8px; }
+
+    /* ── Resumen mode ── */
+    .summary-list { padding: 20px 32px; display: flex; flex-direction: column; gap: 8px; }
+    .sum-row {
+      display: flex; align-items: center; gap: 0;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      padding: 12px 16px; gap: 16px;
+    }
+    .sum-row.sum-alert-high { border-left: 3px solid #dc2626; }
+    .sum-row.sum-alert-mid  { border-left: 3px solid #d97706; }
+    .sum-row.sum-alert-ok   { border-left: 3px solid #22c55e; }
+    .sum-name { font-size: 13px; font-weight: 700; color: var(--text); min-width: 220px; flex-shrink: 0; }
+    .sum-weeks { display: flex; gap: 8px; flex: 1; flex-wrap: wrap; }
+    .sum-week { display: flex; align-items: center; gap: 6px; font-size: 12px; min-width: 180px; }
+    .sum-week-label { color: var(--muted); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; min-width: 70px; }
+    .sum-status { font-size: 12px; }
+    .sum-ok    { color: #22c55e; }
+    .sum-warn  { color: #f59e0b; }
+    .sum-bad   { color: #ef4444; }
+    @media (max-width: 640px) {
+      .summary-list { padding: 10px; }
+      .sum-name { min-width: 0; width: 100%; margin-bottom: 4px; }
+      .sum-row { flex-wrap: wrap; }
+      .sum-week { min-width: 140px; }
+    }
     .day-toggle {
       display: flex; gap: 3px; background: var(--surface); border: 1px solid var(--border);
       border-radius: 8px; padding: 3px;
@@ -333,6 +358,7 @@
     <div class="mode-toggle">
       <button class="mode-btn active" id="mode-temp" onclick="setMode('temp')">🌡 Temperatura</button>
       <button class="mode-btn" id="mode-wind" onclick="setMode('wind')">💨 Viento</button>
+      <button class="mode-btn" id="mode-summary" onclick="setMode('summary')">📋 Resumen</button>
     </div>
     <div class="mode-sub" id="mode-sub">Ordenados por temperatura máxima · de mayor a menor</div>
   </div>
@@ -640,10 +666,104 @@ function setMode(m) {
   currentMode = m;
   document.getElementById('mode-temp').classList.toggle('active', m === 'temp');
   document.getElementById('mode-wind').classList.toggle('active', m === 'wind');
+  document.getElementById('mode-summary').classList.toggle('active', m === 'summary');
   document.getElementById('mode-sub').textContent = m === 'temp'
     ? 'Ordenados por temperatura máxima · de mayor a menor'
-    : 'Ordenados por viento máximo · de mayor a menor';
-  if (Object.keys(weatherData).length > 0) buildTable();
+    : m === 'wind'
+    ? 'Ordenados por viento máximo · de mayor a menor'
+    : 'Prioridad: viento · lluvia · calor — peores destinos primero';
+  if (Object.keys(weatherData).length > 0) {
+    if (m === 'summary') buildSummary();
+    else buildTable();
+  }
+}
+
+// ─── Análisis de período para modo Resumen ───────────────────────────────────
+function analyzePeriod(daily, startDay, numDays) {
+  var n = Math.min(startDay + numDays, (daily.time||[]).length);
+  if (startDay >= n) return { score: -1, html: '<span class="sum-ok">—</span>' };
+
+  var maxWind = null, maxTemp = null, rainDays = 0;
+  for (var i = startDay; i < n; i++) {
+    var w = (daily.windspeed_10m_max||[])[i];
+    var t = (daily.temperature_2m_max||[])[i];
+    var p = (daily.precipitation_probability_max||[])[i];
+    var r = (daily.precipitation_sum||[])[i];
+    if (w != null && (maxWind === null || w > maxWind)) maxWind = w;
+    if (t != null && (maxTemp === null || t > maxTemp)) maxTemp = t;
+    if ((p != null && p >= 60) || (r != null && r >= 3)) rainDays++;
+  }
+
+  var issues = [];
+  // Viento (prioridad 1)
+  if (maxWind != null && maxWind >= 45)
+    issues.push({ score: 4, cls: 'sum-bad',  txt: '❌ viento ' + Math.round(maxWind) + ' km/h' });
+  else if (maxWind != null && maxWind >= 25)
+    issues.push({ score: 2, cls: 'sum-warn', txt: '⚠️ viento ' + Math.round(maxWind) + ' km/h' });
+
+  // Lluvia (prioridad 2)
+  if (rainDays >= 3)
+    issues.push({ score: 3, cls: 'sum-bad',  txt: '❌ ' + rainDays + ' días lluvia' });
+  else if (rainDays > 0)
+    issues.push({ score: 1, cls: 'sum-warn', txt: '⚠️ ' + rainDays + ' día' + (rainDays > 1 ? 's' : '') + ' lluvia' });
+
+  // Calor (prioridad 3)
+  if (maxTemp != null && maxTemp >= 38)
+    issues.push({ score: 3, cls: 'sum-bad',  txt: '❌ calor ' + Math.round(maxTemp) + '°' });
+  else if (maxTemp != null && maxTemp >= 35)
+    issues.push({ score: 1, cls: 'sum-warn', txt: '⚠️ calor ' + Math.round(maxTemp) + '°' });
+
+  if (issues.length === 0) {
+    return { score: 0, html: '<span class="sum-ok">✅ sin alertas</span>' };
+  }
+  // Ordenar por score desc, mostrar el peor primero
+  issues.sort(function(a, b) { return b.score - a.score; });
+  var totalScore = issues.reduce(function(s, x) { return s + x.score; }, 0);
+  var html = issues.map(function(x) {
+    return '<span class="' + x.cls + '">' + x.txt + '</span>';
+  }).join(' &nbsp;');
+  return { score: totalScore, html: html };
+}
+
+// ─── Render modo Resumen ─────────────────────────────────────────────────────
+function buildSummary() {
+  var wrap = document.getElementById('cards-wrap');
+  wrap.innerHTML = '';
+  document.getElementById('alert-strip').style.display = 'none';
+
+  var rows = DESTINOS
+    .filter(function(d) { return weatherData[d.slug]; })
+    .map(function(d) {
+      var daily = weatherData[d.slug];
+      var week1 = analyzePeriod(daily, 0, 7);
+      var week2 = analyzePeriod(daily, 7, 7);
+      var topScore = Math.max(week1.score, week2.score);
+      return { dest: d, week1: week1, week2: week2, topScore: topScore };
+    })
+    .sort(function(a, b) { return b.topScore - a.topScore; });
+
+  var listDiv = document.createElement('div');
+  listDiv.className = 'summary-list';
+
+  rows.forEach(function(r) {
+    var row = document.createElement('div');
+    var alertCls = r.topScore >= 3 ? 'sum-alert-high' : r.topScore >= 1 ? 'sum-alert-mid' : 'sum-alert-ok';
+    row.className = 'sum-row ' + alertCls;
+
+    // Nombre destino sin "Kampaoh " prefijo para compactar
+    var shortName = r.dest.name.replace(/^Kampaoh\s+/, '');
+
+    row.innerHTML =
+      '<div class="sum-name">👉 ' + shortName + '</div>' +
+      '<div class="sum-weeks">' +
+        '<div class="sum-week"><span class="sum-week-label">Esta semana</span><span class="sum-status">' + r.week1.html + '</span></div>' +
+        '<div class="sum-week"><span class="sum-week-label">Semana que viene</span><span class="sum-status">' + r.week2.html + '</span></div>' +
+      '</div>';
+    listDiv.appendChild(row);
+  });
+
+  wrap.appendChild(listDiv);
+  wrap.style.display = 'block';
 }
 
 // ─── Render cards ────────────────────────────────────────────────────────────
@@ -811,28 +931,28 @@ function setDays(n) {
   currentDays = n;
   document.getElementById('btn7').classList.toggle('active', n===7);
   document.getElementById('btn14').classList.toggle('active', n===14);
-  if (Object.keys(weatherData).length > 0) buildTable();
+  if (Object.keys(weatherData).length > 0) { if (currentMode === 'summary') buildSummary(); else buildTable(); }
 }
 function setFilter(f) {
   currentFilter = f;
   ['all','alert','es','pt'].forEach(function(id){
     document.getElementById('f-'+id).classList.toggle('active', id===f);
   });
-  if (Object.keys(weatherData).length > 0) buildTable();
+  if (Object.keys(weatherData).length > 0) { if (currentMode === 'summary') buildSummary(); else buildTable(); }
 }
 function setTempFilter(v) {
   currentTempMin = v;
   [0,25,30,35,38].forEach(function(x){
     document.getElementById('t-'+x).classList.toggle('active', x===v);
   });
-  if (Object.keys(weatherData).length > 0) buildTable();
+  if (Object.keys(weatherData).length > 0) { if (currentMode === 'summary') buildSummary(); else buildTable(); }
 }
 function setWindFilter(v) {
   currentWindMin = v;
   [0,25,40,55,70].forEach(function(x){
     document.getElementById('w-'+x).classList.toggle('active', x===v);
   });
-  if (Object.keys(weatherData).length > 0) buildTable();
+  if (Object.keys(weatherData).length > 0) { if (currentMode === 'summary') buildSummary(); else buildTable(); }
 }
 
 // ─── Init ────────────────────────────────────────────────────────────────────
