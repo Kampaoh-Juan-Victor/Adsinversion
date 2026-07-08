@@ -114,6 +114,49 @@ async function main() {
   const matched = destinations.filter(d => d.views > 0 && d.purchases > 0).length;
   console.log(`  Destinos: ${destinations.length} (${matched} con vistas y reservas)`);
 
+  // ── Por destino + fecha (sin canal, para tabla dinámica por período) ────────
+  const [viewsDestDateRes, purchDestDateRes] = await Promise.all([
+    client.runReport({
+      property: `properties/${PROPERTY_ID}`,
+      dimensions: [{ name: "date" }, { name: "itemId" }],
+      metrics:    [{ name: "itemsViewed" }],
+      dimensionFilter: { filter: { fieldName: "hostName", stringFilter: { matchType: "CONTAINS", value: "booking.kampaoh.com" } } },
+      dateRanges: [{ startDate: dateFrom, endDate: dateTo }],
+      limit: 50000,
+    }),
+    client.runReport({
+      property: `properties/${PROPERTY_ID}`,
+      dimensions: [{ name: "date" }, { name: "itemId" }],
+      metrics:    [{ name: "itemsPurchased" }],
+      dimensionFilter: { filter: { fieldName: "hostName", stringFilter: { matchType: "CONTAINS", value: "booking.kampaoh.com" } } },
+      dateRanges: [{ startDate: dateFrom, endDate: dateTo }],
+      limit: 50000,
+    }),
+  ]);
+
+  const byDestDate = {};
+  (viewsDestDateRes[0].rows || []).forEach(r => {
+    const rawDate = r.dimensionValues[0].value;
+    const date = `${rawDate.slice(0,4)}-${rawDate.slice(4,6)}-${rawDate.slice(6,8)}`;
+    const id = r.dimensionValues[1].value;
+    if (!id || id === '(not set)') return;
+    const val = parseInt(r.metricValues[0].value) || 0;
+    if (!byDestDate[date]) byDestDate[date] = {};
+    if (!byDestDate[date][id]) byDestDate[date][id] = { v: 0, p: 0 };
+    byDestDate[date][id].v += val;
+  });
+  (purchDestDateRes[0].rows || []).forEach(r => {
+    const rawDate = r.dimensionValues[0].value;
+    const date = `${rawDate.slice(0,4)}-${rawDate.slice(4,6)}-${rawDate.slice(6,8)}`;
+    const id = r.dimensionValues[1].value;
+    if (!id || id === '(not set)') return;
+    const val = parseInt(r.metricValues[0].value) || 0;
+    if (!byDestDate[date]) byDestDate[date] = {};
+    if (!byDestDate[date][id]) byDestDate[date][id] = { v: 0, p: 0 };
+    byDestDate[date][id].p += val;
+  });
+  console.log(`  byDestDate: ${Object.keys(byDestDate).length} fechas`);
+
   // ── Funnel por fecha ─────────────────────────────────────────────────────
   const allRows = [];
   let offset = 0;
@@ -175,6 +218,7 @@ async function main() {
     steps:      FUNNEL_STEPS,
     byDate,
     destinations,
+    byDestDate,
   };
 
   fs.writeFileSync(DATA_PATH, JSON.stringify(output), "utf8");

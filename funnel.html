@@ -188,6 +188,8 @@ function renderAll() {
     });
     sparkCharts.push(chart);
   });
+
+  renderDestTable();
 }
 
 function setPeriod(days) {
@@ -312,21 +314,48 @@ function renderChannelButtons() {
 function renderDestTable() {
   if (!FULL_DATA || !FULL_DATA.destinations) return;
 
-  var rows = FULL_DATA.destinations.map(function(d) {
-    var views, purchases;
-    if (destChannel) {
-      var ch = (d.channels || {})[destChannel] || { views: 0, purchases: 0 };
-      views = ch.views; purchases = ch.purchases;
-    } else {
-      views = d.views; purchases = d.purchases;
-    }
-    return {
-      name:      d.name,
-      views:     views,
-      purchases: purchases,
-      conv:      views > 0 ? parseFloat((purchases / views * 100).toFixed(2)) : 0,
-    };
-  });
+  var rows;
+  var range = getPeriodRange();
+
+  if (!destChannel && FULL_DATA.byDestDate) {
+    // Sumar por destino filtrando por período activo
+    var sumById = {};
+    Object.keys(FULL_DATA.byDestDate).forEach(function(date) {
+      if (date < range.from || date > range.to) return;
+      var destMap = FULL_DATA.byDestDate[date];
+      Object.keys(destMap).forEach(function(id) {
+        var vals = destMap[id];
+        if (!sumById[id]) sumById[id] = { v: 0, p: 0 };
+        sumById[id].v += (vals.v || 0);
+        sumById[id].p += (vals.p || 0);
+      });
+    });
+    rows = FULL_DATA.destinations.map(function(d) {
+      var s = sumById[d.id] || { v: 0, p: 0 };
+      return {
+        name:      d.name,
+        views:     s.v,
+        purchases: s.p,
+        conv:      s.v > 0 ? parseFloat((s.p / s.v * 100).toFixed(2)) : 0,
+      };
+    });
+  } else {
+    rows = FULL_DATA.destinations.map(function(d) {
+      var views, purchases;
+      if (destChannel) {
+        var ch = (d.channels || {})[destChannel] || { views: 0, purchases: 0 };
+        views = ch.views; purchases = ch.purchases;
+      } else {
+        views = d.views; purchases = d.purchases;
+      }
+      return {
+        name:      d.name,
+        views:     views,
+        purchases: purchases,
+        conv:      views > 0 ? parseFloat((purchases / views * 100).toFixed(2)) : 0,
+      };
+    });
+  }
 
   // Si hay filtro de canal, ocultar destinos sin datos en ese canal
   if (destChannel) {
@@ -341,9 +370,9 @@ function renderDestTable() {
 
   var total    = rows.length;
   var withBoth = rows.filter(function(r) { return r.views > 0 && r.purchases > 0; }).length;
-  var chLabel  = destChannel ? ' · Canal: ' + destChannel : '';
+  var chLabel  = destChannel ? ' · Canal: ' + destChannel + ' (período completo)' : '';
   document.getElementById('dest-subtitle').textContent =
-    FULL_DATA.dateFrom + ' → ' + FULL_DATA.dateTo + ' · ' + total + ' destinos' + chLabel + ' · ' + withBoth + ' con datos completos';
+    range.from + ' → ' + range.to + ' · ' + total + ' destinos' + chLabel + ' · ' + withBoth + ' con datos completos';
 
   var maxConv = rows.reduce(function(m, r) { return Math.max(m, r.conv); }, 0.01);
 
