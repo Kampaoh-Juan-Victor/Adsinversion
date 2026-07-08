@@ -362,7 +362,7 @@
   </div>
 </header>
 
-<nav>
+<nav id="main-nav">
   <a href="index.html" class="nav-link">Inversión Publicitaria</a>
   <a href="ga4.html" class="nav-link">Propiedades Vistas · GA4</a>
   <a href="busqueda-be.html" class="nav-link">Búsqueda BE</a>
@@ -370,6 +370,7 @@
   <a href="funnel.html" class="nav-link">Funnel</a>
   <a href="tiempo.html" class="nav-link active">Tiempo</a>
 </nav>
+<script>if (new URLSearchParams(window.location.search).has('solo')) { document.getElementById('main-nav').style.display = 'none'; }</script>
 
 <div class="mode-bar">
   <div>
