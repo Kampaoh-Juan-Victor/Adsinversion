@@ -236,6 +236,23 @@ fetch('funnel-data.json?t=' + Date.now())
 var destSort = 'views', destDir = -1;
 var destChannel = null; // null = Todos
 
+var CHANNEL_COLORS = {
+  'Organic Search':   '#16a34a',
+  'Paid Search':      '#6366f1',
+  'Paid Social':      '#ec4899',
+  'Direct':           '#64748b',
+  'Cross-network':    '#f59e0b',
+  'Organic Social':   '#10b981',
+  'Referral':         '#06b6d4',
+  'Unassigned':       '#374151',
+  'Email':            '#f97316',
+  'Paid Other':       '#8b5cf6',
+  'AI Assistant':     '#a855f7',
+  'Organic Video':    '#84cc16',
+  'Paid Video':       '#ef4444',
+  'Organic Shopping': '#14b8a6',
+};
+
 var CHANNEL_DESC = {
   'Organic Search':   'Usuarios desde resultados orgánicos de Google, Bing u otros buscadores. Sin coste publicitario. Alta intención de búsqueda activa.',
   'Paid Search':      'Clics en anuncios de búsqueda de pago (Google Ads, Bing Ads). Usuarios que buscaron activamente y vieron un anuncio.',
@@ -252,6 +269,27 @@ var CHANNEL_DESC = {
   'Paid Video':       'Clics desde anuncios de vídeo pagados: YouTube Ads, TrueView, bumpers, etc.',
   'Organic Shopping': 'Clics desde fichas gratuitas de Google Shopping. Tráfico de producto sin coste por clic.',
 };
+
+function buildChBar(channels) {
+  if (!channels || destChannel) return '';
+  var total = 0;
+  var keys = Object.keys(channels).filter(function(ch) {
+    return ch && ch !== '(not set)' && (channels[ch].views || 0) > 0;
+  });
+  keys.forEach(function(ch) { total += channels[ch].views || 0; });
+  if (!total) return '';
+  keys.sort(function(a, b) { return (channels[b].views || 0) - (channels[a].views || 0); });
+  var html = '<div class="ch-dist-bar">';
+  keys.forEach(function(ch) {
+    var w = (channels[ch].views / total * 100).toFixed(2);
+    var color = CHANNEL_COLORS[ch] || '#6870a0';
+    var pct = Math.round(channels[ch].views / total * 100) + '%';
+    var tip = ch + ' · ' + pct + ' (' + n(channels[ch].views) + ' vistas)';
+    html += '<div class="ch-dist-seg" style="width:' + w + '%;background:' + color + '" data-tip="' + tip + '"></div>';
+  });
+  html += '</div>';
+  return html;
+}
 
 function sortDest(col) {
   destSort = col; destDir = (col === 'name') ? 1 : -1;
@@ -270,6 +308,16 @@ function initChannelTooltip() {
   });
   wrap.addEventListener('mouseout', function(e) {
     if (!e.relatedTarget || !wrap.contains(e.relatedTarget)) tip.style.display = 'none';
+  });
+  // Tooltip para segmentos de la barra de canales en la tabla (delegación en document)
+  document.addEventListener('mouseover', function(e) {
+    var seg = e.target.closest('.ch-dist-seg[data-tip]');
+    if (!seg) return;
+    tip.textContent = seg.dataset.tip;
+    tip.style.display = 'block';
+  });
+  document.addEventListener('mouseout', function(e) {
+    if (e.target.closest('.ch-dist-seg')) tip.style.display = 'none';
   });
   document.addEventListener('mousemove', function(e) {
     if (tip.style.display === 'none') return;
@@ -337,6 +385,7 @@ function renderDestTable() {
         views:     s.v,
         purchases: s.p,
         conv:      s.v > 0 ? parseFloat((s.p / s.v * 100).toFixed(2)) : 0,
+        channels:  d.channels || {},
       };
     });
   } else {
@@ -353,6 +402,7 @@ function renderDestTable() {
         views:     views,
         purchases: purchases,
         conv:      views > 0 ? parseFloat((purchases / views * 100).toFixed(2)) : 0,
+        channels:  d.channels || {},
       };
     });
   }
@@ -390,7 +440,7 @@ function renderDestTable() {
     var barW     = hasData ? Math.round(r.conv / maxConv * 100) : 0;
     var barColor = r.conv >= 2 ? 'var(--green)' : r.conv >= 0.5 ? 'var(--orange)' : 'var(--red)';
     return '<tr>' +
-      '<td style="font-weight:600">' + r.name + '</td>' +
+      '<td><span style="font-weight:600">' + r.name + '</span>' + buildChBar(r.channels) + '</td>' +
       '<td>' + (r.views ? n(r.views) : '<span style="color:var(--muted)">—</span>') + '</td>' +
       '<td>' + (r.purchases ? n(r.purchases) : '<span style="color:var(--muted)">—</span>') + '</td>' +
       '<td class="' + (hasData ? convCls : '') + '">' + convStr + '</td>' +
@@ -478,6 +528,9 @@ input[type="date"] { padding: 5px 10px; font-size: 12px; border: 1px solid var(-
 .dest-table tr:hover td { background: var(--surface2); }
 .conv-bar-wrap { background: var(--surface2); border-radius: 4px; height: 6px; overflow: hidden; width: 60px; }
 .conv-bar-fill { height: 100%; border-radius: 4px; }
+.ch-dist-bar { display: flex; height: 5px; border-radius: 3px; overflow: hidden; margin-top: 5px; background: var(--surface2); }
+.ch-dist-seg { height: 100%; cursor: default; flex-shrink: 0; }
+.ch-dist-seg:hover { opacity: 0.8; }
 
 /* Tooltip canal */
 #ch-tip { position: fixed; display: none; max-width: 260px; background: #1e2140; color: #f4f6ff; font-size: 11px; line-height: 1.5; padding: 8px 12px; border-radius: 8px; z-index: 9999; pointer-events: none; }
