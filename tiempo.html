@@ -263,28 +263,46 @@
     .mode-sub { font-size: 11px; color: var(--muted); margin-top: 8px; }
 
     /* ── Resumen mode ── */
-    .summary-list { padding: 20px 32px; display: flex; flex-direction: column; gap: 8px; }
-    .sum-row {
-      display: flex; align-items: center; gap: 0;
-      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-      padding: 12px 16px; gap: 16px;
+    .summary-wrap { padding: 16px 32px 24px; }
+    .sum-table { width: 100%; border-collapse: collapse; }
+    .sum-table .sum-thead th {
+      font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--muted); padding: 0 8px 10px 0; text-align: left;
+      border-bottom: 1px solid var(--border);
     }
-    .sum-row.sum-alert-high { border-left: 3px solid #dc2626; }
-    .sum-row.sum-alert-mid  { border-left: 3px solid #d97706; }
-    .sum-row.sum-alert-ok   { border-left: 3px solid #22c55e; }
-    .sum-name { font-size: 13px; font-weight: 700; color: var(--text); min-width: 220px; flex-shrink: 0; }
-    .sum-weeks { display: flex; gap: 8px; flex: 1; flex-wrap: wrap; }
-    .sum-week { display: flex; align-items: center; gap: 6px; font-size: 12px; min-width: 180px; }
-    .sum-week-label { color: var(--muted); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; min-width: 70px; }
-    .sum-status { font-size: 12px; }
-    .sum-ok    { color: #22c55e; }
-    .sum-warn  { color: #f59e0b; }
-    .sum-bad   { color: #ef4444; }
+    .sum-table .sum-thead th:first-child { width: 200px; padding-left: 0; }
+    .sum-table .sum-thead .th-dates {
+      display: block; font-size: 10px; font-weight: 500; letter-spacing: 0;
+      text-transform: none; color: #4b5284; margin-top: 2px;
+    }
+    .sum-tr td { vertical-align: top; border-bottom: 1px solid rgba(46,49,73,.4); }
+    .sum-tr:last-child td { border-bottom: none; }
+    .sum-tr td:first-child {
+      font-size: 13px; font-weight: 700; color: var(--text); vertical-align: middle;
+      padding: 10px 14px 10px 0; white-space: nowrap;
+    }
+    .sum-cell-wrap { padding: 6px 8px 6px 0; }
+    .sum-cell {
+      padding: 8px 12px 8px 13px; border-radius: 8px; font-size: 13px; font-weight: 700;
+      line-height: 1.65; display: flex; flex-direction: column; gap: 0;
+      border-left: 3px solid;
+    }
+    /* Nivel 4: viento fuerte — rojo */
+    .sc-4 { background: #fee2e2; border-left-color: #ef4444; color: #7f1d1d; }
+    /* Nivel 3: calor fuerte — naranja */
+    .sc-3 { background: #ffedd5; border-left-color: #f97316; color: #7c2d12; }
+    /* Nivel 2: moderado — ámbar */
+    .sc-2 { background: #fef9c3; border-left-color: #eab308; color: #713f12; }
+    /* Nivel 1: lluvia — azul */
+    .sc-1 { background: #dbeafe; border-left-color: #3b82f6; color: #1e3a8a; }
+    /* Nivel 0: sin alertas — verde claro */
+    .sc-0 { background: #dcfce7; border-left-color: #16a34a; color: #14532d; }
+    .sum-cell-issue { display: block; font-size: 13px; }
     @media (max-width: 640px) {
-      .summary-list { padding: 10px; }
-      .sum-name { min-width: 0; width: 100%; margin-bottom: 4px; }
-      .sum-row { flex-wrap: wrap; }
-      .sum-week { min-width: 140px; }
+      .summary-wrap { padding: 10px; }
+      .sum-table .sum-thead th:first-child { width: 110px; }
+      .sum-tr td:first-child { font-size: 11px; padding-right: 8px; }
+      .sum-cell { padding: 7px 10px 7px 11px; font-size: 11px; }
     }
     .day-toggle {
       display: flex; gap: 3px; background: var(--surface); border: 1px solid var(--border);
@@ -356,11 +374,11 @@
 <div class="mode-bar">
   <div>
     <div class="mode-toggle">
-      <button class="mode-btn active" id="mode-temp" onclick="setMode('temp')">🌡 Temperatura</button>
+      <button class="mode-btn active" id="mode-summary" onclick="setMode('summary')">📋 Resumen</button>
+      <button class="mode-btn" id="mode-temp" onclick="setMode('temp')">🌡 Temperatura</button>
       <button class="mode-btn" id="mode-wind" onclick="setMode('wind')">💨 Viento</button>
-      <button class="mode-btn" id="mode-summary" onclick="setMode('summary')">📋 Resumen</button>
     </div>
-    <div class="mode-sub" id="mode-sub">Ordenados por temperatura máxima · de mayor a menor</div>
+    <div class="mode-sub" id="mode-sub">Prioridad: viento · lluvia · frío — peores destinos primero</div>
   </div>
   <div class="day-toggle">
     <button class="day-btn active" id="btn7" onclick="setDays(7)">7 días</button>
@@ -387,12 +405,13 @@
 var GRUPOS = [
   { label: 'Cádiz · Huelva · Sevilla', country: 'es', dests: [
     {slug:'tarifa',             name:'Kampaoh Tarifa',                  lat:36.014, lon:-5.601},
-    {slug:'valdvaqueros',       name:'Kampaoh Valdevaqueros',            lat:36.080, lon:-5.680},
     {slug:'paloma',             name:'Kampaoh Paloma',                   lat:36.025, lon:-5.620},
     {slug:'los-canos',          name:'Kampaoh Los Caños',                lat:36.213, lon:-6.043},
     {slug:'trafalgar',          name:'Kampaoh Trafalgar',                lat:36.183, lon:-6.033},
+    {slug:'hostel-trafalgar',   name:'Kampaoh Hostel Trafalgar',         lat:36.183, lon:-6.033},
     {slug:'conil',              name:'Kampaoh Conil',                    lat:36.280, lon:-6.090},
     {slug:'el-palmar',          name:'Kampaoh El Palmar',                lat:36.270, lon:-6.010},
+    {slug:'hostel-el-palmar',   name:'Kampaoh Hostel El Palmar',         lat:36.270, lon:-6.010},
     {slug:'grazalema',          name:'Kampaoh Grazalema',                lat:36.760, lon:-5.370},
     {slug:'lago-de-arcos',      name:'Kampaoh Lago de Arcos',            lat:36.750, lon:-5.800},
     {slug:'puerto-santa-maria', name:'Kampaoh El Puerto de Santa María', lat:36.603, lon:-6.232},
@@ -403,51 +422,37 @@ var GRUPOS = [
   ]},
   { label: 'Málaga · Granada · Almería', country: 'es', dests: [
     {slug:'estepona',           name:'Kampaoh Estepona',                 lat:36.430, lon:-5.140},
-    {slug:'marbella',           name:'Kampaoh Marbella',                 lat:36.510, lon:-4.890},
-    {slug:'benajarafe',         name:'Kampaoh Benajarafe',               lat:36.730, lon:-4.120},
-    {slug:'costa-del-sol',      name:'Kampaoh Costa del Sol',            lat:36.700, lon:-4.400},
     {slug:'sierra-nevada',      name:'Kampaoh Sierra Nevada',            lat:37.156, lon:-3.452},
     {slug:'roquetas',           name:'Kampaoh Roquetas',                 lat:36.760, lon:-2.620},
     {slug:'los-escullos',       name:'Kampaoh Los Escullos',             lat:36.840, lon:-2.030},
   ]},
   { label: 'Andalucía Interior', country: 'es', dests: [
     {slug:'cordoba',            name:'Kampaoh Córdoba',                  lat:37.880, lon:-4.780},
-    {slug:'cazorla',            name:'Kampaoh Cazorla',                  lat:37.920, lon:-3.000},
-    {slug:'la-bolera',          name:'Kampaoh La Bolera',                lat:37.990, lon:-2.670},
   ]},
   { label: 'Murcia · Costa Blanca', country: 'es', dests: [
-    {slug:'cabo-blanco',        name:'Kampaoh Cabo Blanco',              lat:37.600, lon:-0.730},
     {slug:'costa-blanca',       name:'Kampaoh Costa Blanca',             lat:37.864, lon:-0.771},
     {slug:'crevillent',         name:'Kampaoh Crevillent',               lat:38.250, lon:-0.810},
-    {slug:'villajoyosa',        name:'Kampaoh La Vila Joiosa',           lat:38.510, lon:-0.230},
     {slug:'playa-de-levante',   name:'Kampaoh Playa de Levante',         lat:38.539, lon:-0.117},
     {slug:'fonts-dalgar',       name:"Kampaoh Fonts d'Algar",            lat:38.644, lon: 0.082},
   ]},
   { label: 'Valencia · Castellón', country: 'es', dests: [
     {slug:'oliva',              name:'Kampaoh Oliva',                    lat:38.930, lon:-0.110},
-    {slug:'playa-de-sueca',     name:'Kampaoh Playa de Sueca',           lat:39.210, lon:-0.310},
     {slug:'cova-negra',         name:'Kampaoh Cova Negra',               lat:38.971, lon: 0.178},
-    {slug:'moncofar',           name:'Kampaoh Moncófar',                 lat:39.820, lon:-0.150},
     {slug:'navajas',            name:'Kampaoh Navajas',                  lat:39.870, lon:-0.520},
     {slug:'benicassim',         name:'Kampaoh Benicassim',               lat:40.060, lon: 0.070},
     {slug:'kikopark-playa',     name:'Kampaoh KikoPark Playa',           lat:40.060, lon: 0.069},
     {slug:'kikopark-rural',     name:'Kampaoh KikoParkRural',            lat:39.580, lon:-1.415},
-    {slug:'kikopark',           name:'Kampaoh KikoPark',                 lat:40.061, lon: 0.068},
   ]},
   { label: 'Cataluña · Aragón', country: 'es', dests: [
-    {slug:'almadrava',          name:'Kampaoh Almadrava',                lat:40.880, lon: 0.800},
     {slug:'delta-ebro',         name:'Kampaoh Delta del Ebro',           lat:40.720, lon: 0.870},
     {slug:'cambrils',           name:'Kampaoh Cambrils',                 lat:41.070, lon: 1.060},
-    {slug:'costa-dorada',       name:'Kampaoh Costa Dorada',             lat:41.100, lon: 1.200},
     {slug:'blanes',             name:'Kampaoh Blanes',                   lat:41.670, lon: 2.800},
     {slug:'calella',            name:'Kampaoh Calella de Palafrugell',   lat:41.886, lon: 3.170},
-    {slug:'pintens',            name:'Kampaoh Pintens',                  lat:41.580, lon: 2.640},
     {slug:'tossa-de-mar',       name:'Kampaoh Tossa de Mar',             lat:41.720, lon: 2.930},
     {slug:'platjadaro',         name:"Kampaoh Platja d'Aro",             lat:41.820, lon: 3.060},
     {slug:'palamos',            name:'Kampaoh Palamós Internacional',    lat:41.850, lon: 3.130},
     {slug:'costa-brava',        name:'Kampaoh Costa Brava',              lat:41.972, lon: 3.155},
     {slug:'neptuno',            name:'Kampaoh Neptuno Pals',             lat:41.968, lon: 3.148},
-    {slug:'esponella',          name:'Kampaoh Esponellà',                lat:42.140, lon: 2.870},
     {slug:'alquezar',           name:'Kampaoh Alquézar',                 lat:42.180, lon: 0.010},
   ]},
   { label: 'Interior · Baleares', country: 'es', dests: [
@@ -462,13 +467,10 @@ var GRUPOS = [
     {slug:'oyambre',            name:'Kampaoh Oyambre',                  lat:43.400, lon:-4.320},
     {slug:'somo-playa',         name:'Kampaoh Somo Playa',               lat:43.470, lon:-3.690},
     {slug:'somo-parque',        name:'Kampaoh Somo Parque',              lat:43.465, lon:-3.688},
-    {slug:'somo',               name:'Kampaoh Somo',                     lat:43.464, lon:-3.687},
-    {slug:'la-franca',          name:'Kampaoh La Franca',                lat:43.400, lon:-4.530},
     {slug:'llanes',             name:'Kampaoh Llanes',                   lat:43.420, lon:-4.760},
     {slug:'deva',               name:'Kampaoh Deva',                     lat:43.534, lon:-5.675},
     {slug:'bufones-de-pria',    name:'Kampaoh Bufones de Pría',          lat:43.443, lon:-5.058},
     {slug:'playa-troenzo',      name:'Kampaoh Playa de Troenzo',         lat:43.426, lon:-4.774},
-    {slug:'castrillon',         name:'Kampaoh Castrillón',               lat:43.570, lon:-5.970},
   ]},
   { label: 'País Vasco · Navarra', country: 'es', dests: [
     {slug:'zumaia',             name:'Kampaoh Zumaia',                   lat:43.300, lon:-2.250},
@@ -476,21 +478,11 @@ var GRUPOS = [
     {slug:'mendigorria',        name:'Kampaoh Mendigorría',              lat:42.630, lon:-1.840},
   ]},
   { label: 'Galicia', country: 'es', dests: [
-    {slug:'rianxo',             name:'Kampaoh Rianxo',                   lat:42.660, lon:-8.820},
-    {slug:'ria-de-arousa-playa',name:'Kampaoh Ría de Arousa Playa',      lat:42.520, lon:-8.870},
-    {slug:'ria-de-arousa-rural',name:'Kampaoh Ría de Arousa Rural',      lat:42.530, lon:-8.850},
     {slug:'bayona-playa',       name:'Kampaoh Bayona Playa',             lat:42.120, lon:-8.850},
-    {slug:'bayona',             name:'Kampaoh Bayona',                   lat:42.118, lon:-8.849},
     {slug:'ria-de-vigo',        name:'Kampaoh Ría de Vigo',              lat:42.306, lon:-8.698},
-    {slug:'rio-mino',           name:'Kampaoh Río Miño',                 lat:41.870, lon:-8.830},
   ]},
   { label: '🇵🇹 Portugal Norte · Centro', country: 'pt', dests: [
     {slug:'ancora',             name:'Kampaoh Âncora',                   lat:41.830, lon:-8.740},
-    {slug:'praia-de-angeiras',  name:'Kampaoh Praia de Angeiras',        lat:41.330, lon:-8.730},
-    {slug:'porto',              name:'Kampaoh Porto',                    lat:41.150, lon:-8.610},
-    {slug:'vagueira',           name:'Kampaoh Vagueira',                 lat:40.560, lon:-8.740},
-    {slug:'gala',               name:'Kampaoh Gala',                     lat:40.140, lon:-8.840},
-    {slug:'mira',               name:'Kampaoh Mira',                     lat:40.430, lon:-8.790},
     {slug:'san-pedro-moel',     name:'Kampaoh São Pedro de Moel',        lat:39.760, lon:-9.030},
     {slug:'peniche',            name:'Kampaoh Peniche',                  lat:39.360, lon:-9.380},
     {slug:'sao-martinho-porto', name:'Kampaoh São Martinho do Porto',    lat:39.530, lon:-9.130},
@@ -500,7 +492,6 @@ var GRUPOS = [
     {slug:'sesimbra',           name:'Kampaoh Sesimbra',                 lat:38.440, lon:-9.100},
     {slug:'lisboa',             name:'Kampaoh Lisboa',                   lat:38.710, lon:-9.140},
     {slug:'tavira',             name:'Kampaoh Tavira',                   lat:37.130, lon:-7.650},
-    {slug:'lagoa',              name:'Kampaoh Lagoa',                    lat:37.130, lon:-8.460},
   ]},
 ];
 
@@ -520,7 +511,7 @@ var currentDays    = 7;
 var currentFilter  = 'all';
 var currentTempMin = 0;
 var currentWindMin = 0;
-var currentMode    = 'temp';
+var currentMode    = 'summary';
 
 // ─── WMO icon ────────────────────────────────────────────────────────────────
 function wmoIcon(code) {
@@ -671,7 +662,7 @@ function setMode(m) {
     ? 'Ordenados por temperatura máxima · de mayor a menor'
     : m === 'wind'
     ? 'Ordenados por viento máximo · de mayor a menor'
-    : 'Prioridad: viento · lluvia · calor — peores destinos primero';
+    : 'Prioridad: viento · lluvia · frío — peores destinos primero';
   if (Object.keys(weatherData).length > 0) {
     if (m === 'summary') buildSummary();
     else buildTable();
@@ -679,50 +670,65 @@ function setMode(m) {
 }
 
 // ─── Análisis de período para modo Resumen ───────────────────────────────────
+// Prioridad: viento fuerte > frío fuerte > lluvia > sol
+// Niveles: 4=viento severo, 3=calor severo, 2=viento/calor moderado, 1=lluvia, 0=ok
 function analyzePeriod(daily, startDay, numDays) {
-  var n = Math.min(startDay + numDays, (daily.time||[]).length);
-  if (startDay >= n) return { score: -1, html: '<span class="sum-ok">—</span>' };
+  var total = (daily.time||[]).length;
+  var n = Math.min(startDay + numDays, total);
+  if (startDay >= total) return { level: -1, lines: [], cls: 'sc-0' };
 
-  var maxWind = null, maxTemp = null, rainDays = 0;
+  var maxWind = null, minTemp = null;
+  var windStrongDays = 0, windModDays = 0;
+  var coldStrongDays = 0, coldModDays = 0;
+  var rainDays = 0;
+
   for (var i = startDay; i < n; i++) {
     var w = (daily.windspeed_10m_max||[])[i];
-    var t = (daily.temperature_2m_max||[])[i];
+    var tm = (daily.temperature_2m_min||[])[i];
     var p = (daily.precipitation_probability_max||[])[i];
     var r = (daily.precipitation_sum||[])[i];
-    if (w != null && (maxWind === null || w > maxWind)) maxWind = w;
-    if (t != null && (maxTemp === null || t > maxTemp)) maxTemp = t;
+    if (w != null) {
+      if (maxWind === null || w > maxWind) maxWind = w;
+      if (w >= 45) windStrongDays++;
+      else if (w >= 25) windModDays++;
+    }
+    if (tm != null) {
+      if (minTemp === null || tm < minTemp) minTemp = tm;
+      if (tm < 8) coldStrongDays++;
+      else if (tm < 14) coldModDays++;
+    }
     if ((p != null && p >= 60) || (r != null && r >= 3)) rainDays++;
   }
 
-  var issues = [];
-  // Viento (prioridad 1)
-  if (maxWind != null && maxWind >= 45)
-    issues.push({ score: 4, cls: 'sum-bad',  txt: '❌ viento ' + Math.round(maxWind) + ' km/h' });
-  else if (maxWind != null && maxWind >= 25)
-    issues.push({ score: 2, cls: 'sum-warn', txt: '⚠️ viento ' + Math.round(maxWind) + ' km/h' });
+  var lines = [], level = 0;
 
-  // Lluvia (prioridad 2)
-  if (rainDays >= 3)
-    issues.push({ score: 3, cls: 'sum-bad',  txt: '❌ ' + rainDays + ' días lluvia' });
-  else if (rainDays > 0)
-    issues.push({ score: 1, cls: 'sum-warn', txt: '⚠️ ' + rainDays + ' día' + (rainDays > 1 ? 's' : '') + ' lluvia' });
-
-  // Calor (prioridad 3)
-  if (maxTemp != null && maxTemp >= 38)
-    issues.push({ score: 3, cls: 'sum-bad',  txt: '❌ calor ' + Math.round(maxTemp) + '°' });
-  else if (maxTemp != null && maxTemp >= 35)
-    issues.push({ score: 1, cls: 'sum-warn', txt: '⚠️ calor ' + Math.round(maxTemp) + '°' });
-
-  if (issues.length === 0) {
-    return { score: 0, html: '<span class="sum-ok">✅ sin alertas</span>' };
+  // 1. Viento (mayor prioridad)
+  if (windStrongDays > 0) {
+    lines.push('💨 Viento fuerte ' + windStrongDays + ' día' + (windStrongDays > 1 ? 's' : '') + ' (' + Math.round(maxWind) + ' km/h máx)');
+    level = Math.max(level, 4);
+  } else if (windModDays > 0) {
+    lines.push('💨 Viento ' + windModDays + ' día' + (windModDays > 1 ? 's' : '') + ' (' + Math.round(maxWind) + ' km/h máx)');
+    level = Math.max(level, 2);
   }
-  // Ordenar por score desc, mostrar el peor primero
-  issues.sort(function(a, b) { return b.score - a.score; });
-  var totalScore = issues.reduce(function(s, x) { return s + x.score; }, 0);
-  var html = issues.map(function(x) {
-    return '<span class="' + x.cls + '">' + x.txt + '</span>';
-  }).join(' &nbsp;');
-  return { score: totalScore, html: html };
+
+  // 2. Frío
+  if (coldStrongDays > 0) {
+    lines.push('🥶 Frío fuerte ' + coldStrongDays + ' día' + (coldStrongDays > 1 ? 's' : '') + ' (' + Math.round(minTemp) + '° mín)');
+    level = Math.max(level, 3);
+  } else if (coldModDays > 0) {
+    lines.push('🥶 Frío ' + coldModDays + ' día' + (coldModDays > 1 ? 's' : '') + ' (' + Math.round(minTemp) + '° mín)');
+    level = Math.max(level, 2);
+  }
+
+  // 3. Lluvia
+  if (rainDays > 0) {
+    lines.push('🌧 Llueve ' + rainDays + ' día' + (rainDays > 1 ? 's' : ''));
+    if (level === 0) level = 1;
+  }
+
+  var cls = level >= 4 ? 'sc-4' : level === 3 ? 'sc-3' : level === 2 ? 'sc-2' : level === 1 ? 'sc-1' : 'sc-0';
+  if (lines.length === 0) lines.push('☀️ Sin alertas');
+  return { level: level, lines: lines, cls: cls };
 }
 
 // ─── Render modo Resumen ─────────────────────────────────────────────────────
@@ -731,38 +737,50 @@ function buildSummary() {
   wrap.innerHTML = '';
   document.getElementById('alert-strip').style.display = 'none';
 
+  // Rangos de fecha desde los datos del primer destino cargado
+  var MONTHS = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  var firstSlug = Object.keys(weatherData)[0];
+  var times = firstSlug ? (weatherData[firstSlug].time || []) : [];
+  function fmtRange(s, e) {
+    if (!times[s] || !times[e]) return '';
+    var d1 = new Date(times[s] + 'T00:00:00'), d2 = new Date(times[e] + 'T00:00:00');
+    var m1 = MONTHS[d1.getMonth()], m2 = MONTHS[d2.getMonth()];
+    return d1.getDate() + (m1 !== m2 ? ' ' + m1 : '') + '–' + d2.getDate() + ' ' + m2;
+  }
+  var range1 = fmtRange(0, 6), range2 = fmtRange(7, 13);
+
   var rows = DESTINOS
     .filter(function(d) { return weatherData[d.slug]; })
     .map(function(d) {
       var daily = weatherData[d.slug];
-      var week1 = analyzePeriod(daily, 0, 7);
-      var week2 = analyzePeriod(daily, 7, 7);
-      var topScore = Math.max(week1.score, week2.score);
-      return { dest: d, week1: week1, week2: week2, topScore: topScore };
+      var w1 = analyzePeriod(daily, 0, 7);
+      var w2 = analyzePeriod(daily, 7, 7);
+      return { dest: d, w1: w1, w2: w2, topLevel: Math.max(w1.level, w2.level) };
     })
-    .sort(function(a, b) { return b.topScore - a.topScore; });
+    .sort(function(a, b) { return b.topLevel - a.topLevel; });
 
-  var listDiv = document.createElement('div');
-  listDiv.className = 'summary-list';
+  var html = '<div class="summary-wrap"><table class="sum-table">'
+    + '<thead class="sum-thead"><tr>'
+    + '<th>DESTINO</th>'
+    + '<th>ESTA SEMANA' + (range1 ? '<span class="th-dates">' + range1 + '</span>' : '') + '</th>'
+    + '<th>SEMANA QUE VIENE' + (range2 ? '<span class="th-dates">' + range2 + '</span>' : '') + '</th>'
+    + '</tr></thead><tbody>';
 
   rows.forEach(function(r) {
-    var row = document.createElement('div');
-    var alertCls = r.topScore >= 3 ? 'sum-alert-high' : r.topScore >= 1 ? 'sum-alert-mid' : 'sum-alert-ok';
-    row.className = 'sum-row ' + alertCls;
-
-    // Nombre destino sin "Kampaoh " prefijo para compactar
-    var shortName = r.dest.name.replace(/^Kampaoh\s+/, '');
-
-    row.innerHTML =
-      '<div class="sum-name">👉 ' + shortName + '</div>' +
-      '<div class="sum-weeks">' +
-        '<div class="sum-week"><span class="sum-week-label">Esta semana</span><span class="sum-status">' + r.week1.html + '</span></div>' +
-        '<div class="sum-week"><span class="sum-week-label">Semana que viene</span><span class="sum-status">' + r.week2.html + '</span></div>' +
-      '</div>';
-    listDiv.appendChild(row);
+    var name = r.dest.name.replace(/^Kampaoh\s+/, '');
+    html += '<tr class="sum-tr">'
+      + '<td>👉 ' + name + '</td>'
+      + '<td class="sum-cell-wrap"><div class="sum-cell ' + r.w1.cls + '">'
+      + r.w1.lines.map(function(l){ return '<span class="sum-cell-issue">' + l + '</span>'; }).join('')
+      + '</div></td>'
+      + '<td class="sum-cell-wrap"><div class="sum-cell ' + r.w2.cls + '">'
+      + r.w2.lines.map(function(l){ return '<span class="sum-cell-issue">' + l + '</span>'; }).join('')
+      + '</div></td>'
+      + '</tr>';
   });
 
-  wrap.appendChild(listDiv);
+  html += '</tbody></table></div>';
+  wrap.innerHTML = html;
   wrap.style.display = 'block';
 }
 
@@ -960,7 +978,7 @@ function setWindFilter(v) {
   try {
     await loadAll();
     document.getElementById('loading').style.display = 'none';
-    buildTable();
+    if (currentMode === 'summary') buildSummary(); else buildTable();
   } catch(e) {
     document.getElementById('load-msg').textContent = 'Error al cargar los datos';
     document.getElementById('load-sub').textContent = e.message || 'Inténtalo de nuevo';

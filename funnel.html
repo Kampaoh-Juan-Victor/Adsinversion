@@ -373,6 +373,160 @@ function renderDestTable() {
     '<table class="dest-table">' + thead + '<tbody>' + tbody + '</tbody></table>';
 }
 </script>
+<style>
+:root {
+  --bg:      #0f1117;
+  --surface: #1a1d27;
+  --surface2:#222536;
+  --text:    #e2e4f0;
+  --muted:   #6870a0;
+  --border:  #2e3149;
+  --accent:  #6366f1;
+  --green:   #16a34a;
+  --orange:  #f97316;
+  --red:     #ef4444;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; font-size: 14px; margin: 0; }
+header { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 14px 32px; display: flex; justify-content: space-between; align-items: center; }
+header h1 { font-size: 16px; font-weight: 900; color: var(--text); margin: 0; }
+header h1 span { font-weight: 400; color: var(--muted); }
+nav { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; overflow-x: auto; }
+.nav-link { padding: 10px 18px; font-size: 12px; font-weight: 600; color: var(--muted); text-decoration: none; border-bottom: 2px solid transparent; white-space: nowrap; }
+.nav-link.active { color: var(--accent); border-bottom-color: var(--accent); }
+.controls-bar { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 10px 32px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.btn-group { display: flex; gap: 3px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 3px; }
+.period-btn { padding: 5px 14px; font-size: 12px; font-weight: 600; background: transparent; border: none; color: var(--muted); border-radius: 6px; cursor: pointer; transition: all .15s; }
+.period-btn.active { background: var(--accent); color: #fff; }
+input[type="date"] { padding: 5px 10px; font-size: 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); }
+.date-sep { font-size: 12px; color: var(--muted); }
+.main { max-width: 1100px; margin: 0 auto; padding: 24px 32px; }
+
+/* KPIs */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+.kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; }
+.kpi-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 6px; }
+.kpi-val { font-size: 28px; font-weight: 800; color: var(--text); line-height: 1; }
+.kpi-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+/* Funnel */
+.funnel-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+.funnel-header h2 { font-size: 14px; font-weight: 700; color: var(--text); margin: 0 0 16px; }
+.funnel-step { display: grid; grid-template-columns: 180px 1fr 90px 60px 70px; gap: 12px; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); }
+.funnel-step:last-child { border-bottom: none; }
+.step-label { font-size: 12px; font-weight: 600; color: var(--text); }
+.step-num { font-size: 10px; color: var(--muted); }
+.bar-wrap { background: var(--surface2); border-radius: 4px; height: 26px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; transition: width .3s; min-width: 2px; }
+.bar-label { font-size: 11px; font-weight: 700; color: #fff; padding: 0 8px; white-space: nowrap; }
+.step-count { font-size: 13px; font-weight: 700; color: var(--text); text-align: right; font-variant-numeric: tabular-nums; }
+.step-rate { font-size: 12px; font-weight: 700; text-align: right; }
+.rate-good { color: var(--green); }
+.rate-mid  { color: var(--orange); }
+.rate-bad  { color: var(--red); }
+.step-drop { font-size: 12px; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Sparklines */
+.section-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 12px; }
+.trend-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 10px; margin-bottom: 28px; }
+.spark-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+.spark-label { font-size: 10px; font-weight: 600; color: var(--muted); margin-bottom: 2px; }
+.spark-count { font-size: 20px; font-weight: 800; line-height: 1.1; }
+.spark-rate { font-size: 10px; color: var(--muted); height: 14px; }
+.spark { width: 100% !important; height: 40px !important; display: block; margin-top: 6px; }
+
+/* Canal + tabla destinos */
+.channel-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.channel-btn { padding: 4px 12px; font-size: 11px; font-weight: 600; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; color: var(--muted); cursor: pointer; transition: all .15s; }
+.channel-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.channel-btn:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+.dest-table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--surface); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+.dest-table th { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding: 10px 14px; border-bottom: 2px solid var(--border); text-align: left; cursor: pointer; user-select: none; background: var(--surface2); }
+.dest-table th.sort-asc::after  { content: ' ↑'; }
+.dest-table th.sort-desc::after { content: ' ↓'; }
+.dest-table td { padding: 8px 14px; border-bottom: 1px solid var(--border); }
+.dest-table tr:last-child td { border-bottom: none; }
+.dest-table tr:hover td { background: var(--surface2); }
+.conv-bar-wrap { background: var(--surface2); border-radius: 4px; height: 6px; overflow: hidden; width: 60px; }
+.conv-bar-fill { height: 100%; border-radius: 4px; }
+
+/* Tooltip canal */
+#ch-tip { position: fixed; display: none; max-width: 260px; background: #1e2140; color: #f4f6ff; font-size: 11px; line-height: 1.5; padding: 8px 12px; border-radius: 8px; z-index: 9999; pointer-events: none; }
+
+@media (max-width: 700px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .funnel-step { grid-template-columns: 120px 1fr 70px; }
+  .funnel-step .step-rate, .funnel-step .step-drop { display: none; }
+  .main { padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Kampaoh &middot; <span>Funnel GA4</span></h1>
+  <div style="font-size:12px;color:var(--muted)">Actualizado: <strong id="updated">—</strong></div>
+</header>
+
+<nav>
+  <a href="index.html" class="nav-link">Inversión Publicitaria</a>
+  <a href="ga4.html" class="nav-link">Propiedades Vistas · GA4</a>
+  <a href="busqueda-be.html" class="nav-link">Búsqueda BE</a>
+  <a href="gsc.html" class="nav-link">GSC</a>
+  <a href="funnel.html" class="nav-link active">Funnel</a>
+  <a href="tiempo.html" class="nav-link">Tiempo</a>
+</nav>
+
+<div class="controls-bar">
+  <div class="btn-group">
+    <button class="period-btn active" data-days="7"  onclick="setPeriod(7)">7 días</button>
+    <button class="period-btn"        data-days="30" onclick="setPeriod(30)">30 días</button>
+    <button class="period-btn"        data-days="90" onclick="setPeriod(90)">90 días</button>
+  </div>
+  <input type="date" id="from-input" onchange="setCustom()">
+  <span class="date-sep">→</span>
+  <input type="date" id="to-input" onchange="setCustom()">
+</div>
+
+<div class="main">
+
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-label">Reservas GA4</div>
+      <div class="kpi-val" id="kpi-purchase">—</div>
+      <div class="kpi-sub" id="kpi-purchase-sub">—</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Conv. Ficha → Reserva</div>
+      <div class="kpi-val" id="kpi-conv">—</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Checkouts iniciados</div>
+      <div class="kpi-val" id="kpi-checkout">—</div>
+      <div class="kpi-sub" id="kpi-checkout-sub">—</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Fichas vistas</div>
+      <div class="kpi-val" id="kpi-viewitem">—</div>
+      <div class="kpi-sub" id="kpi-viewitem-sub">—</div>
+    </div>
+  </div>
+
+  <div class="funnel-card">
+    <div class="funnel-header"><h2>Funnel de conversión</h2></div>
+    <div id="funnel-steps"></div>
+  </div>
+
+  <div class="section-title">Tendencia por evento</div>
+  <div id="trend-grid" class="trend-grid"></div>
+
+  <div class="section-title">Por destino</div>
+  <div id="channel-filters" class="channel-filters"></div>
+  <div class="kpi-sub" id="dest-subtitle" style="margin:6px 0 12px"></div>
+  <div id="dest-table-wrap"></div>
+
+</div>
+
 <div id="ch-tip"></div>
 </body>
 </html>
