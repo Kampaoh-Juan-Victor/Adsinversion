@@ -190,6 +190,8 @@
     }
     .atag.wa { background: #e0f7ff; border-color: #7dd3fc; color: #0284c7; }
     .atag.ha { background: #fff1f1; border-color: #fca5a5; color: #dc2626; }
+    .atag.ra { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
+    .atag.ca { background: #f0f9ff; border-color: #67e8f9; color: #0369a1; }
 
     /* Day pills */
     .card-days { display: flex; }
@@ -375,8 +377,9 @@
   <div>
     <div class="mode-toggle">
       <button class="mode-btn active" id="mode-summary" onclick="setMode('summary')">📋 Resumen</button>
-      <button class="mode-btn" id="mode-temp" onclick="setMode('temp')">🌡 Temperatura</button>
       <button class="mode-btn" id="mode-wind" onclick="setMode('wind')">💨 Viento</button>
+      <button class="mode-btn" id="mode-rain" onclick="setMode('rain')">🌧 Lluvia</button>
+      <button class="mode-btn" id="mode-temp" onclick="setMode('temp')">🥶 Temperatura</button>
     </div>
     <div class="mode-sub" id="mode-sub">Prioridad: viento · lluvia · frío — peores destinos primero</div>
   </div>
@@ -623,12 +626,23 @@ function getCardAlerts(daily, nDays) {
   var alerts = [], n = Math.min(nDays, (daily.time||[]).length);
   for (var i = 0; i < n; i++) {
     var wind = (daily.windspeed_10m_max||[])[i];
-    var tmax = (daily.temperature_2m_max||[])[i];
+    var tmin = (daily.temperature_2m_min||[])[i];
+    var prob = (daily.precipitation_probability_max||[])[i];
+    var rain = (daily.precipitation_sum||[])[i];
     var dt   = (daily.time||[])[i] || '';
     var lbl  = dayLabel(dt, i);
-    var al   = dayAlertLevel(wind, tmax);
-    if (al.wl >= 2) alerts.push({ type:'wind', day:i, lbl:lbl, val:Math.round(wind)+' km/h', level:al.wl });
-    if (al.hl >= 2) alerts.push({ type:'heat', day:i, lbl:lbl, val:Math.round(tmax)+'°',     level:al.hl });
+    if (wind != null && wind >= 25) {
+      var wl = wind >= 45 ? 3 : wind >= 30 ? 2 : 1;
+      alerts.push({ type:'wind', day:i, lbl:lbl, val:Math.round(wind)+' km/h', level:wl });
+    }
+    if (tmin != null && tmin < 14) {
+      var cl = tmin < 8 ? 3 : 2;
+      alerts.push({ type:'cold', day:i, lbl:lbl, val:Math.round(tmin)+'° mín', level:cl });
+    }
+    if ((prob != null && prob >= 40) || (rain != null && rain >= 2)) {
+      var rl = (prob >= 70 || rain >= 5) ? 3 : 2;
+      alerts.push({ type:'rain', day:i, lbl:lbl, val:(prob != null ? prob+'%' : rain.toFixed(1)+'mm'), level:rl });
+    }
   }
   return alerts;
 }
@@ -645,23 +659,30 @@ function tempClass(v) {
 function getMaxMetric(daily, nDays, mode) {
   if (!daily) return null;
   var n = Math.min(nDays, (daily.time||[]).length);
-  var max = null;
-  var key = mode === 'wind' ? 'windspeed_10m_max' : 'temperature_2m_max';
+  var result = null;
+  var key = mode === 'wind' ? 'windspeed_10m_max'
+          : mode === 'rain' ? 'precipitation_probability_max'
+          : 'temperature_2m_min';
   for (var i = 0; i < n; i++) {
     var v = (daily[key]||[])[i];
-    if (v != null && (max === null || v > max)) max = v;
+    if (v != null) {
+      if (mode === 'temp') { if (result === null || v < result) result = v; }
+      else                 { if (result === null || v > result) result = v; }
+    }
   }
-  return max;
+  return result;
 }
 function setMode(m) {
   currentMode = m;
-  document.getElementById('mode-temp').classList.toggle('active', m === 'temp');
-  document.getElementById('mode-wind').classList.toggle('active', m === 'wind');
-  document.getElementById('mode-summary').classList.toggle('active', m === 'summary');
-  document.getElementById('mode-sub').textContent = m === 'temp'
-    ? 'Ordenados por temperatura máxima · de mayor a menor'
-    : m === 'wind'
+  ['summary','wind','rain','temp'].forEach(function(id) {
+    document.getElementById('mode-' + id).classList.toggle('active', m === id);
+  });
+  document.getElementById('mode-sub').textContent = m === 'wind'
     ? 'Ordenados por viento máximo · de mayor a menor'
+    : m === 'rain'
+    ? 'Ordenados por probabilidad de lluvia · de mayor a menor'
+    : m === 'temp'
+    ? 'Ordenados por temperatura mínima · los más fríos primero'
     : 'Prioridad: viento · lluvia · frío — peores destinos primero';
   if (Object.keys(weatherData).length > 0) {
     if (m === 'summary') buildSummary();
@@ -795,14 +816,16 @@ function buildTable() {
     if (weatherData[DESTINOS[si].slug]) { sampleDaily = weatherData[DESTINOS[si].slug]; break; }
   }
   var days = Math.min(currentDays, sampleDaily ? (sampleDaily.time||[]).length : 7);
-  var peakKey = currentMode === 'wind' ? 'windspeed_10m_max' : 'temperature_2m_max';
+  var peakKey = currentMode === 'wind' ? 'windspeed_10m_max'
+              : currentMode === 'rain' ? 'precipitation_probability_max'
+              : 'temperature_2m_min';
 
-  // Sort all destinations by max metric DESC (flat list, no region grouping)
   var sorted = DESTINOS.slice()
     .filter(function(d) { return weatherData[d.slug]; })
     .sort(function(a, b) {
       var va = getMaxMetric(weatherData[a.slug], days, currentMode);
       var vb = getMaxMetric(weatherData[b.slug], days, currentMode);
+      if (currentMode === 'temp') return (va !== null ? va : 999) - (vb !== null ? vb : 999);
       return (vb || 0) - (va || 0);
     });
 
@@ -817,7 +840,13 @@ function buildTable() {
     var rawPeak = null, peakIdx = -1;
     for (var pi = 0; pi < n; pi++) {
       var pv = (daily[peakKey]||[])[pi];
-      if (pv != null && (rawPeak === null || pv > rawPeak)) { rawPeak = pv; peakIdx = pi; }
+      if (pv != null) {
+        if (currentMode === 'temp') {
+          if (rawPeak === null || pv < rawPeak) { rawPeak = pv; peakIdx = pi; }
+        } else {
+          if (rawPeak === null || pv > rawPeak) { rawPeak = pv; peakIdx = pi; }
+        }
+      }
     }
     var peakVal    = rawPeak !== null ? Math.round(rawPeak) : null;
     var peakDt     = peakIdx >= 0 ? ((daily.time||[])[peakIdx] || '') : '';
@@ -826,10 +855,15 @@ function buildTable() {
     // Badge color
     var pkCls = 'pk-low';
     if (currentMode === 'temp') {
-      if (peakVal >= 40) pkCls = 'pk-extreme';
-      else if (peakVal >= 38) pkCls = 'pk-high';
-      else if (peakVal >= 35) pkCls = 'pk-warn';
-      else if (peakVal >= 30) pkCls = 'pk-mild';
+      if (peakVal <= 0)  pkCls = 'pk-extreme';
+      else if (peakVal <= 5)  pkCls = 'pk-high';
+      else if (peakVal <= 10) pkCls = 'pk-warn';
+      else if (peakVal <= 15) pkCls = 'pk-mild';
+    } else if (currentMode === 'rain') {
+      if (peakVal >= 80) pkCls = 'pk-extreme';
+      else if (peakVal >= 60) pkCls = 'pk-high';
+      else if (peakVal >= 40) pkCls = 'pk-warn';
+      else if (peakVal >= 20) pkCls = 'pk-mild';
     } else {
       if (peakVal >= 60) pkCls = 'pk-extreme';
       else if (peakVal >= 45) pkCls = 'pk-high';
@@ -838,7 +872,9 @@ function buildTable() {
     }
 
     var peakStr = peakVal !== null
-      ? (currentMode === 'temp' ? peakVal + '°' : peakVal + ' km/h')
+      ? (currentMode === 'rain' ? peakVal + '%'
+       : currentMode === 'temp' ? peakVal + '° mín'
+       : peakVal + ' km/h')
       : '—';
 
     var cardAlerts = getCardAlerts(daily, days);
@@ -860,15 +896,18 @@ function buildTable() {
 
     // Alert bar filtered by mode
     var modeAlerts = cardAlerts.filter(function(a) {
-      return currentMode === 'wind' ? a.type === 'wind' : a.type === 'heat';
+      return currentMode === 'wind' ? a.type === 'wind'
+           : currentMode === 'rain' ? a.type === 'rain'
+           : a.type === 'cold';
     });
     if (modeAlerts.length > 0) {
       var aBar = document.createElement('div');
       aBar.className = 'card-alert-bar';
       aBar.innerHTML = '<span class="cab-lbl">⚠</span>'
         + modeAlerts.map(function(a) {
-            return ' <span class="atag ' + (a.type === 'wind' ? 'wa' : 'ha') + '">'
-              + (a.type === 'wind' ? '💨' : '🌡') + ' ' + a.lbl + ' · ' + a.val + '</span>';
+            var ico = a.type === 'wind' ? '💨' : a.type === 'rain' ? '🌧' : '🥶';
+            var cls = a.type === 'wind' ? 'wa' : a.type === 'rain' ? 'ra' : 'ca';
+            return ' <span class="atag ' + cls + '">' + ico + ' ' + a.lbl + ' · ' + a.val + '</span>';
           }).join('');
       card.appendChild(aBar);
     }
@@ -884,8 +923,11 @@ function buildTable() {
       var wind = (daily.windspeed_10m_max||[])[i];
       var prob = (daily.precipitation_probability_max||[])[i];
       var dt   = (daily.time||[])[i] || '';
+      var rainMm = (daily.precipitation_sum||[])[i];
       var al   = dayAlertLevel(wind, tmax);
-      var sevLevel = currentMode === 'temp' ? al.hl : al.wl;
+      var sevLevel = currentMode === 'wind' ? al.wl
+                   : currentMode === 'rain' ? (prob >= 70 ? 3 : prob >= 40 ? 2 : prob >= 20 ? 1 : 0)
+                   : (tmin != null && tmin < 8 ? 3 : tmin != null && tmin < 14 ? 2 : 0);
 
       var pill = document.createElement('div');
       pill.className = 'day-pill'
@@ -895,17 +937,23 @@ function buildTable() {
       var pillContent = '<div class="dp-day">' + dayLabel(dt, i) + '</div>'
         + '<div class="dp-date">' + shortDate(dt) + '</div>';
 
-      if (currentMode === 'temp') {
-        pillContent += '<div class="dp-ico">' + wmoIcon(code) + '</div>'
-          + '<div class="dp-hi ' + tempClass(tmax) + '">' + (tmax != null ? Math.round(tmax) + '°' : '—') + '</div>'
-          + '<div class="dp-lo">' + (tmin != null ? Math.round(tmin) + '°' : '') + '</div>';
-      } else {
+      if (currentMode === 'wind') {
         pillContent += wind != null
           ? '<div class="dp-wind-val ' + windClass(wind) + '">' + Math.round(wind) + '</div>'
             + '<div class="dp-unit">km/h</div>'
           : '<div class="dp-wind-val w-none">—</div>';
+        pillContent += (prob != null && prob >= 20 ? '<div class="dp-rain">' + prob + '%</div>' : '');
+      } else if (currentMode === 'rain') {
+        pillContent += '<div class="dp-ico">' + wmoIcon(code) + '</div>'
+          + '<div class="dp-wind-val ' + (prob >= 70 ? 'w-danger' : prob >= 40 ? 'w-warn' : prob >= 20 ? 'w-mod' : 'w-none') + '">'
+          + (prob != null ? prob + '%' : '—') + '</div>'
+          + (rainMm != null && rainMm > 0 ? '<div class="dp-unit">' + rainMm.toFixed(1) + 'mm</div>' : '<div class="dp-unit"> </div>');
+      } else {
+        pillContent += '<div class="dp-ico">' + wmoIcon(code) + '</div>'
+          + '<div class="dp-lo ' + (tmin != null && tmin < 8 ? 't-extreme' : tmin != null && tmin < 14 ? 't-cool' : '') + '">'
+          + (tmin != null ? Math.round(tmin) + '° mín' : '—') + '</div>'
+          + '<div class="dp-hi">' + (tmax != null ? Math.round(tmax) + '°' : '') + '</div>';
       }
-      pillContent += (prob != null && prob >= 20 ? '<div class="dp-rain">' + prob + '%</div>' : '');
       pill.innerHTML = pillContent;
 
       dRow.appendChild(pill);
