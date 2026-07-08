@@ -57,6 +57,18 @@ jobs:
           TIKTOK_ADVERTISER_ID: ${{ secrets.TIKTOK_ADVERTISER_ID }}
         run: node tiktok-refresh.js
 
+      - name: Refresh Funnel data
+        continue-on-error: true
+        run: node funnel-refresh.js
+
+      - name: Refresh Búsqueda BE data
+        continue-on-error: true
+        run: node busqueda-be-refresh.js --all
+
+      - name: Refresh GSC data
+        continue-on-error: true
+        run: node gsc-refresh.js
+
       - name: Commit and push updated data
         run: |
           git config user.name "github-actions[bot]"
@@ -64,6 +76,6 @@ jobs:
           git stash
           git pull --rebase origin main
           git stash pop || true
-          git add ga4-data.json meta-data.json data.json campaigns-data.json gads-data.json tiktok-data.json
+          git add ga4-data.json meta-data.json data.json campaigns-data.json gads-data.json tiktok-data.json funnel-data.json busqueda-be-data-all.json gsc-data.json
           git diff --staged --quiet || git commit -m "chore: refresh dashboard data $(date -u +%Y-%m-%d)"
           git push
