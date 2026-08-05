@@ -294,14 +294,18 @@ async function refreshGoogleAds(dateFrom, dateTo) {
       delete dataFile.days[dateStr].g_gen;
     }
   });
-  Object.entries(destByDate).forEach(([date, destObj]) => {
+  // Merge: iterar por totalByDate (incluye PMax/campañas sin adgroups) no por destByDate
+  const allDates = new Set([...Object.keys(destByDate), ...Object.keys(totalByDate)]);
+  allDates.forEach(date => {
     if (!dataFile.days[date]) dataFile.days[date] = {};
+    const destObj = destByDate[date] || {};
     const rounded = {};
     Object.entries(destObj).forEach(([d, v]) => { rounded[d] = Math.round(v * 100) / 100; });
-    dataFile.days[date].g = rounded;
+    if (Object.keys(rounded).length > 0) dataFile.days[date].g = rounded;
     const destTotal = Object.values(rounded).reduce((s, v) => s + v, 0);
     const gen = Math.round(((totalByDate[date] || 0) - destTotal) * 100) / 100;
     if (gen > 0) dataFile.days[date].g_gen = gen;
+    else delete dataFile.days[date].g_gen;
   });
   dataFile.updated = dateTo;
   fs.writeFileSync(DATA_PATH, JSON.stringify(dataFile), "utf8");
