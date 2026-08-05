@@ -279,11 +279,19 @@ async function refreshGoogleAds(dateFrom, dateTo) {
   fs.writeFileSync(GOOGLE_ADGROUPS_PATH, JSON.stringify(gAdGroupsFile), "utf8");
   console.log(`  ✅ google-adgroups-data.json — ${adGroupRows.length} filas`);
 
+  // Gasto total por fecha desde campañas (incluye genéricas)
+  const totalByDate = {};
+  campRows.forEach(r => {
+    const date = String(r.date).replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3");
+    totalByDate[date] = (totalByDate[date] || 0) + r.spend;
+  });
+
   const dataFile = loadJson(DATA_PATH, { v: 1, updated: "", days: {} });
   Object.keys(dataFile.days).forEach(dateStr => {
     const num = parseInt(dateStr.replace(/-/g, ""));
     if (num >= fromNum && num <= toNum && dataFile.days[dateStr]) {
       delete dataFile.days[dateStr].g;
+      delete dataFile.days[dateStr].g_gen;
     }
   });
   Object.entries(destByDate).forEach(([date, destObj]) => {
@@ -291,6 +299,9 @@ async function refreshGoogleAds(dateFrom, dateTo) {
     const rounded = {};
     Object.entries(destObj).forEach(([d, v]) => { rounded[d] = Math.round(v * 100) / 100; });
     dataFile.days[date].g = rounded;
+    const destTotal = Object.values(rounded).reduce((s, v) => s + v, 0);
+    const gen = Math.round(((totalByDate[date] || 0) - destTotal) * 100) / 100;
+    if (gen > 0) dataFile.days[date].g_gen = gen;
   });
   dataFile.updated = dateTo;
   fs.writeFileSync(DATA_PATH, JSON.stringify(dataFile), "utf8");

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>En Vivo · Reservas — Kampaoh</title>
+<style>
+:root {
+  --bg:      #0f1117;
+  --surface: #1a1d2e;
+  --surface2:#222640;
+  --border:  #2d3152;
+  --text:    #e2e8f0;
+  --muted:   #7b7f9e;
+  --accent:  #6366f1;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; }
+
+nav {
+  display: flex; align-items: center; gap: 2px;
+  padding: 0 16px; background: var(--surface); border-bottom: 1px solid var(--border);
+  overflow-x: auto; white-space: nowrap;
+}
+.nav-link { padding: 12px 16px; font-size: 12px; font-weight: 600; color: var(--muted); text-decoration: none; border-bottom: 2px solid transparent; flex-shrink: 0; }
+.nav-link:hover { color: var(--text); }
+.nav-link.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* Header */
+.page-header { padding: 20px 20px 12px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.live-badge {
+  display: flex; align-items: center; gap: 6px;
+  background: #ef44441a; color: #ef4444; border: 1px solid #ef444440;
+  border-radius: 20px; padding: 4px 12px; font-size: 11px; font-weight: 700; letter-spacing: .08em;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.85)} }
+.pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; animation: pulse 1.4s ease-in-out infinite; }
+.page-title { font-size: 20px; font-weight: 700; }
+.last-updated { margin-left: auto; font-size: 12px; color: var(--muted); }
+
+/* Realtime strip */
+.rt-section { margin: 0 20px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; }
+.rt-label { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 8px; }
+.rt-pills { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.rt-pill { display: flex; align-items: center; gap: 6px; border: 1px solid; border-radius: 20px; padding: 5px 12px; font-size: 13px; }
+.rt-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.no-live { color: var(--muted); font-size: 13px; }
+
+/* Controls */
+.controls { padding: 0 20px 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.filter-btn {
+  padding: 5px 14px; border-radius: 20px; border: 1px solid var(--border);
+  background: transparent; color: var(--muted); font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.count-label { margin-left: auto; font-size: 12px; color: var(--muted); }
+
+/* Feed */
+.feed-wrap { padding: 0 20px 60px; }
+
+@keyframes slideInCard {
+  from { transform: translateY(-20px); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+@keyframes flashNew {
+  0%,100% { box-shadow: 0 0 0 0 transparent; }
+  30%     { box-shadow: 0 0 0 4px #6366f140; }
+}
+
+.feed-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-left: 4px solid var(--accent); border-radius: 12px;
+  padding: 0; margin-bottom: 10px; overflow: hidden;
+  animation: slideInCard .35s ease forwards;
+}
+.feed-card.is-new { animation: slideInCard .35s ease forwards, flashNew .9s ease .1s; }
+
+/* Card sections */
+.card-channel-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px 8px; border-bottom: 1px solid var(--border);
+}
+.ch-badge { font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 6px; letter-spacing: .03em; flex-shrink: 0; }
+.card-source-raw { font-size: 11px; color: var(--muted); font-family: 'SF Mono', monospace; }
+.card-date { margin-left: auto; font-size: 11px; color: var(--muted); flex-shrink: 0; }
+
+.card-body { padding: 10px 14px 12px; }
+.card-dest { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 4px; text-transform: capitalize; }
+
+.card-camp-row { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 8px; }
+.camp-icon { font-size: 11px; color: var(--muted); flex-shrink: 0; padding-top: 1px; }
+.card-camp { font-size: 12px; color: #a5b4fc; line-height: 1.4; word-break: break-word; }
+.card-camp.none { color: var(--muted); font-style: italic; }
+
+.card-metrics { display: flex; align-items: center; gap: 16px; }
+.metric-item { display: flex; flex-direction: column; gap: 2px; }
+.metric-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.metric-value { font-size: 15px; font-weight: 700; }
+.metric-value.revenue { color: #10b981; }
+.metric-value.count   { color: var(--text); }
+.metric-value.ticket  { color: #f59e0b; }
+
+.empty-feed { color: var(--muted); padding: 60px 0; text-align: center; }
+
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html"       class="nav-link">Inversión Publicitaria</a>
+  <a href="ga4.html"         class="nav-link">Propiedades Vistas · GA4</a>
+  <a href="busqueda-be.html" class="nav-link">Búsqueda BE</a>
+  <a href="gsc.html"         class="nav-link">GSC</a>
+  <a href="funnel.html"      class="nav-link">Funnel</a>
+  <a href="atribucion.html"  class="nav-link">Atribución</a>
+  <a href="live.html"        class="nav-link active">En Vivo</a>
+  <a href="tiempo.html"      class="nav-link">Tiempo</a>
+</nav>
+
+<div class="page-header">
+  <div class="live-badge"><span class="pulse-dot"></span>EN VIVO</div>
+  <h1 class="page-title">Reservas</h1>
+  <span class="last-updated" id="last-updated"></span>
+</div>
+
+<div class="rt-section">
+  <div class="rt-label">Últimos 30 min · GA4 Realtime</div>
+  <div class="rt-pills" id="realtime-content"><span class="no-live">Cargando…</span></div>
+</div>
+
+
+<div class="controls">
+  <button class="filter-btn active" onclick="setFilter('paid')"  id="fbtn-paid">Solo pagado</button>
+  <button class="filter-btn"        onclick="setFilter('known')" id="fbtn-known">Con canal</button>
+  <button class="filter-btn"        onclick="setFilter('all')"   id="fbtn-all">Todos</button>
+  <span class="count-label" id="count-label"></span>
+</div>
+
+<div class="feed-wrap">
+  <div id="feed"></div>
+</div>
+
+<script>
+var RAW = null;
+var seenKeys = new Set();
+var firstRender = true;
+var activeFilter = 'paid';
+var allRows = [];
+
+var CH_COLOR = {
+  'Google CPC':      '#4285f4',
+  'Google Orgánico': '#10b981',
+  'Google Maps':     '#34a853',
+  'Meta Paid':       '#1877f2',
+  'TikTok Paid':     '#fe2c55',
+  'Email':           '#f59e0b',
+  'Bing Orgánico':   '#94a3b8',
+  'Directo':         '#64748b',
+  'Referral':        '#a78bfa',
+  'Desconocido':     '#374151',
+  'Otros':           '#475569',
+};
+var PAID_CHS = { 'Google CPC':1, 'Meta Paid':1, 'TikTok Paid':1 };
+var KNOWN_CHS = { 'Google CPC':1,'Google Orgánico':1,'Google Maps':1,'Meta Paid':1,'TikTok Paid':1,'Email':1,'Bing Orgánico':1,'Referral':1 };
+
+function normalizeChannel(s, m) {
+  s=(s||'').toLowerCase(); m=(m||'').toLowerCase();
+  if (s==='google'&&m==='cpc')                              return 'Google CPC';
+  if (s==='google'&&m==='organic')                          return 'Google Orgánico';
+  if (s==='google'&&(m==='maps'||m.includes('map')))        return 'Google Maps';
+  if ((s==='facebook'||s==='instagram'||s==='meta')&&
+      (m==='cpc'||m.includes('paid')||m.includes('social')))return 'Meta Paid';
+  if (s==='tiktok')                                         return 'TikTok Paid';
+  if (m==='email')                                          return 'Email';
+  if (s==='bing')                                           return 'Bing Orgánico';
+  if (s==='(direct)'||s==='direct'||(s==='(none)'&&(m==='(none)'||m===''))) return 'Directo';
+  if (m==='referral')                                       return 'Referral';
+  if (!s||s==='(not set)'||s==='not set')                   return 'Desconocido';
+  return 'Otros';
+}
+
+function fmtE(v)  { return '€'+Math.round(v).toLocaleString('es-ES'); }
+function fmtN(v)  { return Math.round(v).toLocaleString('es-ES'); }
+
+function fmtDate(n) {
+  var s=String(n);
+  var date=new Date(+s.slice(0,4),+s.slice(4,6)-1,+s.slice(6,8));
+  var today=new Date(); today.setHours(0,0,0,0);
+  var diff=Math.round((today-date)/86400000);
+  if(diff===0) return 'Hoy';
+  if(diff===1) return 'Ayer';
+  if(diff<7)   return 'Hace '+diff+' días';
+  return s.slice(6,8)+'/'+s.slice(4,6)+'/'+s.slice(0,4);
+}
+
+function resolveCamp(name) {
+  if(!name||!/^\d+$/.test(name)) return name;
+  return (RAW&&RAW.campaign_lookup&&RAW.campaign_lookup[name])||name;
+}
+
+// Resuelve IDs numéricos en vivo contra el servidor y actualiza el DOM
+function resolveCardCampLive(el, rawId) {
+  fetch('/api/resolve-campaign?id='+encodeURIComponent(rawId))
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(data.name && data.name !== rawId) {
+        var span = el.querySelector('.card-camp');
+        if(span) { span.textContent = data.name; span.classList.remove('none'); }
+        // Actualizar cache local
+        if(RAW) { if(!RAW.campaign_lookup) RAW.campaign_lookup={}; RAW.campaign_lookup[rawId]=data.name; }
+      }
+    })
+    .catch(function(){});
+}
+
+function rowKey(r) { return r[6] && !/^\d+$/.test(r[6]) ? r[6] : r[0]+'|'+r[1]+'|'+r[2]+'|'+r[3]+'|'+r[4]; }
+
+function passesFilter(ch) {
+  if(activeFilter==='paid')  return !!PAID_CHS[ch];
+  if(activeFilter==='known') return !!KNOWN_CHS[ch];
+  return true;
+}
+
+function makeCard(r, isNew, delay) {
+  var ch    = normalizeChannel(r[2], r[3]);
+  var color = CH_COLOR[ch] || '#6366f1';
+  var camp  = resolveCamp(r[4]);
+  var rev   = r[7]||0;
+  var item  = (r[1]||'(sin nombre)').replace(/-/g,' ');
+  var srcRaw = r[2]&&r[2]!=='(not set)'&&r[2]!=='(direct)' ? r[2]+(r[3]&&r[3]!=='(not set)'&&r[3]!=='(none)'?' / '+r[3]:'') : '';
+
+  var campIsEmpty = !camp||camp==='(not set)'||camp==='(none)'||camp==='';
+  var campHtml = campIsEmpty
+    ? '<div class="card-camp-row"><span class="camp-icon">📣</span><span class="card-camp none">Sin campaña</span></div>'
+    : '<div class="card-camp-row"><span class="camp-icon">📣</span><span class="card-camp">'+camp+'</span></div>';
+
+  var d=document.createElement('div');
+  d.className='feed-card'+(isNew?' is-new':'');
+  d.style.borderLeftColor=color;
+  d.style.animationDelay=(delay||0)+'ms';
+
+  var needsResolve = camp && /^\d+$/.test(camp);
+
+  d.innerHTML=
+    '<div class="card-channel-row">'+
+      '<span class="ch-badge" style="background:'+color+'22;color:'+color+'">'+ch+'</span>'+
+      (srcRaw?'<span class="card-source-raw">'+srcRaw+'</span>':'')+
+      '<span class="card-date">'+fmtDate(r[0])+'</span>'+
+    '</div>'+
+    '<div class="card-body">'+
+      '<div class="card-dest">'+item+'</div>'+
+      campHtml+
+      (rev>0?'<div class="card-metrics"><div class="metric-item"><span class="metric-label">Revenue</span><span class="metric-value revenue">'+fmtE(rev)+'</span></div></div>':'')+
+    '</div>';
+  if(needsResolve) resolveCardCampLive(d, camp);
+
+  return d;
+}
+
+function applyFilter() {
+  var feed=document.getElementById('feed');
+  feed.innerHTML='';
+  seenKeys=new Set();
+  firstRender=true;
+  renderFeed(allRows, false);
+}
+
+function setFilter(f) {
+  activeFilter=f;
+  ['paid','known','all'].forEach(function(id) {
+    document.getElementById('fbtn-'+id).classList.toggle('active', id===f);
+  });
+  applyFilter();
+}
+
+function renderFeed(rows, isRefresh) {
+  var feed=document.getElementById('feed');
+  var filtered=rows.filter(function(r){ return passesFilter(normalizeChannel(r[2],r[3])); });
+  document.getElementById('count-label').textContent=filtered.length+' entradas';
+
+  var newItems=[];
+  filtered.forEach(function(r){
+    var key=rowKey(r);
+    if(!seenKeys.has(key)){seenKeys.add(key);newItems.push(r);}
+  });
+  if(!newItems.length){
+    if(!feed.children.length) feed.innerHTML='<div class="empty-feed">Sin datos para este filtro</div>';
+    return;
+  }
+  if(firstRender){
+    newItems.forEach(function(r,i){ feed.appendChild(makeCard(r,false,i*50)); });
+    firstRender=false;
+  } else {
+    newItems.slice().reverse().forEach(function(r){ feed.insertBefore(makeCard(r,true,0),feed.firstChild); });
+  }
+}
+
+function fetchFeed() {
+  fetch('/atribucion-data.json?_='+Date.now())
+    .then(function(r){return r.json();})
+    .then(function(data){
+      RAW=data;
+      allRows=(data.tx_rows||data.rows||[]).slice(0,200);
+      renderFeed(allRows, !firstRender);
+      document.getElementById('last-updated').textContent=
+        'Actualizado '+new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+    });
+}
+
+function renderRealtime(data) {
+  var el=document.getElementById('realtime-content');
+  var total=data.totalPurchases||0;
+  var pages=data.activeByPage||[];
+  var totalUsers=pages.reduce(function(s,p){return s+p.users;},0);
+
+  var html='';
+
+  // Compras últimos 30 min
+  var purchaseColor = total>0 ? '#10b981' : 'var(--muted)';
+  html+=
+    '<div class="rt-pill" style="border-color:'+purchaseColor+';color:'+purchaseColor+'">'+
+      '<span class="rt-dot" style="background:'+purchaseColor+'"></span>'+
+      '<strong>'+total+'</strong>&nbsp;reserva'+(total!==1?'s':'')+' · últimos 30 min'+
+    '</div>';
+
+  // Usuarios activos ahora
+  if(totalUsers>0){
+    html+=
+      '<div class="rt-pill" style="border-color:#6366f1;color:#a5b4fc">'+
+        '<span class="rt-dot" style="background:#6366f1"></span>'+
+        '<strong>'+totalUsers+'</strong>&nbsp;usuarios activos ahora'+
+      '</div>';
+  }
+
+
+  el.innerHTML=html;
+}
+
+function fetchRealtime() {
+  fetch('/api/realtime')
+    .then(function(r){return r.json();})
+    .then(renderRealtime)
+    .catch(function(){
+      document.getElementById('realtime-content').innerHTML='<span class="no-live">Realtime no disponible</span>';
+    });
+}
+
+fetchFeed();
+fetchRealtime();
+setInterval(fetchFeed,    120000);
+setInterval(fetchRealtime, 30000);
+</script>
+</body>
+</html>

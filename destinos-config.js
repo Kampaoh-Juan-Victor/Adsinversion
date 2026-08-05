@@ -121,6 +121,10 @@ const DESTINO_ALIASES = {
   // Sao Pedro de Moel — grafía portuguesa vs. slug con "san"
   "sao-pedro-de-moel": "san-pedro-moel",
   "sao-pedro":         "san-pedro-moel",
+  "pedro-de-moel":     "san-pedro-moel",
+  "moel":              "san-pedro-moel",
+  // La Masia → Blanes
+  "la-masia":          "blanes",
 };
 
 // Normaliza un string: elimina tildes, minúsculas, espacios→guiones, solo [a-z0-9-]

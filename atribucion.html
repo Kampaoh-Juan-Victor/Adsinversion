@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<script>(function(){if(sessionStorage.getItem('kp')==='1')return;function _kpShow(){var o=document.createElement('div');o.id='kp-lock';o.style.cssText='position:fixed;inset:0;background:#0f1117;z-index:99999;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,sans-serif';o.innerHTML='<div style="text-align:center"><div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:-.5px;margin-bottom:6px">Kampaoh<\/div><div style="font-size:12px;color:#6870a0;margin-bottom:28px;letter-spacing:.06em;text-transform:uppercase">Dashboard &middot; Acceso privado<\/div><input id="kpi" type="password" placeholder="Código de acceso" style="width:200px;padding:12px 16px;border:2px solid #2a2d42;border-radius:10px;background:#1a1d2e;color:#fff;font-size:18px;text-align:center;outline:none;letter-spacing:.2em" autocomplete="current-password" \/><br><div id="kpe" style="height:18px;margin-top:8px;font-size:11px;color:#dc2626"><\/div><button id="kpb" style="margin-top:4px;padding:11px 36px;background:#6366f1;border:none;border-radius:9px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;width:200px">Entrar<\/button><\/div>';document.body.prepend(o);function go(){if(document.getElementById('kpi').value==='1806'){sessionStorage.setItem('kp','1');document.getElementById('kp-lock').remove();}else{document.getElementById('kpi').style.borderColor='#dc2626';document.getElementById('kpe').textContent='Código incorrecto';}}document.getElementById('kpb').onclick=go;document.getElementById('kpi').addEventListener('keydown',function(e){if(e.key==='Enter')go();document.getElementById('kpi').style.borderColor='#2a2d42';document.getElementById('kpe').textContent='';});document.getElementById('kpi').focus();}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',_kpShow);}else{_kpShow();}})()</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<title>Kampaoh · Atribución</title>
+<style>
+:root {
+  --bg:#0f1117; --surface:#1a1d2e; --surface2:#13151f;
+  --border:#2a2d42; --text:#e2e4f0; --muted:#6870a0;
+  --accent:#6366f1; --green:#10b981; --yellow:#f59e0b; --red:#ef4444;
+  --google:#4285f4; --meta:#1877f2; --tiktok:#fe2c55; --gmap:#34a853;
+  --direct:#94a3b8; --email:#f59e0b; --organic:#10b981; --referral:#a78bfa;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; min-height: 100vh; }
+header { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 14px 32px; display: flex; justify-content: space-between; align-items: center; }
+header h1 { font-size: 16px; font-weight: 900; color: var(--text); }
+header h1 span { font-weight: 400; color: var(--muted); }
+nav { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; overflow-x: auto; }
+.nav-link { padding: 10px 18px; font-size: 12px; font-weight: 600; color: var(--muted); text-decoration: none; border-bottom: 2px solid transparent; white-space: nowrap; }
+.nav-link.active { color: var(--accent); border-bottom-color: var(--accent); }
+.period-bar { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 10px 32px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.period-btn { padding: 5px 14px; font-size: 12px; font-weight: 600; background: transparent; border: none; color: var(--muted); border-radius: 6px; cursor: pointer; transition: all .15s; }
+.period-btn.active { background: var(--accent); color: #fff; }
+.period-sep { width: 1px; height: 18px; background: var(--border); margin: 0 4px; }
+.period-date { padding: 4px 10px; font-size: 11px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--text); }
+.page { padding: 24px 32px; max-width: 1400px; }
+.kpi-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+.kpi-label { font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: 6px; }
+.kpi-val { font-size: 22px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
+.kpi-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.section { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+.section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: 16px; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.data-table th { text-align: left; padding: 6px 10px; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .4px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.data-table th.num { text-align: right; }
+.data-table td { padding: 7px 10px; border-bottom: 1px solid rgba(42,45,66,.5); vertical-align: middle; }
+.data-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: rgba(99,102,241,.05); }
+.ch-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; flex-shrink: 0; }
+.ch-badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.bar-bg { background: rgba(99,102,241,.12); border-radius: 3px; height: 6px; width: 100px; display: inline-block; vertical-align: middle; }
+.bar-fill { height: 6px; border-radius: 3px; background: var(--accent); }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+.badge-paid { background: rgba(99,102,241,.18); color: #a5b4fc; }
+.badge-organic { background: rgba(16,185,129,.15); color: #6ee7b7; }
+.model-bar { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 10px 32px; display: flex; align-items: center; gap: 4px; }
+.model-btn { padding: 6px 20px; font-size: 12px; font-weight: 700; border: 1px solid var(--border); border-radius: 20px; background: transparent; color: var(--muted); cursor: pointer; transition: all .15s; }
+.model-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.lc-note { background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.25); border-radius: 8px; padding: 10px 16px; font-size: 12px; color: var(--yellow); margin-bottom: 16px; }
+.badge-direct { background: rgba(148,163,184,.12); color: #94a3b8; }
+.tab-row { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.tab-btn { padding: 4px 12px; font-size: 11px; font-weight: 600; border: 1px solid var(--border); border-radius: 16px; background: transparent; color: var(--muted); cursor: pointer; transition: all .15s; }
+.tab-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.prop-filter { padding: 6px 12px; font-size: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--text); width: 240px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media(max-width:900px){ .two-col { grid-template-columns: 1fr; } }
+.chart-wrap { position: relative; height: 220px; }
+.overflow-x { overflow-x: auto; }
+.no-data { text-align: center; padding: 32px; color: var(--muted); font-size: 12px; }
+.sort-arrow { cursor: pointer; user-select: none; }
+.sort-arrow:hover { color: var(--text); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Kampaoh · <span>Atribución de Reservas</span></h1>
+  <div style="font-size:12px;color:var(--muted)">Actualizado: <strong id="updated">—</strong></div>
+</header>
+<nav>
+  <a href="index.html"       class="nav-link">Inversión Publicitaria</a>
+  <a href="ga4.html"         class="nav-link">Propiedades Vistas · GA4</a>
+  <a href="busqueda-be.html" class="nav-link">Búsqueda BE</a>
+  <a href="gsc.html"         class="nav-link">GSC</a>
+  <a href="funnel.html"      class="nav-link">Funnel</a>
+  <a href="atribucion.html"  class="nav-link active">Atribución</a>
+  <a href="tiempo.html"      class="nav-link">Tiempo</a>
+</nav>
+<div class="period-bar">
+  <button class="period-btn" data-days="7"  onclick="setPeriod(7)">7 días</button>
+  <button class="period-btn active" data-days="30" onclick="setPeriod(30)">30 días</button>
+  <button class="period-btn" data-days="90" onclick="setPeriod(90)">90 días</button>
+  <div class="period-sep"></div>
+  <input type="date" id="from-date" class="period-date">
+  <span style="color:var(--muted);font-size:11px">→</span>
+  <input type="date" id="to-date" class="period-date">
+  <button class="period-btn" onclick="applyCustom()">Aplicar</button>
+</div>
+
+<div class="model-bar">
+  <button class="model-btn active" id="mbtn-session"   onclick="setModel('session')">Según sesión</button>
+  <button class="model-btn"        id="mbtn-lastclick" onclick="setModel('lastclick')">Último clic</button>
+  <span id="model-note" style="font-size:11px;color:var(--muted);margin-left:12px"></span>
+</div>
+
+<div class="page">
+
+  <!-- KPI row -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-label">Reservas totales</div>
+      <div class="kpi-val" id="kpi-total">—</div>
+      <div class="kpi-sub" id="kpi-revenue">—</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Google CPC</div>
+      <div class="kpi-val" id="kpi-gcpc">—</div>
+      <div class="kpi-sub" id="kpi-gcpc-rev">—</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Google Orgánico</div>
+      <div class="kpi-val" id="kpi-gorg">—</div>
+      <div class="kpi-sub" id="kpi-gorg-rev">—</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Meta Paid</div>
+      <div class="kpi-val" id="kpi-meta">—</div>
+      <div class="kpi-sub" id="kpi-meta-rev">—</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">TikTok Paid</div>
+      <div class="kpi-val" id="kpi-tiktok">—</div>
+      <div class="kpi-sub" id="kpi-tiktok-rev">—</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Ticket medio</div>
+      <div class="kpi-val" id="kpi-ticket">—</div>
+      <div class="kpi-sub">por reserva</div>
+    </div>
+  </div>
+
+  <!-- Canal breakdown + evolución -->
+  <div class="two-col">
+    <div class="section">
+      <div class="section-title">Reservas por canal</div>
+      <div class="overflow-x">
+        <table class="data-table" id="canal-table">
+          <thead><tr>
+            <th>Canal</th>
+            <th class="num">Reservas</th>
+            <th class="num">%</th>
+            <th class="num">Revenue</th>
+            <th class="num">Ticket</th>
+            <th style="width:110px"></th>
+          </tr></thead>
+          <tbody id="canal-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Evolución diaria por canal</div>
+      <div class="chart-wrap"><canvas id="trend-chart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Campañas paid -->
+  <div class="section">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="section-title" style="margin:0">Campañas paid — detalle</div>
+      <div class="tab-row" style="margin:0" id="camp-channel-tabs"></div>
+    </div>
+    <div class="overflow-x">
+      <table class="data-table">
+        <thead id="camp-thead"><tr>
+          <th>Campaña</th>
+          <th>Canal</th>
+          <th class="num sort-arrow" onclick="sortCamps('purchases')">Reservas ↕</th>
+          <th class="num sort-arrow" onclick="sortCamps('revenue')">Revenue ↕</th>
+          <th class="num">Ticket</th>
+        </tr></thead>
+        <tbody id="camp-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Propiedades × canal -->
+  <div class="section">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">
+      <div class="section-title" style="margin:0">Reservas por propiedad × canal</div>
+      <input type="text" class="prop-filter" id="prop-filter" placeholder="Filtrar propiedad…" oninput="renderProps()">
+    </div>
+    <div class="overflow-x">
+      <table class="data-table" id="props-table">
+        <thead id="props-thead"></thead>
+        <tbody id="props-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+var RAW = null;
+var activeDays = 30;
+var customFrom = null, customTo = null;
+var campSortKey = 'purchases';
+var activeCampChannel = 'all';
+var trendChart = null;
+var activeModel = 'session'; // 'session' | 'lastclick'
+
+window.setModel = function(m) {
+  activeModel = m;
+  document.getElementById('mbtn-session').classList.toggle('active', m === 'session');
+  document.getElementById('mbtn-lastclick').classList.toggle('active', m === 'lastclick');
+  renderAll();
+};
+
+// Devuelve filas normalizadas: [date, item, source, medium, campaign, count, revenue]
+// session:   r=[date,item,src,med,camp,camp_id,purchases,revenue]
+// lastclick: r=[date,item,src,med,camp,term,content,count]
+function resolveCamp(name) {
+  if (!name || !/^\d+$/.test(name)) return name;
+  var lookup = (RAW && RAW.campaign_lookup) || {};
+  return lookup[name] || name;
+}
+
+function getActiveRows() {
+  var period = getPeriod();
+  var fn = isoToNum(period.from), tn = isoToNum(period.to);
+  if (activeModel === 'lastclick') {
+    // tx_rows: [date, item, source, medium, campaign, campaign_id, transaction_id, revenue]
+    return (RAW.tx_rows || [])
+      .filter(function(r){ return r[0] >= fn && r[0] <= tn; })
+      .map(function(r){ return [r[0], r[1], r[2], r[3], resolveCamp(r[4]), 1, r[7]]; });
+  }
+  return (RAW.rows || [])
+    .filter(function(r){ return r[0] >= fn && r[0] <= tn; })
+    .map(function(r){ return [r[0], r[1], r[2], r[3], resolveCamp(r[4]), r[6], r[7]]; });
+  // normalized: [date, item, source, medium, campaign, count, revenue]
+}
+
+// ── Canal normalización ──────────────────────────────────────────────────────
+var CH_COLOR = {
+  'Google CPC Marca':    '#4285f4',
+  'Google CPC No Marca': '#8ab4f8',
+  'Google Orgánico':     '#10b981',
+  'Google Maps':         '#34a853',
+  'Meta Paid':           '#1877f2',
+  'TikTok Paid':         '#fe2c55',
+  'Email':               '#f59e0b',
+  'Bing Orgánico':       '#94a3b8',
+  'Directo':             '#64748b',
+  'Referral':            '#a78bfa',
+  'Desconocido':         '#374151',
+  'Otros':               '#475569',
+};
+var CH_ORDER = ['Google CPC Marca','Google CPC No Marca','Google Orgánico','Google Maps','Meta Paid','TikTok Paid','Email','Bing Orgánico','Directo','Referral','Desconocido','Otros'];
+var CH_PAID = {'Google CPC Marca':1,'Google CPC No Marca':1,'Meta Paid':1,'TikTok Paid':1};
+
+function normalizeChannel(source, medium, campaign) {
+  var s = (source || '').toLowerCase();
+  var m = (medium || '').toLowerCase();
+  if (s === 'google' && m === 'cpc') {
+    return (campaign || '').includes('_Marca') ? 'Google CPC Marca' : 'Google CPC No Marca';
+  }
+  if (s === 'google' && m === 'organic') return 'Google Orgánico';
+  if (s === 'googlemybusiness') return 'Google Maps';
+  if ((s === 'ig' || s === 'facebook' || s === 'fb' || s.includes('meta')) && (m.includes('paid') || m === 'cpc')) return 'Meta Paid';
+  if (s === 'tiktok' && m === 'paid') return 'TikTok Paid';
+  if (m === 'email' || s.includes('activecampaign') || s.includes('mailchimp')) return 'Email';
+  if (m === 'organic') return s.includes('bing') ? 'Bing Orgánico' : 'Otros';
+  if (m === 'referral') return 'Referral';
+  if (s === '(direct)' || m === '(none)' || (s === '' && m === '')) return 'Directo';
+  if (s.includes('not set') || m.includes('not set') || s.includes('data not')) return 'Desconocido';
+  return 'Otros';
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function fmtN(n) {
+  if (!n && n !== 0) return '—';
+  return n.toLocaleString('es');
+}
+function fmtE(v) {
+  if (!v && v !== 0) return '—';
+  return '€' + Math.round(v).toLocaleString('es');
+}
+function isoFromYMD(n) {
+  var s = String(n);
+  return s.slice(0,4) + '-' + s.slice(4,6) + '-' + s.slice(6,8);
+}
+function isoToNum(iso) {
+  return parseInt(iso.replace(/-/g,''));
+}
+function addDays(iso, n) {
+  var d = new Date(iso + 'T12:00:00Z');
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0,10);
+}
+
+function getPeriod() {
+  if (customFrom && customTo) return { from: customFrom, to: customTo };
+  var to = RAW.updated;
+  var from = addDays(to, -(activeDays - 1));
+  return { from: from, to: to };
+}
+
+function filterRows(from, to) {
+  var fn = isoToNum(from), tn = isoToNum(to);
+  return RAW.rows.filter(function(r) { return r[0] >= fn && r[0] <= tn; });
+}
+
+// ── Período ──────────────────────────────────────────────────────────────────
+window.setPeriod = function(days) {
+  activeDays = days; customFrom = null; customTo = null;
+  document.querySelectorAll('.period-btn[data-days]').forEach(function(b) {
+    b.classList.toggle('active', parseInt(b.dataset.days) === days);
+  });
+  renderAll();
+};
+window.applyCustom = function() {
+  var f = document.getElementById('from-date').value;
+  var t = document.getElementById('to-date').value;
+  if (!f || !t || f > t) return;
+  customFrom = f; customTo = t;
+  document.querySelectorAll('.period-btn[data-days]').forEach(function(b){ b.classList.remove('active'); });
+  renderAll();
+};
+
+// ── Render principal ──────────────────────────────────────────────────────────
+function renderAll() {
+  var period = getPeriod();
+  var rows = getActiveRows();
+  var isLC = activeModel === 'lastclick';
+
+  // Nota del modelo
+  var noteEl = document.getElementById('model-note');
+  noteEl.textContent = isLC
+    ? 'Reservas individuales · atribución por sesión GA4'
+    : 'Canal de la sesión GA4 en la que ocurrió la compra';
+
+  // Ocultar banner de aviso (ya no aplica)
+  var lcNote = document.getElementById('lc-note-banner');
+  if (lcNote) lcNote.style.display = 'none';
+
+  // Labels dinámicos KPIs
+  var cards = document.querySelectorAll('.kpi-card');
+  cards[0].querySelector('.kpi-label').textContent = 'Reservas totales';
+  cards[1].querySelector('.kpi-label').textContent = 'Google CPC';
+  cards[2].querySelector('.kpi-label').textContent = 'Google Orgánico';
+  cards[3].querySelector('.kpi-label').textContent = 'Meta Paid';
+  cards[4].querySelector('.kpi-label').textContent = 'TikTok Paid';
+  cards[5].querySelector('.kpi-label').textContent = 'Ticket medio';
+  cards[5].querySelector('.kpi-sub').textContent   = 'por reserva';
+
+  // Agregar por canal (schema normalizado: r[5]=count, r[6]=revenue)
+  var byChannel = {};
+  rows.forEach(function(r) {
+    var ch = normalizeChannel(r[2], r[3], r[4]);
+    if (!byChannel[ch]) byChannel[ch] = { purchases: 0, revenue: 0 };
+    byChannel[ch].purchases += r[5];
+    byChannel[ch].revenue   += r[6];
+  });
+
+  var totalP = rows.reduce(function(s,r){ return s + r[5]; }, 0);
+  var totalR = rows.reduce(function(s,r){ return s + r[6]; }, 0);
+
+  // KPIs
+  document.getElementById('kpi-total').textContent   = fmtN(Math.round(totalP));
+  document.getElementById('kpi-revenue').textContent = fmtE(totalR);
+
+  var gcpcM  = byChannel['Google CPC Marca']    || {purchases:0,revenue:0};
+  var gcpcNM = byChannel['Google CPC No Marca'] || {purchases:0,revenue:0};
+  var gcpc   = { purchases: gcpcM.purchases + gcpcNM.purchases, revenue: gcpcM.revenue + gcpcNM.revenue };
+  var gorg  = byChannel['Google Orgánico'] || {purchases:0,revenue:0};
+  var meta  = byChannel['Meta Paid']       || {purchases:0,revenue:0};
+  var tktok = byChannel['TikTok Paid']     || {purchases:0,revenue:0};
+
+  document.getElementById('kpi-gcpc').textContent     = fmtN(Math.round(gcpc.purchases));
+  document.getElementById('kpi-gcpc-rev').textContent = fmtE(gcpc.revenue);
+  document.getElementById('kpi-gorg').textContent     = fmtN(Math.round(gorg.purchases));
+  document.getElementById('kpi-gorg-rev').textContent = fmtE(gorg.revenue);
+  document.getElementById('kpi-meta').textContent     = fmtN(Math.round(meta.purchases));
+  document.getElementById('kpi-meta-rev').textContent = fmtE(meta.revenue);
+  document.getElementById('kpi-tiktok').textContent   = fmtN(Math.round(tktok.purchases));
+  document.getElementById('kpi-tiktok-rev').textContent = fmtE(tktok.revenue);
+  document.getElementById('kpi-ticket').textContent   = totalP > 0 ? fmtE(totalR / totalP) : '—';
+
+  renderCanalTable(byChannel, totalP, totalR);
+  renderTrend(period.from, period.to, rows);
+  renderCamps(rows);
+  renderProps(rows);
+}
+
+// ── Tabla canal ───────────────────────────────────────────────────────────────
+function renderCanalTable(byChannel, totalP, totalR) {
+  var isLC = activeModel === 'lastclick';
+  var sorted = CH_ORDER.filter(function(ch){ return byChannel[ch]; })
+    .map(function(ch){ return Object.assign({ch:ch}, byChannel[ch]); })
+    .sort(function(a,b){ return b.purchases - a.purchases; });
+
+  // Actualizar cabecera
+  var thead = document.querySelector('#canal-table thead tr');
+  if (thead) thead.innerHTML = '<th>Canal</th><th class="num">Reservas</th><th class="num">%</th>'
+    +'<th class="num">Revenue</th><th class="num">Ticket</th>'
+    +'<th style="width:110px"></th>';
+
+  var html = '';
+  sorted.forEach(function(d) {
+    var pct  = totalP > 0 ? (d.purchases / totalP * 100).toFixed(1) : '0';
+    var barW = totalP > 0 ? Math.round(d.purchases / totalP * 100) : 0;
+    var col  = CH_COLOR[d.ch] || '#6366f1';
+    var isP  = CH_PAID[d.ch];
+    html += '<tr>'
+      + '<td><span class="ch-dot" style="background:'+col+'"></span>'
+      + d.ch + (isP ? ' <span class="badge badge-paid">paid</span>' : '')
+      + '</td>'
+      + '<td class="num">'+fmtN(Math.round(d.purchases))+'</td>'
+      + '<td class="num">'+pct+'%</td>'
+      + '<td class="num">'+fmtE(d.revenue)+'</td><td class="num">'+(d.purchases>0?fmtE(d.revenue/d.purchases):'—')+'</td>'
+      + '<td><div class="bar-bg"><div class="bar-fill" style="width:'+barW+'%;background:'+col+'"></div></div></td>'
+      + '</tr>';
+  });
+  document.getElementById('canal-tbody').innerHTML = html || '<tr><td colspan="6" class="no-data">Sin datos</td></tr>';
+}
+
+// ── Trend chart ───────────────────────────────────────────────────────────────
+function renderTrend(from, to, rows) {
+  var dates = [];
+  var cur = from;
+  while (cur <= to && dates.length < 90) { dates.push(cur); cur = addDays(cur, 1); }
+
+  var topChannels = ['Google CPC Marca','Google CPC No Marca','Google Orgánico','Meta Paid','TikTok Paid','Directo'];
+  var byDateCh = {};
+  rows.forEach(function(r) {
+    var iso = isoFromYMD(r[0]);
+    var ch = normalizeChannel(r[2], r[3], r[4]);
+    var key = ch + '||' + iso;
+    byDateCh[key] = (byDateCh[key] || 0) + r[5];
+  });
+
+  var datasets = topChannels.map(function(ch) {
+    return {
+      label: ch,
+      data: dates.map(function(d){ return Math.round(byDateCh[ch+'||'+d] || 0); }),
+      borderColor: CH_COLOR[ch] || '#6366f1',
+      backgroundColor: (CH_COLOR[ch] || '#6366f1') + '22',
+      borderWidth: 1.5,
+      pointRadius: dates.length > 30 ? 0 : 2,
+      tension: 0.3,
+      fill: false,
+    };
+  });
+
+  var ctx = document.getElementById('trend-chart').getContext('2d');
+  if (trendChart) trendChart.destroy();
+  trendChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels: dates.map(function(d){ return d.slice(5); }), datasets: datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: '#6870a0', font: { size: 10 }, boxWidth: 10 } },
+        tooltip: { backgroundColor: '#1a1d2e', borderColor: '#2a2d42', borderWidth: 1, titleColor: '#e2e4f0', bodyColor: '#94a3b8' },
+      },
+      scales: {
+        x: { ticks: { color: '#6870a0', font: { size: 9 }, maxTicksLimit: 10 }, grid: { color: '#2a2d4240' } },
+        y: { ticks: { color: '#6870a0', font: { size: 9 } }, grid: { color: '#2a2d4240' } },
+      },
+    },
+  });
+}
+
+// ── Campañas paid ─────────────────────────────────────────────────────────────
+window.sortCamps = function(key) { campSortKey = key; renderCampsFromCache(); };
+
+var _campRows = null;
+function renderCamps(rows) {
+  _campRows = rows;
+  // Detectar canales paid presentes
+  var paidChannels = {};
+  rows.forEach(function(r) {
+    var ch = normalizeChannel(r[2], r[3], r[4]);
+    if (CH_PAID[ch]) paidChannels[ch] = true;
+  });
+  var chList = Object.keys(paidChannels).sort();
+
+  // Tabs
+  var tabHtml = '<button class="tab-btn'+(activeCampChannel==='all'?' active':'')+'" onclick="setCampChannel(\'all\')">Todos</button>';
+  chList.forEach(function(ch) {
+    tabHtml += '<button class="tab-btn'+(activeCampChannel===ch?' active':'')+'" onclick="setCampChannel(\''+ch+'\')">'+ ch+'</button>';
+  });
+  document.getElementById('camp-channel-tabs').innerHTML = tabHtml;
+  renderCampsFromCache();
+}
+window.setCampChannel = function(ch) {
+  activeCampChannel = ch;
+  document.querySelectorAll('#camp-channel-tabs .tab-btn').forEach(function(b) {
+    b.classList.toggle('active', b.textContent.trim() === (ch === 'all' ? 'Todos' : ch));
+  });
+  renderCampsFromCache();
+};
+function renderCampsFromCache() {
+  if (!_campRows) return;
+  var rows = _campRows;
+  var byCamp = {};
+  rows.forEach(function(r) {
+    var ch = normalizeChannel(r[2], r[3], r[4]);
+    if (!CH_PAID[ch]) return;
+    if (activeCampChannel !== 'all' && ch !== activeCampChannel) return;
+    var camp = r[4] || '(sin nombre)';
+    if (!byCamp[camp]) byCamp[camp] = { channel: ch, purchases: 0, revenue: 0 };
+    byCamp[camp].purchases += r[5];
+    byCamp[camp].revenue   += r[6];
+  });
+
+  var isLC = activeModel === 'lastclick';
+
+  document.getElementById('camp-thead').innerHTML = '<tr>'
+    + '<th>Campaña</th>'
+    + '<th>Canal</th>'
+    + '<th class="num sort-arrow" onclick="sortCamps(\'purchases\')">Reservas ↕</th>'
+    + '<th class="num sort-arrow" onclick="sortCamps(\'revenue\')">Revenue ↕</th>'
+    + '<th class="num">Ticket</th>'
+    + '</tr>';
+
+  var sorted = Object.entries(byCamp).sort(function(a, b) { return b[1][campSortKey] - a[1][campSortKey]; });
+  var html = '';
+  sorted.slice(0, 50).forEach(function(entry) {
+    var camp = entry[0], d = entry[1];
+    var col = CH_COLOR[d.channel] || '#6366f1';
+    html += '<tr>'
+      + '<td><span class="ch-dot" style="background:'+col+'"></span>'+camp+'</td>'
+      + '<td><span class="ch-badge" style="background:'+col+'1a;color:'+col+';border:1px solid '+col+'33">'+d.channel+'</span></td>'
+      + '<td class="num">'+fmtN(Math.round(d.purchases))+'</td>'
+      + '<td class="num">'+fmtE(d.revenue)+'</td>'
+      + '<td class="num">'+(d.purchases>0?fmtE(d.revenue/d.purchases):'—')+'</td>'
+      + '</tr>';
+  });
+  document.getElementById('camp-tbody').innerHTML = html || '<tr><td colspan="5" class="no-data">Sin campañas paid en el período</td></tr>';
+}
+
+// ── Propiedades × canal ───────────────────────────────────────────────────────
+var _propsRows = null;
+window.renderProps = function(rows) {
+  if (rows !== undefined) _propsRows = rows;
+  if (!_propsRows) return;
+  var filter = document.getElementById('prop-filter').value.toLowerCase();
+
+  var allChannels = ['Google CPC Marca','Google CPC No Marca','Google Orgánico','Google Maps','Meta Paid','TikTok Paid','Email','Directo','Referral','Otros'];
+  var byProp = {};
+  _propsRows.forEach(function(r) {
+    var item = r[1] || '(sin nombre)';
+    if (filter && !item.toLowerCase().includes(filter)) return;
+    var ch = normalizeChannel(r[2], r[3], r[4]);
+    // Colapsar canales menores
+    if (allChannels.indexOf(ch) === -1) ch = 'Otros';
+    if (!byProp[item]) {
+      byProp[item] = { total_p: 0, total_r: 0 };
+      allChannels.forEach(function(c){ byProp[item][c] = 0; });
+    }
+    byProp[item][ch] += r[5];
+    byProp[item].total_p += r[5];
+    byProp[item].total_r += r[6];
+  });
+
+  var isLC = activeModel === 'lastclick';
+
+  // Quitar canales vacíos
+  var usedChs = allChannels.filter(function(ch) {
+    return Object.values(byProp).some(function(d){ return d[ch] > 0; });
+  });
+
+  // Thead
+  var thead = '<tr><th>Propiedad</th><th class="num">Total</th>';
+  usedChs.forEach(function(ch){
+    var col = CH_COLOR[ch] || '#6366f1';
+    thead += '<th class="num" style="white-space:nowrap"><span class="ch-dot" style="background:'+col+'"></span>'+ch+'</th>';
+  });
+  thead += '<th class="num">Revenue</th>';
+  thead += '</tr>';
+  document.getElementById('props-thead').innerHTML = thead;
+
+  var sorted = Object.entries(byProp).sort(function(a,b){ return b[1].total_p - a[1].total_p; });
+  var tbody = '';
+  sorted.forEach(function(entry) {
+    var item = entry[0], d = entry[1];
+    tbody += '<tr><td>'+item+'</td><td class="num"><strong>'+fmtN(Math.round(d.total_p))+'</strong></td>';
+    usedChs.forEach(function(ch){
+      tbody += '<td class="num">'+(d[ch] > 0 ? fmtN(Math.round(d[ch])) : '<span style="color:var(--border)">—</span>')+'</td>';
+    });
+    tbody += '<td class="num">'+fmtE(d.total_r)+'</td>';
+    tbody += '</tr>';
+  });
+  document.getElementById('props-tbody').innerHTML = tbody || '<tr><td colspan="99" class="no-data">Sin datos para el filtro</td></tr>';
+};
+
+// ── Carga de datos ─────────────────────────────────────────────────────────────
+fetch('atribucion-data.json?_=' + Date.now())
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    RAW = data;
+    document.getElementById('updated').textContent = data.updated;
+    var to = data.updated;
+    var from30 = addDays(to, -29);
+    document.getElementById('from-date').value = from30;
+    document.getElementById('to-date').value   = to;
+    renderAll();
+  })
+  .catch(function(e) {
+    document.querySelector('.page').innerHTML = '<div class="no-data">Error cargando datos: ' + e.message + '</div>';
+  });
+</script>
+</body>
+</html>

@@ -9,6 +9,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.54.0",
     "@google-analytics/data": "^6.1.0",
+    "@google-cloud/bigquery": "^8.3.1",
     "dotenv": "^16.4.5",
     "express": "^4.19.2"
   }

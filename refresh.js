@@ -66,4 +66,7 @@ run("busqueda-be-refresh.js", daysAgo(2), daysAgo(0));
 // ── Búsqueda BE completa / todo tráfico (últimos 14 días desde cero) ─────────
 runNoArgs("busqueda-be-refresh.js", "--all");
 
+// ── Atribución last-touch (últimos 30 días, GA4 session UTM) ─────────────────
+run("atribucion-refresh.js", daysAgo(30), daysAgo(0));
+
 console.log("\n✅ Dashboard actualizado — " + new Date().toLocaleString("es-ES"));

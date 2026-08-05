@@ -183,6 +183,10 @@
   .main-inner-tab { padding: 9px 16px; font-size: 12px; font-weight: 600; color: var(--muted); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; transition: all .15s; white-space: nowrap; }
   .main-inner-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
   .main-inner-tab:hover { color: var(--text); }
+  .global-kind-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 8px 32px; display: flex; align-items: center; gap: 8px; }
+  .gkind-btn { padding: 4px 14px; border-radius: 16px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 11px; font-weight: 600; cursor: pointer; transition: all .15s; }
+  .gkind-btn:hover { border-color: var(--accent); color: var(--text); }
+  .gkind-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 
   /* ── Tabla de campañas ── */
   .camp-wrap { padding: 24px 32px; }
@@ -273,6 +277,8 @@
 <a href="busqueda-be.html" style="padding:10px 18px;font-size:12px;font-weight:600;color:#7b7f9e;text-decoration:none;border-bottom:2px solid transparent">Búsqueda BE</a>
   <a href="gsc.html" style="padding:10px 18px;font-size:12px;font-weight:600;color:#7b7f9e;text-decoration:none;border-bottom:2px solid transparent">GSC</a>
   <a href="funnel.html" style="padding:10px 18px;font-size:12px;font-weight:600;color:#7b7f9e;text-decoration:none;border-bottom:2px solid transparent">Funnel</a>
+  <a href="atribucion.html" style="padding:10px 18px;font-size:12px;font-weight:600;color:#7b7f9e;text-decoration:none;border-bottom:2px solid transparent">Atribución</a>
+  <a href="live.html"' style="padding:10px 18px;font-size:12px;font-weight:600;color:#7b7f9e;text-decoration:none;border-bottom:2px solid transparent">En Vivo</a>
   <a href="tiempo.html" style="padding:10px 18px;font-size:12px;font-weight:600;color:#7b7f9e;text-decoration:none;border-bottom:2px solid transparent">Tiempo</a>
 </nav>
 
@@ -310,6 +316,15 @@
   <button class="main-inner-tab active" id="tab-inv-general"      onclick="switchInvView('general')">Vista general</button>
   <button class="main-inner-tab"        id="tab-inv-campaigns"    onclick="switchInvView('campaigns')">Resumen de campañas</button>
   <button class="main-inner-tab"        id="tab-inv-optimization" onclick="switchInvView('optimization')">Optimización</button>
+  <button class="main-inner-tab"        id="tab-inv-conv"         onclick="switchInvView('conv')">Conversiones por destino</button>
+  <button class="main-inner-tab"        id="tab-inv-daily"        onclick="switchInvView('daily')">Gasto por días</button>
+</div>
+<div class="global-kind-bar">
+  <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-right:6px">Tipo campaña</span>
+  <button class="gkind-btn active" id="gkind-all"  onclick="setCampKindFilter('all')">Todas</button>
+  <button class="gkind-btn"        id="gkind-url"  onclick="setCampKindFilter('dest-url')">Por URL destino</button>
+  <button class="gkind-btn"        id="gkind-name" onclick="setCampKindFilter('dest-name')">Por nomenclatura</button>
+  <button class="gkind-btn"        id="gkind-gen"  onclick="setCampKindFilter('gen')">Genérica</button>
 </div>
 
 <main>
@@ -430,7 +445,10 @@
 
   <div class="table-card">
     <div class="table-header" style="flex-direction:column;align-items:flex-start;gap:10px">
-      <h3>Gasto por destino &times; plataforma</h3>
+      <div style="display:flex;justify-content:space-between;align-items:center;width:100%">
+        <h3>Gasto por destino &times; plataforma</h3>
+        <button onclick="downloadDestCSV()" style="background:var(--accent,#6366f1);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer">&#11015; Descargar Excel</button>
+      </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
         <button class="period-btn active" id="dest-tab-global">Global</button>
         <button class="period-btn" id="dest-tab-meta" style="color:#1877f2">Meta</button>
@@ -518,6 +536,57 @@
     <div id="opt-recs-wrap"></div>
   </div>
 </div><!-- /view-optimization -->
+
+<div id="view-conv" style="display:none">
+  <div class="camp-wrap">
+    <div style="padding:12px 20px 0;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <span style="font-size:13px;color:var(--muted)">Ordenar por:</span>
+      <button class="camp-plat-btn active" id="conv-sort-btn-gconv"   onclick="convSort('gconv')">Google conv.</button>
+      <button class="camp-plat-btn"        id="conv-sort-btn-gval"    onclick="convSort('gval')">Google valor €</button>
+      <button class="camp-plat-btn"        id="conv-sort-btn-mconv"   onclick="convSort('mconv')">Meta compras</button>
+      <button class="camp-plat-btn"        id="conv-sort-btn-tkconv"  onclick="convSort('tkconv')">TikTok conv.</button>
+      <button class="camp-plat-btn"        id="conv-sort-btn-gclk"    onclick="convSort('gclk')">Google clics</button>
+      <button class="camp-plat-btn"        id="conv-sort-btn-mclk"    onclick="convSort('mclk')">Meta clics</button>
+    </div>
+    <div class="camp-table-wrap" style="margin-top:12px">
+      <table class="camp-table" id="conv-table">
+        <thead id="conv-thead"></thead>
+        <tbody id="conv-tbody"></tbody>
+      </table>
+    </div>
+    <div style="padding:10px 20px;font-size:11px;color:var(--muted)">
+      * Google: conversiones + valor atribuidos por Google Ads (Search/PMax). Meta: compras atribuidas por píxel Meta. TikTok: conversiones según objetivo de campaña.
+    </div>
+  </div>
+</div><!-- /view-conv -->
+
+<div id="view-daily" style="display:none">
+  <div class="camp-wrap">
+    <div class="chart-card" style="margin-bottom:20px;height:320px;position:relative">
+      <h3>Gasto diario por canal</h3>
+      <canvas id="chartDaily"></canvas>
+    </div>
+    <div class="table-card">
+      <div class="table-header" style="display:flex;align-items:center;justify-content:space-between">
+        <h3>Detalle por día</h3>
+        <button onclick="downloadDailyCSV()" style="background:var(--accent,#6366f1);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer">⬇ Descargar Excel</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:left">Fecha</th>
+            <th style="text-align:right;color:var(--meta)">Meta</th>
+            <th style="text-align:right;color:var(--tiktok)">TikTok</th>
+            <th style="text-align:right;color:var(--google)">Google</th>
+            <th style="text-align:right">Total</th>
+          </tr>
+        </thead>
+        <tbody id="daily-tbody"></tbody>
+        <tfoot id="daily-tfoot"></tfoot>
+      </table>
+    </div>
+  </div>
+</div><!-- /view-daily -->
 
 </main>
 <footer>Kampaoh &middot; Dashboard Ads &amp; Analytics</footer>
@@ -640,6 +709,75 @@ function buildAdsByDateDest(rows) {
 
 // Índice Meta por destino: {fecha: {dest: {tipo: spend}}} (excluye genéricas y falsos positivos)
 var DEST_RETAG_SET = new Set(['scmg','2024','ig-reel','sin-etiquetar','generic']);
+var DEST_CAMPS_AUTO   = null; // detección por nomenclatura (loose)
+var DEST_CAMPS_STRICT = null; // detección por URL destino (excluye Genérico/Engagement)
+var campKindFilter = 'all';
+
+var GENERIC_CAMP_RE = /genéric|generic|engagement|catálogo|catalogo|housekeeping/i;
+
+function computeDestCampsAuto() {
+  var meta = new Set(), gads = new Set(), tk = new Set();
+  if (META_ADS_RAW) {
+    Object.keys(META_ADS_RAW).forEach(function(camp) {
+      (META_ADS_RAW[camp]||[]).some(function(r) {
+        var d = r[7];
+        if (d && d !== 'sin-etiquetar' && d !== 'genérica' && d !== 'generic' && !DEST_RETAG_SET.has(d)) { meta.add(camp); return true; }
+      });
+    });
+  }
+  if (GADS_RAW) {
+    Object.keys(GADS_RAW).forEach(function(camp) {
+      (GADS_RAW[camp]||[]).some(function(r) {
+        var d = r[5];
+        if (d && d !== 'sin-etiquetar' && d !== 'genérica' && d !== 'generic') { gads.add(camp); return true; }
+      });
+    });
+  }
+  if (TKTOK_ADS_RAW) {
+    Object.keys(TKTOK_ADS_RAW).forEach(function(camp) {
+      (TKTOK_ADS_RAW[camp]||[]).some(function(r) {
+        var d = r[7];
+        if (d && d !== 'sin-etiquetar' && d !== 'genérica' && d !== 'generic') { tk.add(camp); return true; }
+      });
+    });
+  }
+  return {meta: meta, gads: gads, tk: tk};
+}
+
+function computeDestCampsStrict() {
+  var meta = new Set(), gads = new Set(), tk = new Set();
+  if (META_ADS_RAW) {
+    // r[25] = dest_url (desde URL de la creatividad). Si no existe (datos viejos), sin-etiquetar
+    Object.keys(META_ADS_RAW).forEach(function(camp) {
+      (META_ADS_RAW[camp]||[]).some(function(r) {
+        var d = r[25];
+        if (d && d !== 'sin-etiquetar' && d !== 'genérica' && d !== 'generic' && !DEST_RETAG_SET.has(d)) { meta.add(camp); return true; }
+      });
+    });
+  }
+  if (GADS_RAW) {
+    Object.keys(GADS_RAW).forEach(function(camp) {
+      if (GENERIC_CAMP_RE.test(camp)) return;
+      (GADS_RAW[camp]||[]).some(function(r) {
+        var d = r[5];
+        if (d && d !== 'sin-etiquetar' && d !== 'genérica' && d !== 'generic') { gads.add(camp); return true; }
+      });
+    });
+  }
+  if (TKTOK_ADS_RAW) {
+    Object.keys(TKTOK_ADS_RAW).forEach(function(camp) {
+      if (GENERIC_CAMP_RE.test(camp)) return;
+      (TKTOK_ADS_RAW[camp]||[]).some(function(r) {
+        var d = r[7];
+        if (d && d !== 'sin-etiquetar' && d !== 'genérica' && d !== 'generic') { tk.add(camp); return true; }
+      });
+    });
+  }
+  return {meta: meta, gads: gads, tk: tk};
+}
+
+function getDestCampsAuto()   { if (!DEST_CAMPS_AUTO)   DEST_CAMPS_AUTO   = computeDestCampsAuto();   return DEST_CAMPS_AUTO; }
+function getDestCampsStrict() { if (!DEST_CAMPS_STRICT) DEST_CAMPS_STRICT = computeDestCampsStrict(); return DEST_CAMPS_STRICT; }
 function buildMetaAdsByDateDest(rows) {
   var by = {};
   (rows||[]).forEach(function(r) {
@@ -691,6 +829,7 @@ function aggregateByObj(from, to) {
       var gday = GADS_BY_DATE[key];
       for (var t in gday) res.google[t] = (res.google[t]||0) + gday[t].gen + gday[t].dest;
     }
+    if (DATA && DATA.days && DATA.days[key] && DATA.days[key].g_gen) res.google['Conversión'] = (res.google['Conversión']||0) + DATA.days[key].g_gen;
     if (TK_BY_DATE && TK_BY_DATE[key]) {
       var tkday = TK_BY_DATE[key];
       for (var t in tkday) res.tiktok[t] = (res.tiktok[t]||0) + tkday[t].gen + tkday[t].dest;
@@ -707,6 +846,56 @@ function aggregateByObjFull(from, to) {
     google: {gen: 0, dest: 0, byDest: {}},
     tiktok: {gen: 0, dest: 0, byDest: {}}
   };
+
+  if (campKindFilter !== 'all' && (META_ADS_RAW || GADS_RAW || TKTOK_ADS_RAW)) {
+    var fromS = from.replace(/-/g,''), toS = to.replace(/-/g,'');
+    if (META_ADS_RAW) {
+      Object.keys(META_ADS_RAW).forEach(function(camp) {
+        if (!campPassesKindFilter(camp,'meta')) return;
+        var tipo = getCampaignType(camp);
+        (META_ADS_RAW[camp]||[]).forEach(function(r) {
+          if (r[0]<fromS||r[0]>toS) return;
+          var spend = parseFloat(r[8])||0;
+          var destField = campKindFilter==='dest-url' ? r[25] : r[7];
+          var isGen = (!destField||destField==='sin-etiquetar'||destField==='generic'||DEST_RETAG_SET.has(destField));
+          if (isGen) res.meta.gen += spend;
+          else { res.meta.dest += spend; res.meta.byDest[tipo]=(res.meta.byDest[tipo]||0)+spend; }
+        });
+      });
+    }
+    if (GADS_RAW) {
+      Object.keys(GADS_RAW).forEach(function(camp) {
+        if (!campPassesKindFilter(camp,'google')) return;
+        var tipo = getCampaignType(camp);
+        (GADS_RAW[camp]||[]).forEach(function(r) {
+          if (r[0]<fromS||r[0]>toS) return;
+          var spend = parseFloat(r[6])||0;
+          var isGen = (!r[5]||r[5]==='sin-etiquetar'||r[5]==='generic');
+          if (isGen) res.google.gen += spend;
+          else { res.google.dest += spend; res.google.byDest[tipo]=(res.google.byDest[tipo]||0)+spend; }
+        });
+      });
+    }
+    if (TKTOK_ADS_RAW) {
+      Object.keys(TKTOK_ADS_RAW).forEach(function(camp) {
+        if (!campPassesKindFilter(camp,'tiktok')) return;
+        var tipo = getCampaignType(camp);
+        (TKTOK_ADS_RAW[camp]||[]).forEach(function(r) {
+          if (r[0]<fromS||r[0]>toS) return;
+          var spend = parseFloat(r[8])||0;
+          var isGen = (!r[7]||r[7]==='sin-etiquetar'||r[7]==='generic');
+          if (isGen) res.tiktok.gen += spend;
+          else { res.tiktok.dest += spend; res.tiktok.byDest[tipo]=(res.tiktok.byDest[tipo]||0)+spend; }
+        });
+      });
+    }
+    if (campKindFilter==='gen') {
+      var d2=new Date(from+'T00:00:00Z'),end2=new Date(to+'T00:00:00Z');
+      while(d2<=end2){var k2=d2.toISOString().slice(0,10);if(DATA&&DATA.days&&DATA.days[k2]&&DATA.days[k2].g_gen)res.google.gen+=DATA.days[k2].g_gen;d2.setUTCDate(d2.getUTCDate()+1);}
+    }
+    return res;
+  }
+
   var d = new Date(from+'T00:00:00Z'), end = new Date(to+'T00:00:00Z');
   while (d <= end) {
     var key = d.toISOString().slice(0,10);
@@ -725,6 +914,7 @@ function aggregateByObjFull(from, to) {
         out.byDest[t] = (out.byDest[t]||0) + (v.dest || 0);
       }
     });
+    if (DATA && DATA.days && DATA.days[key] && DATA.days[key].g_gen) res.google.gen += DATA.days[key].g_gen;
     d.setUTCDate(d.getUTCDate()+1);
   }
   return res;
@@ -857,17 +1047,111 @@ function renderDelta(pct){
 
 // ── Agregación desde data.json ────────────────────────────────────────────────
 function aggregate(from,to){
-  var m={},t={},g={};
+  var m={},t={},g={},gGen=0;
   var d=new Date(from+"T00:00:00Z"), end=new Date(to+"T00:00:00Z");
   while(d<=end){
     var key=d.toISOString().slice(0,10), day=DATA&&DATA.days&&DATA.days[key];
-    if(day){ if(day.m) addTo(m,day.m); if(day.t) addTo(t,day.t); if(day.g) addTo(g,day.g); }
+    if(day){ if(day.m) addTo(m,day.m); if(day.t) addTo(t,day.t); if(day.g) addTo(g,day.g); if(day.g_gen) gGen+=day.g_gen; }
     d.setUTCDate(d.getUTCDate()+1);
   }
-  return {meta:m,tiktok:t,google:g};
+  return {meta:m,tiktok:t,google:g,googleGen:gGen};
 }
 function addTo(tgt,src){ for(var k in src) tgt[k]=(tgt[k]||0)+src[k]; }
 function sumObj(o){ var s=0; for(var k in o) s+=o[k]; return s; }
+
+// Campañas de Meta confirmadas como "Por destino" para el filtro Por URL destino
+var META_DEST_CAMPS = new Set([
+  'ES_Alcance_Destinos_España (25)',
+  'Es_Conversiones_Destinos_España (26)',
+  'Es_Trafico_Destinos_España (26)',
+]);
+
+function campPassesKindFilter(name, plat) {
+  if (campKindFilter === 'all') return true;
+  var strict = getDestCampsStrict(), loose = getDestCampsAuto();
+  var sset = plat==='google' ? strict.gads : plat==='tiktok' ? strict.tk : strict.meta;
+  var lset = plat==='google' ? loose.gads  : plat==='tiktok' ? loose.tk  : loose.meta;
+  if (campKindFilter === 'dest-url') {
+    if (plat === 'meta') return META_DEST_CAMPS.has(name) || /cat[aá]logo/i.test(name);
+    return sset.has(name) || /cat[aá]logo/i.test(name);
+  }
+  if (campKindFilter === 'dest-name') return lset.has(name) || sset.has(name);
+  return !lset.has(name) && !sset.has(name); // gen
+}
+
+function aggregateByKind(from, to) {
+  if (campKindFilter === 'all') {
+    var base = aggregate(from, to);
+    if (!META_ADS_RAW && !TKTOK_ADS_RAW) return base;
+    var fromS=from.replace(/-/g,''), toS=to.replace(/-/g,'');
+    // Meta: usar raw data para agrupar catálogo correctamente
+    var m = base.meta;
+    if (META_ADS_RAW) {
+      m = {};
+      Object.keys(META_ADS_RAW).forEach(function(camp) {
+        (META_ADS_RAW[camp]||[]).forEach(function(r) {
+          if (r[0]<fromS||r[0]>toS) return;
+          var slug=/cat[aá]logo/i.test(camp)?'catálogo':(r[7]||'sin-etiquetar'); m[slug]=(m[slug]||0)+(r[8]||0);
+        });
+      });
+    }
+    // TikTok: separar destino vs genérico; catálogo sin dest → 'catálogo'
+    var t = base.tiktok, tGen=0;
+    if (TKTOK_ADS_RAW) {
+      t = {};
+      var tkDest = getDestCampsAuto().tk;
+      Object.keys(TKTOK_ADS_RAW).forEach(function(camp) {
+        (TKTOK_ADS_RAW[camp]||[]).forEach(function(r) {
+          if (r[0]<fromS||r[0]>toS) return;
+          var spend=parseFloat(r[8])||0;
+          var isCat=/cat[aá]logo/i.test(camp);
+          if (tkDest.has(camp)||isCat) { var slug=isCat?'catálogo':((r[7]&&r[7]!=='sin-etiquetar')?r[7]:'catálogo'); t[slug]=(t[slug]||0)+spend; }
+          else tGen+=spend;
+        });
+      });
+    }
+    return {meta:m, tiktok:t, google:base.google, googleGen:base.googleGen||0, tiktokGen:tGen};
+  }
+  if (!META_ADS_RAW && !GADS_RAW && !TKTOK_ADS_RAW) {
+    var agg = aggregate(from, to);
+    var GEN_SL = {'sin-etiquetar':1,'genérica':1,'generic':1};
+    var isDest = campKindFilter === 'dest-url' || campKindFilter === 'dest-name';
+    var flt = function(obj){ var r={}; Object.keys(obj).forEach(function(s){ var isG=GEN_SL[s]; if(isDest?!isG:isG)r[s]=obj[s]; }); return r; };
+    agg.meta=flt(agg.meta); agg.tiktok=flt(agg.tiktok); agg.google=flt(agg.google);
+    if(isDest) agg.googleGen=0;
+    return agg;
+  }
+  var m={}, t={}, g={}, gGen=0;
+  var fromS=from.replace(/-/g,''), toS=to.replace(/-/g,'');
+  if (META_ADS_RAW) {
+    Object.keys(META_ADS_RAW).forEach(function(camp) {
+      if (!campPassesKindFilter(camp,'meta')) return;
+      (META_ADS_RAW[camp]||[]).forEach(function(r) {
+        if (r[0]<fromS||r[0]>toS) return;
+        var slug=/cat[aá]logo/i.test(camp)?'catálogo':(r[7]||'sin-etiquetar'); m[slug]=(m[slug]||0)+(r[8]||0);
+      });
+    });
+  }
+  if (TKTOK_ADS_RAW) {
+    Object.keys(TKTOK_ADS_RAW).forEach(function(camp) {
+      if (!campPassesKindFilter(camp,'tiktok')) return;
+      (TKTOK_ADS_RAW[camp]||[]).forEach(function(r) {
+        if (r[0]<fromS||r[0]>toS) return;
+        var slug=/cat[aá]logo/i.test(camp)?'catálogo':((r[7]&&r[7]!=='sin-etiquetar')?r[7]:'catálogo'); t[slug]=(t[slug]||0)+(r[8]||0);
+      });
+    });
+  }
+  if (GADS_RAW) {
+    Object.keys(GADS_RAW).forEach(function(camp) {
+      if (!campPassesKindFilter(camp,'google')) return;
+      (GADS_RAW[camp]||[]).forEach(function(r) {
+        if (r[0]<fromS||r[0]>toS) return;
+        var slug=r[5]||'sin-etiquetar'; g[slug]=(g[slug]||0)+(r[6]||0);
+      });
+    });
+  }
+  return {meta:m, tiktok:t, google:g, googleGen:gGen};
+}
 function hasData(from,to){
   if(!DATA||!DATA.days) return false;
   var d=new Date(from+"T00:00:00Z"), end=new Date(to+"T00:00:00Z");
@@ -887,11 +1171,12 @@ function renderDashboard(){
   var dest, metaT, tiktokT, googleT, updatedStr, histMode=false, histNote="";
 
   if(DATA && hasData(fromDate,toDate)){
-    var agg=aggregate(fromDate,toDate);
-    metaT=sumObj(agg.meta); tiktokT=sumObj(agg.tiktok); googleT=sumObj(agg.google);
+    var agg=aggregateByKind(fromDate,toDate);
+    metaT=sumObj(agg.meta); tiktokT=sumObj(agg.tiktok)+(agg.tiktokGen||0); googleT=sumObj(agg.google)+(agg.googleGen||0);
     var slugs={};
     function col(o,i){ for(var s in o){if(!slugs[s])slugs[s]=[0,0,0]; slugs[s][i]+=o[s];} }
     col(agg.meta,0); col(agg.tiktok,1); col(agg.google,2);
+    if(agg.googleGen){ if(!slugs['sin-etiquetar'])slugs['sin-etiquetar']=[0,0,0]; slugs['sin-etiquetar'][2]+=(agg.googleGen||0); }
     dest=Object.keys(slugs).map(function(s){ return [destLabel(s),s,slugs[s][0],slugs[s][1],slugs[s][2]]; });
     updatedStr=DATA.updated||"";
   } else if(!DATA){
@@ -919,7 +1204,7 @@ function renderDashboard(){
     updatedStr="Histórico precargado";
     // Intentar desglose por destino desde data.json aunque sea parcial
     if(DATA){
-      var aggH=aggregate(fromDate,toDate);
+      var aggH=aggregateByKind(fromDate,toDate);
       var slugsH={};
       function colH(o,i){ for(var s in o){if(!slugsH[s])slugsH[s]=[0,0,0]; slugsH[s][i]+=o[s];} }
       colH(aggH.meta,0); colH(aggH.tiktok,1); colH(aggH.google,2);
@@ -953,7 +1238,7 @@ function renderDashboard(){
     var modeLabel=compareMode==="prev"?"período anterior":"año anterior";
     if(hasData(cmpRange.from,cmpRange.to)){
       var cmpAgg=aggregate(cmpRange.from,cmpRange.to);
-      var cmpM=sumObj(cmpAgg.meta), cmpTk=sumObj(cmpAgg.tiktok), cmpG=sumObj(cmpAgg.google), cmpTotal=cmpM+cmpTk+cmpG;
+      var cmpM=sumObj(cmpAgg.meta), cmpTk=sumObj(cmpAgg.tiktok), cmpG=sumObj(cmpAgg.google)+(cmpAgg.googleGen||0), cmpTotal=cmpM+cmpTk+cmpG;
       cmpInfo.innerHTML="vs <strong>"+formatPeriod(cmpRange.from,cmpRange.to)+"</strong>";
       if(thDelta) thDelta.style.display="";
       document.getElementById("kpi-total-cmp").innerHTML  =renderDelta(delta(total,   cmpTotal)) +' <span class="delta-vs">'+modeLabel+": "+fmt(cmpTotal)+"</span>";
@@ -972,6 +1257,7 @@ function renderDashboard(){
   // ── Tabla ──
   var sorted=dest.slice().sort(function(a,b){return (b[2]+b[3]+b[4])-(a[2]+a[3]+a[4]);});
   var maxT=0; for(var i=0;i<sorted.length;i++){var tv=sorted[i][2]+sorted[i][3]+sorted[i][4];if(tv>maxT)maxT=tv;}
+  _destExportRows = sorted.filter(function(r){ return (r[2]+r[3]+r[4])>=0.01; }).map(function(r){ return {name:r[0],slug:r[1],m:r[2],t:r[3],g:r[4],tot:r[2]+r[3]+r[4]}; });
   var sumM=0,sumTk=0,sumG=0,rows="";
   for(var i=0;i<sorted.length;i++){
     var ds=sorted[i][1],dm=sorted[i][2],dt=sorted[i][3],dg=sorted[i][4],dtot=dm+dt+dg;
@@ -1001,6 +1287,10 @@ function renderDashboard(){
   if (vc && vc.style.display !== 'none') renderCampaigns();
   var vo = document.getElementById('view-optimization');
   if (vo && vo.style.display !== 'none') renderOptimization();
+  var vcv = document.getElementById('view-conv');
+  if (vcv && vcv.style.display !== 'none') renderConv();
+  var vd = document.getElementById('view-daily');
+  if (vd && vd.style.display !== 'none') renderDaily();
 
   // ── Gráficos ──
   try{
@@ -1865,6 +2155,7 @@ Promise.all([
     if (gads  && gads.rows)  GADS_RAW      = buildRawIdx(gads.rows,  2);
     if (tkads && tkads.rows) TKTOK_ADS_RAW = buildRawIdx(tkads.rows, 2);
     if (mads  && mads.rows)  META_ADS_RAW  = buildRawIdx(mads.rows,  2);
+    DEST_CAMPS_AUTO = null; DEST_CAMPS_STRICT = null; // forzar recálculo de auto-detección
     var md = buildMensual(d);
     MENSUAL_LABELS = md.labels;
     MENSUAL_META   = md.meta;
@@ -1902,6 +2193,7 @@ function buildMensual(data) {
     if (d.m) for (var k in d.m) by[ym][0] += d.m[k];
     if (d.t) for (var k in d.t) by[ym][1] += d.t[k];
     if (d.g) for (var k in d.g) by[ym][2] += d.g[k];
+    if (d.g_gen) by[ym][2] += d.g_gen;
   }
   var keys = Object.keys(by).sort();
   return {
@@ -1923,6 +2215,7 @@ function buildYoY(data) {
     if (d.m) for (var k in d.m) by[ym][0] += d.m[k];
     if (d.t) for (var k in d.t) by[ym][1] += d.t[k];
     if (d.g) for (var k in d.g) by[ym][2] += d.g[k];
+    if (d.g_gen) by[ym][2] += d.g_gen;
   }
   // Año calendario: ene–dic comparando 2025 vs 2026
   var months = ["01","02","03","04","05","06","07","08","09","10","11","12"];
@@ -2172,12 +2465,148 @@ window.switchInvView = function(view) {
   document.getElementById('view-general').style.display      = view==='general'      ? '' : 'none';
   document.getElementById('view-campaigns').style.display    = view==='campaigns'    ? '' : 'none';
   document.getElementById('view-optimization').style.display = view==='optimization' ? '' : 'none';
+  document.getElementById('view-conv').style.display         = view==='conv'         ? '' : 'none';
+  document.getElementById('view-daily').style.display        = view==='daily'        ? '' : 'none';
   document.getElementById('tab-inv-general').classList.toggle('active',      view==='general');
   document.getElementById('tab-inv-campaigns').classList.toggle('active',    view==='campaigns');
   document.getElementById('tab-inv-optimization').classList.toggle('active', view==='optimization');
+  document.getElementById('tab-inv-conv').classList.toggle('active',         view==='conv');
+  document.getElementById('tab-inv-daily').classList.toggle('active',        view==='daily');
+  if (view==='general')      renderDashboard();
   if (view==='campaigns')    renderCampaigns();
   if (view==='optimization') renderOptimization();
+  if (view==='conv')         renderConv();
+  if (view==='daily')        renderDaily();
 };
+
+// ── CONVERSIONES POR DESTINO ─────────────────────────────────────────────────
+var convSortField = 'gconv', convSortDir = 1;
+
+window.convSort = function(field) {
+  if (convSortField === field) convSortDir *= -1; else { convSortField = field; convSortDir = 1; }
+  ['gconv','gval','mconv','tkconv','gclk','mclk'].forEach(function(f) {
+    var btn = document.getElementById('conv-sort-btn-'+f);
+    if (btn) btn.classList.toggle('active', f===field);
+  });
+  renderConv();
+};
+
+function buildConvByDest(from, to) {
+  // Google adgroups: [0]=date [5]=dest [6]=spend [8]=clicks [11]=conv [12]=conv_value
+  var g = {};
+  if (window.GADS_RAW) {
+    Object.keys(window.GADS_RAW).forEach(function(camp) {
+      if (!campPassesKindFilter(camp, 'google')) return;
+      (GADS_RAW[camp]||[]).forEach(function(r) {
+        if (!inRange(r[0])) return;
+        var cn = r[2] || '';
+        if ((/marca/i.test(cn) && !/no[_ ]marca/i.test(cn)) || /kampaoh/i.test(cn)) return;
+        var d = r[5]; if (!d || d==='sin-etiquetar' || d==='genérica' || d==='generic') return;
+        if (!g[d]) g[d] = {spend:0, clk:0, conv:0, val:0};
+        g[d].spend += r[6]||0; g[d].clk += r[8]||0;
+        g[d].conv  += r[11]||0; g[d].val += r[12]||0;
+      });
+    });
+  }
+  // Meta ads: [0]=date [7]=dest [8]=spend [12]=clicks [16]=purchases [17]=add_to_cart [18]=init_checkout
+  var m = {};
+  if (window.META_ADS_RAW) {
+    Object.keys(window.META_ADS_RAW).forEach(function(camp) {
+      if (!campPassesKindFilter(camp, 'meta')) return;
+      (META_ADS_RAW[camp]||[]).forEach(function(r) {
+        if (!inRange(r[0])) return;
+        var d = r[7]; if (!d || d==='sin-etiquetar' || d==='genérica' || d==='generic' || DEST_RETAG_SET.has(d)) return;
+        if (!m[d]) m[d] = {spend:0, clk:0, conv:0, cart:0, checkout:0};
+        m[d].spend += r[8]||0; m[d].clk += r[12]||0;
+        m[d].conv  += r[16]||0; m[d].cart += r[17]||0; m[d].checkout += r[18]||0;
+      });
+    });
+  }
+  // TikTok ads: [0]=date [7]=dest [8]=spend [10]=clicks [14]=conversions
+  var tk = {};
+  if (window.TKTOK_ADS_RAW) {
+    Object.keys(window.TKTOK_ADS_RAW).forEach(function(camp) {
+      if (!campPassesKindFilter(camp, 'tiktok')) return;
+      (TKTOK_ADS_RAW[camp]||[]).forEach(function(r) {
+        if (!inRange(r[0])) return;
+        var d = r[7]; if (!d || d==='sin-etiquetar' || d==='genérica' || d==='generic') return;
+        if (!tk[d]) tk[d] = {spend:0, clk:0, conv:0};
+        tk[d].spend += r[8]||0; tk[d].clk += r[10]||0; tk[d].conv += r[14]||0;
+      });
+    });
+  }
+  // Unión de todos los destinos
+  var dests = new Set([].concat(Object.keys(g), Object.keys(m), Object.keys(tk)));
+  var rows = [];
+  dests.forEach(function(d) {
+    var gd = g[d]||{spend:0,clk:0,conv:0,val:0};
+    var md = m[d]||{spend:0,clk:0,conv:0,cart:0,checkout:0};
+    var td = tk[d]||{spend:0,clk:0,conv:0};
+    rows.push({dest:d, gspend:gd.spend, gclk:gd.clk, gconv:gd.conv, gval:gd.val,
+               mspend:md.spend, mclk:md.clk, mconv:md.conv, mcart:md.cart, mcheckout:md.checkout,
+               tkspend:td.spend, tkclk:td.clk, tkconv:td.conv});
+  });
+  return rows;
+}
+
+function renderConv() {
+  if (campKindFilter === 'gen') {
+    document.getElementById('conv-thead').innerHTML = '';
+    document.getElementById('conv-tbody').innerHTML = '<tr><td colspan="12" style="text-align:center;padding:40px;color:var(--muted)">Las campañas genéricas no tienen seguimiento de conversión por destino.</td></tr>';
+    return;
+  }
+  // dest-url y dest-name muestran los mismos datos (conversiones ya son por destino)
+  var rows = buildConvByDest();
+  if (!rows.length) {
+    document.getElementById('conv-tbody').innerHTML = '<tr><td colspan="12" style="text-align:center;padding:32px;color:var(--muted)">Sin datos para el rango seleccionado</td></tr>';
+    return;
+  }
+  rows.sort(function(a,b){ return convSortDir*(b[convSortField]-a[convSortField]); });
+
+  var fmt  = function(n){ return n>0 ? Math.round(n).toLocaleString('es-ES') : '—'; };
+  var fmtE = function(n){ return n>0 ? Math.round(n).toLocaleString('es-ES')+'€' : '—'; };
+  var fmtD = function(n){ return n>0 ? n.toFixed(1) : '—'; };
+
+  var thead = document.getElementById('conv-thead');
+  thead.innerHTML = '<tr>'
+    +'<th style="text-align:left;padding:8px 12px;font-size:11px;color:var(--muted)">Destino</th>'
+    +'<th colspan="3" style="text-align:center;padding:8px 8px;font-size:11px;color:#fbbf24;border-left:1px solid var(--border)">Google Ads</th>'
+    +'<th colspan="4" style="text-align:center;padding:8px 8px;font-size:11px;color:#60a5fa;border-left:1px solid var(--border)">Meta Ads</th>'
+    +'<th colspan="2" style="text-align:center;padding:8px 8px;font-size:11px;color:#fb7185;border-left:1px solid var(--border)">TikTok Ads</th>'
+    +'</tr>'
+    +'<tr>'
+    +'<th style="text-align:left;padding:4px 12px 8px;font-size:11px;color:var(--muted)"></th>'
+    +'<th style="padding:4px 8px 8px;font-size:11px;color:var(--muted);border-left:1px solid var(--border);cursor:pointer" onclick="convSort(\'gconv\')">Conversiones '+(convSortField==='gconv'?'↓':'')+' </th>'
+    +'<th style="padding:4px 8px 8px;font-size:11px;color:var(--muted);cursor:pointer" onclick="convSort(\'gval\')">Valor atrib. '+(convSortField==='gval'?'↓':'')+' </th>'
+    +'<th style="padding:4px 8px 8px;font-size:11px;color:var(--muted);cursor:pointer" onclick="convSort(\'gclk\')">Clics '+(convSortField==='gclk'?'↓':'')+' </th>'
+    +'<th style="padding:4px 8px 8px;font-size:11px;color:var(--muted);border-left:1px solid var(--border);cursor:pointer" onclick="convSort(\'mconv\')">Compras '+(convSortField==='mconv'?'↓':'')+' </th>'
+    +'<th style="padding:4px 8px 8px;font-size:11px;color:var(--muted)">Add to cart</th>'
+    +'<th style="padding:4px 8px 8px;font-size:11px;color:var(--muted)">Checkout</th>'
+    +'<th style="padding:4px 8px 8px;font-size:11px;color:var(--muted);cursor:pointer" onclick="convSort(\'mclk\')">Clics '+(convSortField==='mclk'?'↓':'')+' </th>'
+    +'<th style="padding:4px 8px 8px;font-size:11px;color:var(--muted);border-left:1px solid var(--border);cursor:pointer" onclick="convSort(\'tkconv\')">Conversiones '+(convSortField==='tkconv'?'↓':'')+' </th>'
+    +'<th style="padding:4px 8px 8px;font-size:11px;color:var(--muted)">Clics</th>'
+    +'</tr>';
+
+  var html = '';
+  rows.forEach(function(r) {
+    var name = (window.DEST_NAMES && window.DEST_NAMES[r.dest]) || r.dest;
+    var gcpa  = (r.gconv>0 && r.gspend>0) ? r.gspend/r.gconv : 0;
+    var mcpa  = (r.mconv>0 && r.mspend>0) ? r.mspend/r.mconv : 0;
+    html += '<tr style="border-top:1px solid var(--border)">'
+      +'<td style="padding:8px 12px;font-size:12px;font-weight:600">'+name+'</td>'
+      +'<td style="padding:8px 8px;font-size:13px;text-align:right;border-left:1px solid var(--border);font-weight:700;color:#fbbf24">'+fmt(r.gconv)+'</td>'
+      +'<td style="padding:8px 8px;font-size:12px;text-align:right;color:var(--fg)">'+fmtE(r.gval)+'</td>'
+      +'<td style="padding:8px 8px;font-size:12px;text-align:right;color:var(--muted)">'+fmt(r.gclk)+'</td>'
+      +'<td style="padding:8px 8px;font-size:13px;text-align:right;border-left:1px solid var(--border);font-weight:700;color:#60a5fa">'+fmt(r.mconv)+'</td>'
+      +'<td style="padding:8px 8px;font-size:12px;text-align:right;color:var(--muted)">'+fmt(r.mcart)+'</td>'
+      +'<td style="padding:8px 8px;font-size:12px;text-align:right;color:var(--muted)">'+fmt(r.mcheckout)+'</td>'
+      +'<td style="padding:8px 8px;font-size:12px;text-align:right;color:var(--muted)">'+fmt(r.mclk)+'</td>'
+      +'<td style="padding:8px 8px;font-size:13px;text-align:right;border-left:1px solid var(--border);font-weight:700;color:#fb7185">'+fmt(r.tkconv)+'</td>'
+      +'<td style="padding:8px 8px;font-size:12px;text-align:right;color:var(--muted)">'+fmt(r.tkclk)+'</td>'
+      +'</tr>';
+  });
+  document.getElementById('conv-tbody').innerHTML = html;
+}
 
 window.setCampPlatform = function(plat) {
   campPlatform = plat;
@@ -2227,14 +2656,44 @@ function getCampAggMap(f, t, plat) {
 
 function getCampAggRows() {
   var map = getCampAggMap(fromDate, toDate, campPlatform);
-  var camps = Object.values(map).filter(function(c){return c.spend>0.01;});
+  var camps = Object.values(map).filter(function(c){
+    if (c.spend <= 0.01) return false;
+    if (campKindFilter === 'all') return true;
+    var kind = getCampKind(c.name);
+    if (campKindFilter === 'dest-url')  return kind === 'Por URL';
+    if (campKindFilter === 'dest-name') return kind === 'Por URL' || kind === 'Por nombre';
+    return kind === 'Genérica';
+  });
   camps.sort(function(a,b){return campSortDir*((b[campSortField]||0)-(a[campSortField]||0));});
   return camps;
 }
 
-function getCampKind(name) {
-  var n=(name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-  if (/destino|lpk/.test(n)) return 'Por destino';
+window.setCampKindFilter = function(f) {
+  campKindFilter = f;
+  var map = {all:'all', 'dest-url':'url', 'dest-name':'name', gen:'gen'};
+  ['all','url','name','gen'].forEach(function(k) {
+    var btn = document.getElementById('gkind-'+k);
+    if (btn) btn.classList.toggle('active', map[f] === k);
+  });
+  var vg  = document.getElementById('view-general');
+  var vc  = document.getElementById('view-campaigns');
+  var vo  = document.getElementById('view-optimization');
+  var vcv = document.getElementById('view-conv');
+  if      (vg  && vg.style.display  !== 'none') renderDashboard();
+  else if (vc  && vc.style.display  !== 'none') renderCampaigns();
+  else if (vo  && vo.style.display  !== 'none') renderOptimization();
+  else if (vcv && vcv.style.display !== 'none') renderConv();
+  else { var vd2 = document.getElementById('view-daily'); if (vd2 && vd2.style.display !== 'none') renderDaily(); }
+};
+
+function getCampKind(name, platform) {
+  var plat = platform || campPlatform;
+  var strict = getDestCampsStrict();
+  var sset = plat === 'google' ? strict.gads : plat === 'tiktok' ? strict.tk : strict.meta;
+  if (sset && sset.has(name)) return 'Por URL';
+  var loose = getDestCampsAuto();
+  var lset = plat === 'google' ? loose.gads : plat === 'tiktok' ? loose.tk : loose.meta;
+  if (lset && lset.has(name)) return 'Por nombre';
   return 'Gen\u00e9rica';
 }
 
@@ -2258,7 +2717,7 @@ function renderCampaigns() {
     var arrow=campSortField===field?(campSortDir>0?' \u2193':' \u2191'):'';
     return '<th class="num" onclick="campSort(\'' + field + '\')">'+label+arrow+'</th>';
   }
-  var th='<tr><th>Campa\u00f1a</th><th>Objetivo</th><th>Tipo</th>'+sortTh('spend','Gasto');
+  var th='<tr><th>Campa\u00f1a</th><th>Objetivo</th>'+sortTh('spend','Gasto');
   if (cmpMap) th += '<th class="num">Δ</th>';
   if      (campPlatform==='meta')   th+=sortTh('conv','Compras')+sortTh('reach','Alcance')+sortTh('imp','Impresiones')+sortTh('clk','Clics')+'<th class="num">CTR</th>';
   else if (campPlatform==='google') th+=sortTh('conv','Conv.')+sortTh('convVal','Valor conv.')+sortTh('imp','Impresiones')+sortTh('clk','Clics')+'<th class="num">CTR</th>';
@@ -2269,7 +2728,7 @@ function renderCampaigns() {
   function fmtE(v) { return v?'\u20ac'+Math.round(v):'\u2014'; }
   function ctr(imp,clk) { return imp?(clk/imp*100).toFixed(1)+'%':'\u2014'; }
   function objBadge(name) { var t=getCampaignType(name),c=OBJ_COLORS[t]||'#64748b'; return '<span class="camp-badge" style="background:'+c+'22;color:'+c+'">'+t+'</span>'; }
-  function kindBadge(name) { var k=getCampKind(name); return k==='Por destino'?'<span class="camp-badge" style="background:#6366f122;color:#818cf8">Por destino</span>':'<span class="camp-badge" style="background:#64748b22;color:#94a3b8">Gen\u00e9rica</span>'; }
+  function kindBadge(name) { var k=getCampKind(name); return (k==='Por URL'||k==='Por nombre')?'<span class="camp-badge" style="background:#6366f122;color:#818cf8">Por destino</span>':'<span class="camp-badge" style="background:#64748b22;color:#94a3b8">Gen\u00e9rica</span>'; }
   function deltaCell(cur, cmpEntry) {
     if (!cmpMap) return '';
     if (!cmpEntry || cmpEntry.spend < 0.01) return '<td class="num">\u2014</td>';
@@ -2302,7 +2761,7 @@ function renderCampaigns() {
     var cmpEntry = cmpMap ? cmpMap[c.name] : null;
     html+='<tr class="camp-row">'
       +'<td class="camp-name-cell"><button class="camp-toggle" onclick="toggleCampDrill('+ci+')">'+( exp?'\u25bc':'\u25b6')+'</button><span title="'+c.name+'">'+c.name+'</span></td>'
-      +'<td>'+objBadge(c.name)+'</td><td>'+kindBadge(c.name)+'</td>'
+      +'<td>'+objBadge(c.name)+'</td>'
       +mCols(c, cmpEntry)+'</tr>';
 
     if (exp) {
@@ -2466,6 +2925,7 @@ function buildMedianByObj(camps) {
 
 function renderOptimization() {
   var allCamps = Object.values(getCampAggMap(fromDate, toDate, optPlatform)).filter(function(c){return c.spend>0.5;});
+  if(campKindFilter!=='all'){allCamps=allCamps.filter(function(c){var k=getCampKind(c.name,optPlatform);if(campKindFilter==='dest-url')return k==='Por URL';if(campKindFilter==='dest-name')return k==='Por URL'||k==='Por nombre';return k==='Genérica';});}
   if (!allCamps.length) {
     ['opt-obj-tabs','opt-table-wrap','opt-dest-wrap','opt-recs-wrap'].forEach(function(id){
       var el=document.getElementById(id); if(el) el.innerHTML='';
@@ -2496,6 +2956,7 @@ function renderOptObjTable() {
   var wrap = document.getElementById('opt-table-wrap');
   if (!wrap) return;
   var allCamps = Object.values(getCampAggMap(fromDate, toDate, optPlatform)).filter(function(c){return c.spend>0.5;});
+  if(campKindFilter!=='all'){allCamps=allCamps.filter(function(c){var k=getCampKind(c.name,optPlatform);if(campKindFilter==='dest-url')return k==='Por URL';if(campKindFilter==='dest-name')return k==='Por URL'||k==='Por nombre';return k==='Genérica';});}
   var camps = optObjective==='all' ? allCamps : allCamps.filter(function(c){return getCampaignType(c.name)===optObjective;});
   if (!camps.length) { wrap.innerHTML='<p style="color:var(--muted);font-size:13px;padding:16px 0">Sin campañas para este objetivo en el período.</p>'; return; }
 
@@ -2504,7 +2965,7 @@ function renderOptObjTable() {
 
   var html = '<div class="opt-section"><div class="opt-section-title">Rendimiento por campaña</div>'
     +'<div style="overflow-x:auto"><table class="camp-table"><thead><tr>'
-    +'<th>Campaña</th><th>Objetivo</th><th>Tipo</th>'
+    +'<th>Campaña</th><th>Objetivo</th>'
     +'<th class="num">Gasto</th><th class="num">KPI primario</th><th class="num">vs Mediana</th>'
     +'<th class="num">CTR</th><th>Estado</th></tr></thead><tbody>';
 
@@ -2520,13 +2981,13 @@ function renderOptObjTable() {
     var kpiStr = kpi.value ? '€'+kpi.value.toFixed(2)+' <small style="opacity:.6">'+kpi.label+'</small>' : '—';
 
     var objBadge = (function(){var t=getCampaignType(c.name),co=OBJ_COLORS[t]||'#64748b';return '<span class="camp-badge" style="background:'+co+'22;color:'+co+'">'+t+'</span>';})();
-    var kindBadge = kind==='Por destino'
+    var kindBadge = (kind==='Por URL'||kind==='Por nombre')
       ? '<span class="camp-badge" style="background:#6366f122;color:#818cf8">Por destino</span>'
       : '<span class="camp-badge" style="background:#64748b22;color:#94a3b8">Genérica</span>';
 
     html += '<tr>'
       +'<td class="camp-name-cell"><span title="'+c.name+'">'+c.name+'</span></td>'
-      +'<td>'+objBadge+'</td><td>'+kindBadge+'</td>'
+      +'<td>'+objBadge+'</td>'
       +'<td class="num">€'+Math.round(c.spend)+'</td>'
       +'<td class="num">'+kpiStr+'</td>'
       +'<td class="num">'+ratioStr+'</td>'
@@ -2549,7 +3010,12 @@ function renderOptDestTable() {
   // Key: slug + '||' + campName  — aggregate per destination × campaign
   var destMap = {};
   Object.keys(src).forEach(function(campName) {
-    if (getCampKind(campName) !== 'Por destino') return;
+    var kind = getCampKind(campName, optPlatform);
+    if (campKindFilter === 'all') {
+      if (kind === 'Genérica') return;
+    } else {
+      if (!campPassesKindFilter(campName, optPlatform)) return;
+    }
     var obj = getCampaignType(campName);
     if (optObjective !== 'all' && obj !== optObjective) return;
     src[campName].forEach(function(r) {
@@ -2674,6 +3140,7 @@ function renderOptRecs() {
   var wrap = document.getElementById("opt-recs-wrap");
   if (!wrap) return;
   var allCamps = Object.values(getCampAggMap(fromDate, toDate, optPlatform)).filter(function(c){return c.spend>0.5;});
+  if(campKindFilter!=='all'){allCamps=allCamps.filter(function(c){var k=getCampKind(c.name,optPlatform);if(campKindFilter==='dest-url')return k==='Por URL';if(campKindFilter==='dest-name')return k==='Por URL'||k==='Por nombre';return k==='Genérica';});}
   var camps    = optObjective==="all" ? allCamps : allCamps.filter(function(c){return getCampaignType(c.name)===optObjective;});
   var medByObj = buildMedianByObj(allCamps);
 
@@ -2764,6 +3231,146 @@ function renderOptRecs() {
   }
 
   wrap.innerHTML = html;
+}
+
+// ── GASTO POR DÍAS ────────────────────────────────────────────────────────────
+var chartDailyInst = null;
+
+var _dailyExportRows = [];
+var _destExportRows = [];
+
+function downloadDestCSV() {
+  if (!_destExportRows.length) return;
+  var lines = ['﻿Destino\tSlug\tMeta\tTikTok\tGoogle\tTotal\t% s/Total'];
+  var grandTotal = _destExportRows.reduce(function(s,r){ return s+r.tot; }, 0);
+  _destExportRows.forEach(function(r) {
+    var pct = grandTotal > 0 ? (r.tot / grandTotal * 100).toFixed(1) : '0.0';
+    lines.push([r.name, r.slug, (r.m||0).toFixed(2), (r.t||0).toFixed(2), (r.g||0).toFixed(2), r.tot.toFixed(2), pct+'%'].join('\t'));
+  });
+  var blob = new Blob([lines.join('\r\n')], { type: 'text/tab-separated-values;charset=utf-8;' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'gasto-destino-' + (fromDate||'') + '_' + (toDate||'') + '.xls';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+function downloadDailyCSV() {
+  if (!_dailyExportRows.length) return;
+  var lines = ['﻿Fecha\tMeta\tTikTok\tGoogle\tTotal'];
+  _dailyExportRows.forEach(function(r) {
+    lines.push([r.date, r.m||0, r.t||0, r.g||0, r.tot||0].join('\t'));
+  });
+  var blob = new Blob([lines.join('\r\n')], { type: 'text/tab-separated-values;charset=utf-8;' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'gasto-diario-' + (fromDate||'') + '_' + (toDate||'') + '.xls';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function renderDaily() {
+  var tbody  = document.getElementById('daily-tbody');
+  var tfoot  = document.getElementById('daily-tfoot');
+  var canvas = document.getElementById('chartDaily');
+  if (!tbody) return;
+
+  if (!DATA || !DATA.days) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">Sin datos</td></tr>';
+    return;
+  }
+
+  // Construir lista de días del rango
+  var dayList = [];
+  var cur = new Date(fromDate + 'T00:00:00Z');
+  var end = new Date(toDate   + 'T00:00:00Z');
+  while (cur <= end) { dayList.push(cur.toISOString().slice(0,10)); cur.setUTCDate(cur.getUTCDate()+1); }
+
+  var labels=[], metaVals=[], tikVals=[], googVals=[], totalVals=[];
+  var sumM=0, sumT=0, sumG=0;
+
+  dayList.forEach(function(date) {
+    var day = DATA.days[date];
+    var m=0, t=0, g=0;
+    if (day) {
+      for (var k in day.m||{}) m += day.m[k];
+      for (var k in day.t||{}) t += day.t[k];
+      for (var k in day.g||{}) g += day.g[k];
+      g += day.g_gen || 0;
+    }
+    sumM += m; sumT += t; sumG += g;
+    labels.push(date.slice(8,10)+'/'+date.slice(5,7));
+    metaVals.push(Math.round(m*100)/100);
+    tikVals.push(Math.round(t*100)/100);
+    googVals.push(Math.round(g*100)/100);
+    totalVals.push(Math.round((m+t+g)*100)/100);
+  });
+
+  var grandTotal = sumM + sumT + sumG;
+  var daysWithData = totalVals.filter(function(v){return v>0;}).length;
+  var avgTotal = daysWithData > 0 ? grandTotal / daysWithData : 0;
+
+  // Cache para exportar
+  _dailyExportRows = dayList.map(function(date, i) {
+    return { date: date.slice(8,10)+'/'+date.slice(5,7)+'/'+date.slice(0,4), m: metaVals[i], t: tikVals[i], g: googVals[i], tot: totalVals[i] };
+  }).reverse();
+
+  // Tabla (más reciente primero)
+  var tableRows = '';
+  for (var i = dayList.length-1; i >= 0; i--) {
+    var m=metaVals[i], t=tikVals[i], g=googVals[i], tot=totalVals[i];
+    var dateLabel = dayList[i].slice(8,10)+'/'+dayList[i].slice(5,7);
+    var pctAvg = (avgTotal > 0 && tot > 0) ? (tot/avgTotal*100 - 100) : 0;
+    var pctCls = pctAvg > 10 ? 'delta-pos' : pctAvg < -10 ? 'delta-neg' : 'delta-neu';
+    var pctStr = tot > 0 ? (pctAvg >= 0 ? '+' : '') + Math.round(pctAvg) + '%' : '—';
+    var dash = '<span style="color:var(--border)">—</span>';
+    tableRows += '<tr>'
+      + '<td style="font-weight:600">' + dateLabel + '</td>'
+      + '<td style="color:var(--meta);text-align:right">'   + (m>0 ? '€'+Math.round(m).toLocaleString('es-ES') : dash) + '</td>'
+      + '<td style="color:var(--tiktok);text-align:right">' + (t>0 ? '€'+Math.round(t).toLocaleString('es-ES') : dash) + '</td>'
+      + '<td style="color:var(--google);text-align:right">' + (g>0 ? '€'+Math.round(g).toLocaleString('es-ES') : dash) + '</td>'
+      + '<td style="font-weight:700;text-align:right">' + (tot>0 ? '€'+Math.round(tot).toLocaleString('es-ES') : dash) + '</td>'
+      + '</tr>';
+  }
+  tbody.innerHTML = tableRows || '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">Sin datos para este período</td></tr>';
+  tfoot.innerHTML = grandTotal > 0
+    ? '<tr class="tfoot-row">'
+      + '<td>TOTAL</td>'
+      + '<td style="color:var(--meta);text-align:right">€'+Math.round(sumM).toLocaleString('es-ES')+'</td>'
+      + '<td style="color:var(--tiktok);text-align:right">€'+Math.round(sumT).toLocaleString('es-ES')+'</td>'
+      + '<td style="color:var(--google);text-align:right">€'+Math.round(sumG).toLocaleString('es-ES')+'</td>'
+      + '<td style="font-weight:700;text-align:right">€'+Math.round(grandTotal).toLocaleString('es-ES')+'</td>'
+      + '</tr>'
+    : '';
+
+  // Gráfico
+  if (typeof Chart !== 'undefined' && canvas) {
+    if (chartDailyInst) { chartDailyInst.destroy(); chartDailyInst = null; }
+    chartDailyInst = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          { label:'Meta',   data:metaVals,  backgroundColor:'#1877f2', stack:'s', borderRadius:2, order:2 },
+          { label:'TikTok', data:tikVals,   backgroundColor:'#ff0050', stack:'s', borderRadius:2, order:2 },
+          { label:'Google', data:googVals,  backgroundColor:'#fbbc04', stack:'s', borderRadius:2, order:2 },
+          { label:'Total',  data:totalVals, type:'line', borderColor:'rgba(232,234,240,0.5)',
+            borderWidth:1.5, pointRadius:0, fill:false, tension:0.3, order:1 }
+        ]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins: {
+          legend:{ labels:{ color:'#7b7f9e', font:{size:11} } },
+          tooltip:{ callbacks:{ label:function(ctx){ return ' '+ctx.dataset.label+': €'+Math.round(ctx.raw||0).toLocaleString('es-ES'); } } }
+        },
+        scales: {
+          x:{ stacked:true, ticks:{ color:'#7b7f9e', font:{size:10}, maxTicksLimit:20 }, grid:{ color:'rgba(255,255,255,0.04)' } },
+          y:{ stacked:true, ticks:{ color:'#7b7f9e', font:{size:10}, callback:function(v){ return '€'+v; } }, grid:{ color:'rgba(255,255,255,0.05)' } }
+        }
+      }
+    });
+  }
 }
 </script>
 </body>

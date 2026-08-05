@@ -154,6 +154,211 @@ http.createServer(function(req, res) {
     return;
   }
 
+  // ── /api/resolve-campaign?id=XXX — resuelve ID numérico a nombre ──────────
+  if (url.pathname === "/api/resolve-campaign") {
+    const campId = qs.get("id");
+    if (!campId) { res.writeHead(400); res.end(JSON.stringify({ error: "id requerido" })); return; }
+    res.writeHead(200, { "Content-Type": "application/json", "Cache-Control": "no-store" });
+    (async function() {
+      try {
+        // 1. Buscar en cache local primero
+        let existing = {};
+        const DATA_PATH = path.join(DIR, "atribucion-data.json");
+        if (fs.existsSync(DATA_PATH)) {
+          try { existing = JSON.parse(fs.readFileSync(DATA_PATH, "utf8")); } catch(e) {}
+        }
+        const lookup = existing.campaign_lookup || {};
+        if (lookup[campId]) { res.end(JSON.stringify({ id: campId, name: lookup[campId], source: "cache" })); return; }
+
+        // 2. Consultar GA4
+        const { BetaAnalyticsDataClient } = require("@google-analytics/data");
+        const ga4 = new BetaAnalyticsDataClient({ keyFilename: path.join(DIR, "ga4-credentials.json") });
+        const [r0] = await ga4.runReport({
+          property: "properties/347358752",
+          dimensions: [{ name: "sessionCampaignId" }, { name: "sessionCampaignName" }],
+          metrics: [{ name: "sessions" }],
+          dimensionFilter: { filter: { fieldName: "sessionCampaignId", stringFilter: { matchType: "EXACT", value: campId } } },
+          dateRanges: [{ startDate: "2024-01-01", endDate: "today" }],
+          limit: 5,
+        });
+        let name = null;
+        for (const row of r0.rows || []) {
+          const n = row.dimensionValues[1].value;
+          if (n && !/^\d+$/.test(n) && n !== "(not set)") { name = n; break; }
+        }
+        if (name) {
+          // Guardar en cache
+          lookup[campId] = name;
+          existing.campaign_lookup = lookup;
+          if (fs.existsSync(DATA_PATH)) fs.writeFileSync(DATA_PATH, JSON.stringify(existing), "utf8");
+        }
+        res.end(JSON.stringify({ id: campId, name: name || campId, source: name ? "ga4" : "not_found" }));
+      } catch(e) {
+        res.end(JSON.stringify({ id: campId, name: campId, error: e.message }));
+      }
+    })();
+    return;
+  }
+
+  // ── /api/realtime — GA4 Realtime: compras últimos 30 min ──────────────────
+  if (url.pathname === "/api/realtime") {
+    res.writeHead(200, { "Content-Type": "application/json", "Cache-Control": "no-store" });
+    (async function() {
+      try {
+        const { BetaAnalyticsDataClient } = require("@google-analytics/data");
+        const ga4 = new BetaAnalyticsDataClient({ keyFilename: path.join(DIR, "ga4-credentials.json") });
+        // Realtime API no soporta firstUser* con eventName para esta propiedad.
+        // Hacemos dos queries: purchases por minuto + usuarios activos por página.
+        const [[rPurchases], [rUsers]] = await Promise.all([
+          ga4.runRealtimeReport({
+            property: "properties/347358752",
+            dimensions: [{ name: "eventName" }, { name: "minutesAgo" }],
+            metrics: [{ name: "eventCount" }],
+            limit: 200,
+          }),
+          ga4.runRealtimeReport({
+            property: "properties/347358752",
+            dimensions: [{ name: "unifiedScreenName" }],
+            metrics: [{ name: "activeUsers" }],
+            limit: 10,
+          }),
+        ]);
+
+        let totalPurchases = 0;
+        const byMinute = {};
+        (rPurchases.rows || [])
+          .filter(function(row) { return row.dimensionValues[0].value === "purchase"; })
+          .forEach(function(row) {
+            const min = parseInt(row.dimensionValues[1].value) || 0;
+            const cnt = parseInt(row.metricValues[0].value) || 0;
+            byMinute[min] = (byMinute[min] || 0) + cnt;
+            totalPurchases += cnt;
+          });
+
+        const activeByPage = (rUsers.rows || []).map(function(row) {
+          return { page: row.dimensionValues[0].value, users: parseInt(row.metricValues[0].value) || 0 };
+        });
+
+        const rows = Object.entries(byMinute).map(function(e) {
+          return { source: "(realtime)", medium: "(realtime)", campaign: "", minutes: parseInt(e[0]), count: parseInt(e[1]) };
+        });
+        res.end(JSON.stringify({ rows, totalPurchases, activeByPage }));
+      } catch(e) {
+        res.end(JSON.stringify({ rows: [], error: e.message }));
+      }
+    })();
+    return;
+  }
+
+  // ── /api/bq-feed — Compras de hoy vía BigQuery export (intraday) ────────────
+  if (url.pathname === "/api/bq-feed") {
+    res.writeHead(200, { "Content-Type": "application/json", "Cache-Control": "no-store" });
+    (async function() {
+      try {
+        const { BigQuery } = require("@google-cloud/bigquery");
+        const bq = new BigQuery({
+          keyFilename: path.join(DIR, "ga4-credentials.json"),
+          projectId: "kampaoh-analytics",
+        });
+
+        // Fecha de hoy en zona horaria Madrid (UTC+2 verano)
+        const now = new Date();
+        const madridOffset = 2 * 60;
+        const madridNow = new Date(now.getTime() + madridOffset * 60000);
+        const today = madridNow.toISOString().slice(0, 10).replace(/-/g, "");
+
+        // Primero intentamos intraday (actualización cada ~1h), luego daily
+        const dataset = "analytics_347358752";
+        const tables = [
+          `\`kampaoh-analytics.${dataset}.events_intraday_${today}\``,
+          `\`kampaoh-analytics.${dataset}.events_${today}\``,
+        ];
+
+        let rows = null;
+        let tableUsed = null;
+        for (const tbl of tables) {
+          // collected_traffic_source solo está disponible en session_start, no en purchase.
+          // Hay que hacer JOIN por user_pseudo_id + ga_session_id para obtener la fuente real.
+          const query = `
+            WITH session_srcs AS (
+              SELECT
+                user_pseudo_id,
+                (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'ga_session_id') AS session_id,
+                COALESCE(
+                  NULLIF(collected_traffic_source.manual_source, ''),
+                  IF(collected_traffic_source.gclid IS NOT NULL AND collected_traffic_source.gclid != '', 'google', NULL)
+                ) AS source,
+                COALESCE(
+                  NULLIF(collected_traffic_source.manual_medium, ''),
+                  IF(collected_traffic_source.gclid IS NOT NULL AND collected_traffic_source.gclid != '', 'cpc', NULL)
+                ) AS medium,
+                NULLIF(collected_traffic_source.manual_campaign_name, '') AS campaign,
+                NULLIF(collected_traffic_source.manual_campaign_id, '') AS campaign_id
+              FROM ${tbl}
+              WHERE event_name = 'session_start'
+            )
+            SELECT
+              TIMESTAMP_MICROS(e.event_timestamp) AS ts,
+              e.user_pseudo_id,
+              e.geo.city AS city,
+              e.geo.country AS country,
+              e.device.category AS device,
+              COALESCE(s.source, '(direct)') AS source,
+              COALESCE(s.medium, '(none)') AS medium,
+              COALESCE(s.campaign, '(not set)') AS campaign,
+              COALESCE(s.campaign_id, '') AS campaign_id,
+              (SELECT value.string_value FROM UNNEST(e.event_params) WHERE key = 'transaction_id' LIMIT 1) AS transaction_id,
+              (SELECT COALESCE(value.double_value, value.int_value) FROM UNNEST(e.event_params) WHERE key = 'value' LIMIT 1) AS revenue,
+              (SELECT value.string_value FROM UNNEST(e.event_params) WHERE key = 'currency' LIMIT 1) AS currency,
+              (SELECT i.item_name FROM UNNEST(e.items) AS i LIMIT 1) AS item_name
+            FROM ${tbl} e
+            LEFT JOIN session_srcs s
+              ON e.user_pseudo_id = s.user_pseudo_id
+              AND (SELECT value.int_value FROM UNNEST(e.event_params) WHERE key = 'ga_session_id') = s.session_id
+            WHERE e.event_name = 'purchase'
+            ORDER BY e.event_timestamp DESC
+            LIMIT 100
+          `;
+          try {
+            const [result] = await bq.query({ query, location: "EU" });
+            rows = result;
+            tableUsed = tbl;
+            break;
+          } catch(e) {
+            if (e.message && (e.message.includes("Not found") || e.message.includes("notFound"))) continue;
+            throw e;
+          }
+        }
+
+        if (!rows) {
+          res.end(JSON.stringify({ rows: [], bq_ready: false, message: "Tabla intraday aún no creada. El primer dato llegará en ~1h tras activar la exportación." }));
+          return;
+        }
+
+        const out = rows.map(function(r) {
+          return {
+            ts: r.ts ? r.ts.value : null,
+            transaction_id: r.transaction_id || null,
+            source: r.source || "(direct)",
+            medium: r.medium || "(none)",
+            campaign: r.campaign || "",
+            campaign_id: r.campaign_id || "",
+            revenue: r.revenue || 0,
+            currency: r.currency || "EUR",
+            item_name: r.item_name || "",
+            city: r.city || "",
+            country: r.country || "",
+            device: r.device || "",
+          };
+        });
+        res.end(JSON.stringify({ rows: out, bq_ready: true, table: tableUsed, count: out.length }));
+      } catch(e) {
+        res.end(JSON.stringify({ rows: [], bq_ready: false, error: e.message }));
+      }
+    })();
+    return;
+  }
+
   // ── Servir archivos estáticos ──
   let filePath = path.join(DIR, url.pathname === "/" ? "index.html" : url.pathname);
   fs.stat(filePath, function(err, stat) {
