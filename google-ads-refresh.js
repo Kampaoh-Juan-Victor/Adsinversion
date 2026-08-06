@@ -107,7 +107,7 @@ async function queryGoogleAds(accessToken, query) {
 
     const res = await post(
       "googleads.googleapis.com",
-      `/v21/customers/${CLIENT_ID_CID}/googleAds:search`,
+      `/v22/customers/${CLIENT_ID_CID}/googleAds:search`,
       {
         "Authorization": `Bearer ${accessToken}`,
         "developer-token": DEVELOPER_TOKEN,
@@ -223,8 +223,7 @@ async function refreshGoogleAds(dateFrom, dateTo) {
       metrics.conversions,
       metrics.conversions_value,
       metrics.all_conversions,
-      metrics.all_conversions_value,
-      metrics.video_views
+      metrics.all_conversions_value
     FROM ad_group
     WHERE segments.date BETWEEN '${dateFrom}' AND '${dateTo}'
       AND ad_group.status != 'REMOVED'
@@ -261,14 +260,13 @@ async function refreshGoogleAds(dateFrom, dateTo) {
       Math.round(parseFloat(r.metrics.conversionsValue)             || 0),
       Math.round(parseFloat(r.metrics.allConversions)               || 0),
       Math.round(parseFloat(r.metrics.allConversionsValue)          || 0),
-      parseInt(r.metrics.videoViews)                                         || 0,
     ]);
   });
 
   // Guardar google-adgroups-data.json
   const gAdGroupsFile = loadJson(GOOGLE_ADGROUPS_PATH, {
     updated: "",
-    cols: ["date","campaign_id","campaign_name","adgroup_id","adgroup_name","dest","spend","impressions","clicks","ctr","avg_cpc","conversions","conversions_value","all_conversions","all_conversions_value","video_views"],
+    cols: ["date","campaign_id","campaign_name","adgroup_id","adgroup_name","dest","spend","impressions","clicks","ctr","avg_cpc","conversions","conversions_value","all_conversions","all_conversions_value"],
     rows: [],
   });
   if (!Array.isArray(gAdGroupsFile.rows)) gAdGroupsFile.rows = [];
