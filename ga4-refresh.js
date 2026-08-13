@@ -64,6 +64,7 @@ async function refreshGA4(dateFrom, dateTo) {
             { filter: { fieldName: "eventName", stringFilter: { matchType: "EXACT", value: "view_checkout_step3" } } },
             { filter: { fieldName: "eventName", stringFilter: { matchType: "EXACT", value: "add_payment_info" } } },
             { filter: { fieldName: "eventName", stringFilter: { matchType: "EXACT", value: "purchase" } } },
+            { filter: { fieldName: "eventName", stringFilter: { matchType: "EXACT", value: "purchaseBE" } } },
           ],
         },
       },
