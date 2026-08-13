@@ -2217,13 +2217,31 @@ function buildYoY(data) {
     if (d.g) for (var k in d.g) by[ym][2] += d.g[k];
     if (d.g_gen) by[ym][2] += d.g_gen;
   }
-  // Año calendario: ene–dic comparando 2025 vs 2026
   var months = ["01","02","03","04","05","06","07","08","09","10","11","12"];
   var curYM = new Date().toISOString().slice(0,7);
+  var curMM = curYM.slice(5);
+  // Último día con datos en el mes en curso de 2026
+  var lastDay26 = Object.keys(data.days).filter(function(dt){ return dt.startsWith(curYM); }).sort().pop();
+  // Acumular 2025 solo hasta el mismo día del mes (comparativa equitativa)
+  var cappedBy25 = [0,0,0];
+  if (lastDay26) {
+    var cutoff25 = "2025-" + lastDay26.slice(5);
+    var prefix25 = "2025-" + curMM;
+    for (var dt in data.days) {
+      if (!dt.startsWith(prefix25) || dt > cutoff25) continue;
+      var d = data.days[dt];
+      if (d.m) for (var k in d.m) cappedBy25[0] += d.m[k];
+      if (d.t) for (var k in d.t) cappedBy25[1] += d.t[k];
+      if (d.g) for (var k in d.g) cappedBy25[2] += d.g[k];
+      if (d.g_gen) cappedBy25[2] += d.g_gen;
+    }
+  }
   return months.map(function(mm) {
     var ym25 = "2025-"+mm, ym26 = "2026-"+mm;
-    var d25 = by[ym25]||[0,0,0], d26 = by[ym26]||[0,0,0];
-    var label = MONTH_NAME_ES[+mm-1] + (ym26 === curYM ? " *" : "");
+    var isCur = (ym26 === curYM) && !!lastDay26;
+    var d25 = isCur ? cappedBy25 : (by[ym25]||[0,0,0]);
+    var d26 = by[ym26]||[0,0,0];
+    var label = MONTH_NAME_ES[+mm-1] + (isCur ? " (días 1-"+parseInt(lastDay26.slice(-2))+")" : "");
     return {mes:label, m25:d25[0], t25:d25[1], g25:d25[2], m26:d26[0], t26:d26[1], g26:d26[2]};
   }).filter(function(r){ return r.m25+r.t25+r.g25+r.m26+r.t26+r.g26 > 0; });
 }
@@ -2310,7 +2328,7 @@ function renderYoY(){
   if(!tbody || !tfoot) return;
   if(YOY_DATA.length) {
     var rl = document.getElementById("yoy-range-label");
-    if(rl) rl.innerHTML = "Enero &ndash; Diciembre &nbsp;&middot;&nbsp; * mes en curso = parcial";
+    if(rl) rl.innerHTML = "Enero &ndash; Diciembre &nbsp;&middot;&nbsp; Mes en curso: mismo rango de d&iacute;as en ambos a&ntilde;os";
   }
   var rows = "", sm25=0,st25=0,sg25=0,sm26=0,st26=0,sg26=0;
   YOY_DATA.forEach(function(d){
