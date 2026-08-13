@@ -34,6 +34,12 @@ async function refreshGA4(dateFrom, dateTo) {
       { name: "itemsPurchased" },
     ],
     dateRanges: [{ startDate: dateFrom, endDate: dateTo }],
+    dimensionFilter: {
+      filter: {
+        fieldName: "hostName",
+        stringFilter: { matchType: "EXACT", value: "booking.kampaoh.com" },
+      },
+    },
   });
 
   const rows = [];
