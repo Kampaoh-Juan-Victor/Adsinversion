@@ -349,6 +349,40 @@
     .week-dates { display: block; font-size: 11px; font-weight: 500; opacity: .75; margin-top: 3px; }
     @media (max-width: 640px) { .week-bar { padding: 10px 14px; } .week-btn-lg { font-size: 13px; padding: 11px 10px; } }
 
+    /* ── Histórico ── */
+    .hist-panel { padding: 16px 32px 40px; }
+    .hist-hdr { margin-bottom: 14px; }
+    .hist-hdr h2 { font-size: 14px; font-weight: 700; }
+    .hist-hdr p  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .hist-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .hist-tab {
+      padding: 5px 12px; font-size: 12px; font-weight: 500; border-radius: 20px;
+      border: 1px solid var(--border); background: var(--surface); color: var(--muted);
+      cursor: pointer; font-family: inherit; transition: background .12s, color .12s;
+    }
+    .hist-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .hist-tab:hover:not(.active) { color: var(--text); }
+    .hist-kpis { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 12px; }
+    .hist-kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+    .hist-kpi-lbl { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+    .hist-kpi-val { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1; }
+    .hist-kpi-unit { font-size: 11px; color: var(--muted); font-weight: 400; }
+    .hist-chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px 10px; }
+    .hist-legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+    .hist-leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+    .hist-leg-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+    .hist-tip {
+      position: fixed; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 9px 12px; font-size: 12px; pointer-events: none;
+      opacity: 0; z-index: 999; box-shadow: 0 4px 16px rgba(0,0,0,.1);
+      transition: opacity .08s; min-width: 150px;
+    }
+    .hist-tip.on { opacity: 1; }
+    .hist-tip-date { font-weight: 600; margin-bottom: 5px; }
+    .hist-tip-row { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); margin-top: 2px; }
+    .hist-tip-row span:last-child { color: var(--text); font-variant-numeric: tabular-nums; }
+    @media (max-width: 640px) { .hist-panel { padding: 10px 10px 40px; } }
+
     /* ── Mobile responsive ── */
     @media (max-width: 640px) {
       header { padding: 10px 14px; }
@@ -402,6 +436,7 @@
       <button class="mode-btn" id="mode-wind" onclick="setMode('wind')">💨 Viento</button>
       <button class="mode-btn" id="mode-rain" onclick="setMode('rain')">🌧 Lluvia</button>
       <button class="mode-btn" id="mode-temp" onclick="setMode('temp')">🥶 Temperatura</button>
+      <button class="mode-btn" id="mode-hist" onclick="setMode('hist')">📊 Histórico</button>
     </div>
     <div class="mode-sub" id="mode-sub">Prioridad: lluvia · frío · viento — peores destinos primero</div>
   </div>
@@ -424,6 +459,30 @@
 <div id="alert-strip" style="display:none" class="alert-strip">
   <span class="alert-strip-title" id="alert-count"></span>
   <div id="alert-chips"></div>
+</div>
+
+<div id="hist-panel" class="hist-panel" style="display:none">
+  <div class="hist-hdr">
+    <h2>Las Arenas · Histórico diario 2026</h2>
+    <p>1 enero – 11 agosto · Open-Meteo Archive API · datos con ~5 días de retraso</p>
+  </div>
+  <div class="hist-tabs" id="hist-tabs"></div>
+  <div class="hist-kpis" id="hist-kpis"></div>
+  <div class="hist-chart-card">
+    <canvas id="hist-ch"></canvas>
+    <div class="hist-legend">
+      <div class="hist-leg"><div class="hist-leg-dot" style="background:#2563eb"></div>Lluvia intensa ≥5mm</div>
+      <div class="hist-leg"><div class="hist-leg-dot" style="background:#93c5fd"></div>Lluvia ligera &lt;5mm</div>
+      <div class="hist-leg"><div class="hist-leg-dot" style="background:#d97706;border-radius:50%"></div>Temp. máx</div>
+      <div class="hist-leg"><div class="hist-leg-dot" style="background:#f3c68a;border-radius:50%"></div>Temp. mín</div>
+    </div>
+  </div>
+</div>
+<div class="hist-tip" id="hist-tip">
+  <div class="hist-tip-date" id="hist-tip-date"></div>
+  <div class="hist-tip-row"><span>Lluvia</span><span id="hist-tip-rain"></span></div>
+  <div class="hist-tip-row"><span>Temp. máx/mín</span><span id="hist-tip-temp"></span></div>
+  <div class="hist-tip-row"><span>Viento</span><span id="hist-tip-wind"></span></div>
 </div>
 
 <div class="cards-outer">
@@ -708,7 +767,7 @@ function getMaxMetric(daily, nDays, mode) {
 }
 function setMode(m) {
   currentMode = m;
-  ['summary','wind','rain','temp'].forEach(function(id) {
+  ['summary','wind','rain','temp','hist'].forEach(function(id) {
     document.getElementById('mode-' + id).classList.toggle('active', m === id);
   });
   document.getElementById('mode-sub').textContent = m === 'wind'
@@ -717,12 +776,24 @@ function setMode(m) {
     ? 'Ordenados por probabilidad de lluvia · de mayor a menor'
     : m === 'temp'
     ? 'Ordenados por temperatura mínima · los más fríos primero'
+    : m === 'hist'
+    ? 'Ejemplo: Las Arenas · lluvia, temperatura y viento diario 2026'
     : 'Prioridad: lluvia · frío · viento — peores destinos primero';
   document.getElementById('search-bar').style.display = m === 'summary' ? '' : 'none';
   document.getElementById('week-bar').style.display   = m === 'summary' ? '' : 'none';
-  if (Object.keys(weatherData).length > 0) {
-    if (m === 'summary') buildSummary();
-    else buildTable();
+  var histPanel   = document.getElementById('hist-panel');
+  var cardsOuter  = document.querySelector('.cards-outer');
+  if (m === 'hist') {
+    histPanel.style.display  = '';
+    cardsOuter.style.display = 'none';
+    initHistChart();
+  } else {
+    histPanel.style.display  = 'none';
+    cardsOuter.style.display = '';
+    if (Object.keys(weatherData).length > 0) {
+      if (m === 'summary') buildSummary();
+      else buildTable();
+    }
   }
 }
 
@@ -1079,6 +1150,173 @@ function setWindFilter(v) {
     document.getElementById('w-'+x).classList.toggle('active', x===v);
   });
   if (Object.keys(weatherData).length > 0) { if (currentMode === 'summary') buildSummary(); else buildTable(); }
+}
+
+// ─── Histórico Las Arenas 2026 ──────────────────────────────────────────────
+// [date, tmax, tmin, rain_mm, wind_kmh]
+var HIST_DATA=[["2026-01-01",10,0.2,0,7],["2026-01-02",11.5,4.1,2.3,7],["2026-01-03",8.9,5.4,12.1,15],["2026-01-04",6.7,3.6,1.8,14],["2026-01-05",8,3.2,0,10],["2026-01-06",5.6,2,7.9,20],["2026-01-07",11.1,-0.6,1.9,30],["2026-01-08",15.4,3.9,0,16],["2026-01-09",11.6,7.3,8.3,30],["2026-01-10",12.5,4.3,0.4,26],["2026-01-11",17.2,2.2,0,17],["2026-01-12",16.9,11.9,0,34],["2026-01-13",15.9,10.2,1,20],["2026-01-14",15,7,0,12],["2026-01-15",13.4,7.5,3.2,27],["2026-01-16",14,4.7,0.8,14],["2026-01-17",9.6,6.1,7.8,8],["2026-01-18",11.4,6.3,12.2,17],["2026-01-19",12.5,2,0,18],["2026-01-20",14.5,1.1,0,21],["2026-01-21",16.2,8.4,11.4,51],["2026-01-22",13.8,7.2,1,42],["2026-01-23",13.2,6.1,0.7,37],["2026-01-24",13.1,2.5,0.3,27],["2026-01-25",11.9,3.4,5.8,30],["2026-01-26",16.3,4.1,5.5,22],["2026-01-27",17,4.1,20.3,25],["2026-01-28",12.8,3.1,0.7,15],["2026-01-29",17.3,5.7,9.5,12],["2026-01-30",13.7,6.3,7.2,19],["2026-01-31",13.7,5.3,7,30],["2026-02-01",13.9,5.4,0,14],["2026-02-02",14.8,9.4,3.3,18],["2026-02-03",14.1,8.1,0.7,23],["2026-02-04",16,7.1,2.7,21],["2026-02-05",16.7,9.4,7.4,33],["2026-02-06",14.7,6.9,0,19],["2026-02-07",14.2,7.6,0.1,28],["2026-02-08",13.8,8,1.5,33],["2026-02-09",15.3,6.8,9.6,15],["2026-02-10",18.9,10.1,9,16],["2026-02-11",19.5,7.5,9.8,27],["2026-02-12",17.3,12,0,31],["2026-02-13",13.6,7.8,12.1,44],["2026-02-14",10.3,6.4,11.1,47],["2026-02-15",16.3,5.2,0,13],["2026-02-16",13.8,10.4,22.4,29],["2026-02-17",14.8,10.8,10,17],["2026-02-18",17.9,6,3.9,32],["2026-02-19",11.9,8.6,0,37],["2026-02-20",13.7,4.1,0,18],["2026-02-21",14.8,2.8,0,9],["2026-02-22",15.3,3.9,0,8],["2026-02-23",16.3,3.5,0,6],["2026-02-24",23.4,8,0,16],["2026-02-25",20.9,9.5,0,26],["2026-02-26",16.7,5.5,0,9],["2026-02-27",13.5,6.1,2.4,15],["2026-02-28",12.7,5.3,0,15],["2026-03-01",14.8,2.5,0,8],["2026-03-02",20.2,7.8,0,15],["2026-03-03",18.1,8.4,0,18],["2026-03-04",18.5,7.6,0,11],["2026-03-05",13.5,8,2.6,25],["2026-03-06",10.3,8.6,27.1,26],["2026-03-07",13.1,8.3,5.2,21],["2026-03-08",14.1,4.2,0,10],["2026-03-09",11.3,7.4,7.3,16],["2026-03-10",13.1,7.7,0.1,10],["2026-03-11",14.5,6.2,2.1,20],["2026-03-12",15.2,9,0,10],["2026-03-13",18.1,5.5,9.3,24],["2026-03-14",10.5,8.1,36.6,28],["2026-03-15",12.6,8.3,2.7,21],["2026-03-16",14.6,9,0.1,12],["2026-03-17",19.6,6.1,0,12],["2026-03-18",18.1,7.9,0,15],["2026-03-19",18.4,7.2,0,10],["2026-03-20",19.2,7.7,0,12],["2026-03-21",16.6,6.7,0,10],["2026-03-22",14.9,4.3,0,12],["2026-03-23",13.7,9,0.3,10],["2026-03-24",15.9,2.4,0,9],["2026-03-25",12.2,9,3.7,20],["2026-03-26",11.2,8.4,1.2,12],["2026-03-27",12.1,7.8,0.2,10],["2026-03-28",11.7,8.5,8.6,26],["2026-03-29",11.6,8.5,0.5,20],["2026-03-30",14.4,8.1,0.6,24],["2026-03-31",12.8,10.2,6.2,22],["2026-04-01",14,10.1,3.7,14],["2026-04-02",14.4,9.6,6.5,22],["2026-04-03",14.5,6,0.3,9],["2026-04-04",22.7,6.6,0,13],["2026-04-05",15.9,8.4,0,10],["2026-04-06",28.7,8.9,0,14],["2026-04-07",25.2,14.5,2.7,21],["2026-04-08",19.4,10.1,0,10],["2026-04-09",18.6,9.8,0,13],["2026-04-10",18,11.8,0,9],["2026-04-11",14.3,9,7.5,30],["2026-04-12",12.4,8.4,5.1,20],["2026-04-13",13.6,7.6,1.5,19],["2026-04-14",18.1,7.9,0.2,9],["2026-04-15",17.6,11.9,0,11],["2026-04-16",17,10.4,0.1,8],["2026-04-17",17.1,8.5,0,9],["2026-04-18",16.5,11.6,1.2,15],["2026-04-19",18.1,11,6.9,13],["2026-04-20",18.9,10.3,0,8],["2026-04-21",22.3,11.3,0.1,9],["2026-04-22",17.8,12.6,1.5,19],["2026-04-23",19.4,9,0,6],["2026-04-24",17.8,12.8,17.5,11],["2026-04-25",17,12,0,11],["2026-04-26",17,10.2,0,9],["2026-04-27",17.9,12,2.4,12],["2026-04-28",17.9,13.2,0.2,9],["2026-04-29",16.1,13,4.5,8],["2026-04-30",18.4,10.3,1.4,11],["2026-05-01",19.4,11.1,0,7],["2026-05-02",17.2,13.3,7.3,10],["2026-05-03",16.7,11.7,18,13],["2026-05-04",13.8,11.5,16.1,15],["2026-05-05",14.4,9.4,11.6,21],["2026-05-06",15.3,8,1.7,17],["2026-05-07",18.9,6.9,0.3,10],["2026-05-08",19.7,8.9,0.6,13],["2026-05-09",20.1,8.5,8,13],["2026-05-10",17.2,11.5,6.3,14],["2026-05-11",17.8,8.3,0,8],["2026-05-12",14.8,11.9,3.1,14],["2026-05-13",15.8,11.8,1.4,19],["2026-05-14",14,10.8,7.5,29],["2026-05-15",14,9.3,32.7,32],["2026-05-16",15.9,8.3,1.4,15],["2026-05-17",15.3,11.5,0.7,14],["2026-05-18",17.1,10.6,0,9],["2026-05-19",20.6,10,0.3,10],["2026-05-20",20.3,14.3,0,14],["2026-05-21",27.9,11.9,0,13],["2026-05-22",30.5,14.3,0,16],["2026-05-23",24.8,16,0.7,17],["2026-05-24",24.9,14.9,0,8],["2026-05-25",31.8,18.1,0,16],["2026-05-26",34.8,16.5,0,17],["2026-05-27",28.7,15.3,0,8],["2026-05-28",29.5,17.1,0,16],["2026-05-29",21.5,16.2,0,11],["2026-05-30",19.8,15.3,1.4,14],["2026-05-31",20.3,15,0,9],["2026-06-01",21.6,12.2,0,12],["2026-06-02",19,15.9,1.7,27],["2026-06-03",23.1,12.4,0,11],["2026-06-04",18.8,14.1,8.4,27],["2026-06-05",18.2,10.7,0.3,13],["2026-06-06",17.8,12.7,0.9,21],["2026-06-07",21.3,11.5,0.2,10],["2026-06-08",19.1,15.4,3.1,15],["2026-06-09",16.3,13.7,7.3,17],["2026-06-10",17.6,12,0.6,11],["2026-06-11",20.4,11.6,0,15],["2026-06-12",23.9,11,0,16],["2026-06-13",29.4,12.9,0,8],["2026-06-14",27.8,17.2,0,8],["2026-06-15",23.7,16.4,0,18],["2026-06-16",22.6,15.8,0.2,11],["2026-06-17",22.9,16.4,8,9],["2026-06-18",23.3,17.2,2.1,8],["2026-06-19",23,17.9,1.3,7],["2026-06-20",22.2,18,1.3,11],["2026-06-21",29.6,19,0.1,15],["2026-06-22",28.3,18.4,0.2,11],["2026-06-23",31,18.4,0,5],["2026-06-24",36,20,0,12],["2026-06-25",26.5,19.3,1.2,24],["2026-06-26",26,16.6,0.1,8],["2026-06-27",25.1,19.9,1.4,13],["2026-06-28",22.3,17.9,6.7,16],["2026-06-29",21.6,17.8,5.5,18],["2026-06-30",21.5,18.4,1.6,12],["2026-07-01",21.1,17.6,2.5,14],["2026-07-02",22.7,16.2,0.1,10],["2026-07-03",24,14.9,0,14],["2026-07-04",25.7,18.4,0,16],["2026-07-05",28.5,14.3,0,16],["2026-07-06",31.4,17.5,0,7],["2026-07-07",23,18.4,0,10],["2026-07-08",23.5,17.1,0.1,8],["2026-07-09",25.1,18.2,0.4,10],["2026-07-10",24.1,20.5,0.6,9],["2026-07-11",27.4,19.4,0.2,10],["2026-07-12",28.5,19,1.8,17],["2026-07-13",24.7,19.3,0.8,13],["2026-07-14",26.1,17.6,0.5,9],["2026-07-15",24.8,20.1,3.8,16],["2026-07-16",24.2,18.7,11.2,16],["2026-07-17",23,16.9,1.5,11],["2026-07-18",23.8,16.5,0.4,16],["2026-07-19",25.5,17.7,0.1,12],["2026-07-20",25.8,17.5,0,18],["2026-07-21",25.6,14.6,0,17],["2026-07-22",26.7,14.5,0,15],["2026-07-23",25.7,15.9,0,10],["2026-07-24",23.8,18,1.9,21],["2026-07-25",22.5,16.3,9.8,27],["2026-07-26",23.1,15.3,0.2,16],["2026-07-27",23.9,16.3,0.9,15],["2026-07-28",29.2,16.5,0,7],["2026-07-29",25.1,17.6,0,12],["2026-07-30",24.4,17.6,2.3,13],["2026-07-31",23,19.6,0.8,11],["2026-08-01",23,19.5,0.8,15],["2026-08-02",25,16,0,11],["2026-08-03",24.4,18.2,1.2,10],["2026-08-04",24.7,19,0.1,13],["2026-08-05",21.4,20.2,3.3,10],["2026-08-06",22.4,19.7,6.8,19],["2026-08-07",24.8,17.2,0,11],["2026-08-08",26.2,17.3,3.8,9],["2026-08-09",24.5,18.8,0.2,18],["2026-08-10",24.6,16.2,0,12],["2026-08-11",26.2,16,0,10]];
+
+var HIST_MESES_S = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago'];
+var histCurM = 6;
+var histInitialized = false;
+
+function histGetData(m) {
+  if (m === -1) return HIST_DATA;
+  return HIST_DATA.filter(function(r){ return new Date(r[0]+'T12:00').getMonth() === m; });
+}
+
+function histRenderKpis(data) {
+  var rain = data.reduce(function(s,r){return s+r[3];},0);
+  var rDays = data.filter(function(r){return r[3]>0;}).length;
+  var maxT = data.reduce(function(m,r){return Math.max(m,r[1]);},-Infinity);
+  var minT = data.reduce(function(m,r){return Math.min(m,r[2]);},Infinity);
+  var maxW = data.reduce(function(m,r){return Math.max(m,r[4]);},-Infinity);
+  document.getElementById('hist-kpis').innerHTML =
+    '<div class="hist-kpi"><div class="hist-kpi-lbl">Lluvia total</div>'
+    + '<div class="hist-kpi-val" style="color:#2563eb">'+rain.toFixed(0)+'<span class="hist-kpi-unit"> mm · '+rDays+'d</span></div></div>'
+    + '<div class="hist-kpi"><div class="hist-kpi-lbl">Temperatura</div>'
+    + '<div class="hist-kpi-val" style="color:#d97706">'+minT.toFixed(0)+'–'+maxT.toFixed(0)+'<span class="hist-kpi-unit"> °C</span></div></div>'
+    + '<div class="hist-kpi"><div class="hist-kpi-lbl">Viento máx.</div>'
+    + '<div class="hist-kpi-val">'+maxW+'<span class="hist-kpi-unit"> km/h</span></div></div>';
+}
+
+function histDraw(data) {
+  var canvas = document.getElementById('hist-ch');
+  var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 1;
+  var card = canvas.parentElement;
+  var W = card.clientWidth - 28;
+  var H = 200;
+  canvas.width = W*dpr; canvas.height = H*dpr;
+  canvas.style.width = W+'px'; canvas.style.height = H+'px';
+  ctx.scale(dpr, dpr);
+
+  var pL=44, pR=38, pT=10, pB=34;
+  var pw=W-pL-pR, ph=H-pT-pB, n=data.length;
+  var slot=pw/n, bw=Math.max(1.5, slot*0.64);
+  var maxR = data.reduce(function(m,d){return Math.max(m,d[3]);},8);
+  var thi  = data.reduce(function(m,d){return Math.max(m,d[1]);},-Infinity);
+  var tlo  = data.reduce(function(m,d){return Math.min(m,d[2]);},Infinity);
+  var tMax=thi+3, tMin=tlo-3, tR=tMax-tMin;
+
+  function xp(i){return pL+(i+0.5)*slot;}
+  function ry(v){return pT+ph-(v/maxR)*ph;}
+  function ty(v){return pT+ph-((v-tMin)/tR)*ph;}
+
+  ctx.clearRect(0,0,W,H);
+
+  // grid + left axis
+  ctx.font = '10px -apple-system,system-ui,sans-serif';
+  ctx.textAlign='right'; ctx.fillStyle='#6870a0';
+  [0,.25,.5,.75,1].forEach(function(f){
+    var y=pT+ph*(1-f);
+    ctx.strokeStyle='#dde1f0'; ctx.lineWidth=0.5;
+    ctx.beginPath(); ctx.moveTo(pL,y); ctx.lineTo(W-pR,y); ctx.stroke();
+    ctx.fillText((maxR*f).toFixed(0)+'mm', pL-4, y+3.5);
+  });
+  // right axis
+  ctx.textAlign='left'; ctx.fillStyle='#d97706';
+  [0,.5,1].forEach(function(f){
+    ctx.fillText((tMin+tR*f).toFixed(0)+'°', W-pR+4, pT+ph*(1-f)+3.5);
+  });
+
+  // rain bars
+  for (var i=0; i<n; i++) {
+    if (data[i][3] <= 0) continue;
+    ctx.fillStyle = data[i][3]>=5 ? '#2563eb' : '#93c5fd';
+    var bh=(data[i][3]/maxR)*ph, bx=xp(i)-bw/2, by=pT+ph-bh;
+    var r=Math.min(2,bw/2,bh/2);
+    ctx.beginPath();
+    ctx.moveTo(bx+r,by); ctx.arcTo(bx+bw,by,bx+bw,by+bh,r);
+    ctx.arcTo(bx+bw,by+bh,bx,by+bh,0); ctx.arcTo(bx,by+bh,bx,by,0);
+    ctx.arcTo(bx,by,bx+bw,by,r); ctx.closePath(); ctx.fill();
+  }
+
+  // temp band fill
+  ctx.beginPath(); ctx.moveTo(xp(0),ty(data[0][1]));
+  for (var i=1;i<n;i++) ctx.lineTo(xp(i),ty(data[i][1]));
+  for (var i=n-1;i>=0;i--) ctx.lineTo(xp(i),ty(data[i][2]));
+  ctx.closePath(); ctx.fillStyle='rgba(217,119,6,0.07)'; ctx.fill();
+
+  // temp max line
+  ctx.beginPath(); ctx.moveTo(xp(0),ty(data[0][1]));
+  for (var i=1;i<n;i++) {
+    var cx=(xp(i-1)+xp(i))/2;
+    ctx.bezierCurveTo(cx,ty(data[i-1][1]),cx,ty(data[i][1]),xp(i),ty(data[i][1]));
+  }
+  ctx.strokeStyle='#d97706'; ctx.lineWidth=1.5; ctx.setLineDash([]); ctx.stroke();
+
+  // temp min line
+  ctx.beginPath(); ctx.moveTo(xp(0),ty(data[0][2]));
+  for (var i=1;i<n;i++) {
+    var cx=(xp(i-1)+xp(i))/2;
+    ctx.bezierCurveTo(cx,ty(data[i-1][2]),cx,ty(data[i][2]),xp(i),ty(data[i][2]));
+  }
+  ctx.strokeStyle='#f3c68a'; ctx.lineWidth=1; ctx.setLineDash([3,3]); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // x labels
+  ctx.fillStyle='#6870a0'; ctx.textAlign='center'; ctx.strokeStyle='#dde1f0'; ctx.lineWidth=0.5;
+  var step = n>60 ? 14 : n>30 ? 7 : Math.ceil(n/10);
+  for (var i=0;i<n;i++) {
+    if (i%step!==0) continue;
+    var dt=new Date(data[i][0]+'T12:00');
+    var lbl=n>60 ? (dt.getDate()===1?HIST_MESES_S[dt.getMonth()]:'') : dt.getDate().toString();
+    if (!lbl) continue;
+    ctx.fillText(lbl, xp(i), pT+ph+20);
+    ctx.beginPath(); ctx.moveTo(xp(i),pT+ph+1); ctx.lineTo(xp(i),pT+ph+5); ctx.stroke();
+  }
+
+  canvas._hd=data; canvas._hL={pL:pL,ph:ph,pT:pT,n:n,slot:slot};
+}
+
+function histSetMonth(m) {
+  histCurM = m;
+  document.querySelectorAll('.hist-tab').forEach(function(b){
+    b.classList.toggle('active', +b.dataset.m===m);
+  });
+  var data = histGetData(m);
+  histRenderKpis(data);
+  histDraw(data);
+}
+
+function initHistChart() {
+  if (histInitialized) { histDraw(histGetData(histCurM)); return; }
+  histInitialized = true;
+
+  var tabsEl = document.getElementById('hist-tabs');
+  [{l:'Todo',m:-1}].concat(HIST_MESES_S.map(function(l,i){return {l:l,m:i};})).forEach(function(t){
+    var b = document.createElement('button');
+    b.className='hist-tab'; b.dataset.m=t.m; b.textContent=t.l;
+    b.onclick=function(){ histSetMonth(t.m); };
+    tabsEl.appendChild(b);
+  });
+
+  var canvas = document.getElementById('hist-ch');
+  var tip    = document.getElementById('hist-tip');
+  canvas.addEventListener('mousemove', function(e){
+    var d=canvas._hd, L=canvas._hL;
+    if(!d||!L){tip.classList.remove('on');return;}
+    var rect=canvas.getBoundingClientRect();
+    var idx=Math.round((e.clientX-rect.left-L.pL)/L.slot-0.5);
+    if(idx<0||idx>=L.n){tip.classList.remove('on');return;}
+    var r=d[idx], dt=new Date(r[0]+'T12:00');
+    document.getElementById('hist-tip-date').textContent=dt.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'long'});
+    document.getElementById('hist-tip-rain').textContent=r[3].toFixed(1)+' mm';
+    document.getElementById('hist-tip-temp').textContent=r[2].toFixed(0)+'° / '+r[1].toFixed(0)+'°C';
+    document.getElementById('hist-tip-wind').textContent=r[4]+' km/h';
+    var tx=e.clientX+14, tipY=e.clientY-70;
+    tip.style.left=Math.min(tx,window.innerWidth-165)+'px';
+    tip.style.top=Math.max(8,tipY)+'px';
+    tip.classList.add('on');
+  });
+  canvas.addEventListener('mouseleave',function(){tip.classList.remove('on');});
+
+  window.addEventListener('resize',function(){
+    if(document.getElementById('hist-panel').style.display!=='none') histDraw(histGetData(histCurM));
+  });
+
+  histSetMonth(histCurM);
 }
 
 // ─── Init ────────────────────────────────────────────────────────────────────
