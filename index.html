@@ -2272,7 +2272,7 @@ function renderDestTab(){
 // ── Init ──────────────────────────────────────────────────────────────────────
 setPreset("last_30_days"); // render inicial (mostrará "Cargando…" hasta que data.json cargue)
 
-var _cb = "?_=" + Date.now();
+var _cb = "?_=" + (new Date().toISOString().slice(0,10));
 Promise.all([
   fetch("data.json"                + _cb).then(function(r){return r.json();}),
   fetch("campaigns-data.json"      + _cb).then(function(r){return r.json();}).catch(function(){return null;}),
