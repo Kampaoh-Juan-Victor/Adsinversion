@@ -1213,30 +1213,36 @@ function aggregateByKind(from, to) {
     if (!META_ADS_RAW && !TKTOK_ADS_RAW) return base;
     var fromS=from.replace(/-/g,''), toS=to.replace(/-/g,'');
     // Meta: usar raw data para agrupar catálogo correctamente
+    // Solo si el raw tiene datos del período pedido; si no, caer a data.json
     var m = base.meta;
     if (META_ADS_RAW) {
-      m = {};
+      var mRaw = {}, mHasData = false;
       Object.keys(META_ADS_RAW).forEach(function(camp) {
         (META_ADS_RAW[camp]||[]).forEach(function(r) {
           if (r[0]<fromS||r[0]>toS) return;
-          var slug=/cat[aá]logo/i.test(camp)?'catálogo':(r[7]||'sin-etiquetar'); m[slug]=(m[slug]||0)+(r[8]||0);
+          mHasData = true;
+          var slug=/cat[aá]logo/i.test(camp)?'catálogo':(r[7]||'sin-etiquetar'); mRaw[slug]=(mRaw[slug]||0)+(r[8]||0);
         });
       });
+      if (mHasData) m = mRaw;
     }
     // TikTok: separar destino vs genérico; catálogo sin dest → 'catálogo'
+    // Solo si el raw tiene datos del período pedido; si no, caer a data.json
     var t = base.tiktok, tGen=0;
     if (TKTOK_ADS_RAW) {
-      t = {};
+      var tRaw = {}, tkHasData = false;
       var tkDest = getDestCampsAuto().tk;
       Object.keys(TKTOK_ADS_RAW).forEach(function(camp) {
         (TKTOK_ADS_RAW[camp]||[]).forEach(function(r) {
           if (r[0]<fromS||r[0]>toS) return;
+          tkHasData = true;
           var spend=parseFloat(r[8])||0;
           var isCat=/cat[aá]logo/i.test(camp);
-          if (tkDest.has(camp)||isCat) { var slug=isCat?'catálogo':((r[7]&&r[7]!=='sin-etiquetar')?r[7]:'catálogo'); t[slug]=(t[slug]||0)+spend; }
+          if (tkDest.has(camp)||isCat) { var slug=isCat?'catálogo':((r[7]&&r[7]!=='sin-etiquetar')?r[7]:'catálogo'); tRaw[slug]=(tRaw[slug]||0)+spend; }
           else tGen+=spend;
         });
       });
+      if (tkHasData) t = tRaw;
     }
     return {meta:m, tiktok:t, google:base.google, googleGen:base.googleGen||0, tiktokGen:tGen};
   }
@@ -2266,7 +2272,7 @@ function renderDestTab(){
 // ── Init ──────────────────────────────────────────────────────────────────────
 setPreset("last_30_days"); // render inicial (mostrará "Cargando…" hasta que data.json cargue)
 
-var _cb = "?_=" + (new Date().toISOString().slice(0,10));
+var _cb = "?_=" + Date.now();
 Promise.all([
   fetch("data.json"                + _cb).then(function(r){return r.json();}),
   fetch("campaigns-data.json"      + _cb).then(function(r){return r.json();}).catch(function(){return null;}),

@@ -64,6 +64,6 @@ jobs:
           git stash
           git pull --rebase origin main
           git stash pop || true
-          git add ga4-data.json meta-data.json data.json campaigns-data.json gads-data.json tiktok-data.json
+          git add ga4-data.json meta-data.json data.json campaigns-data.json gads-data.json tiktok-data.json meta-ads-data.json tiktok-ads-data.json google-adgroups-data.json
           git diff --staged --quiet || git commit -m "chore: refresh dashboard data $(date -u +%Y-%m-%d)"
           git push
