@@ -280,6 +280,7 @@
   <a href="atribucion.html" style="padding:10px 18px;font-size:12px;font-weight:600;color:#7b7f9e;text-decoration:none;border-bottom:2px solid transparent">Atribución</a>
   <a href="live.html"' style="padding:10px 18px;font-size:12px;font-weight:600;color:#7b7f9e;text-decoration:none;border-bottom:2px solid transparent">En Vivo</a>
   <a href="tiempo.html" style="padding:10px 18px;font-size:12px;font-weight:600;color:#7b7f9e;text-decoration:none;border-bottom:2px solid transparent">Tiempo</a>
+  <a href="resumen.html" style="padding:10px 18px;font-size:12px;font-weight:600;color:#7b7f9e;text-decoration:none;border-bottom:2px solid transparent">Resumen</a>
 </nav>
 
 <!-- ── Barra de período ── -->
@@ -505,7 +506,134 @@
     </div>
   </div>
 
+  <!-- ── GSC · Tráfico orgánico interanual ── -->
+  <div class="table-card" style="margin-top:20px" id="gsc-summary-card">
+    <div class="table-header" style="justify-content:space-between;align-items:center">
+      <h3>Tráfico orgánico &middot; Google Search Console</h3>
+      <a href="gsc.html" style="font-size:12px;color:var(--accent);text-decoration:none;font-weight:600">Ver análisis completo →</a>
+    </div>
+
+    <style>
+    .gsc-sum-tiles { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:0 20px 16px; }
+    @media(max-width:700px){ .gsc-sum-tiles { grid-template-columns:repeat(2,1fr); } }
+    .gsc-st { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:12px 14px; }
+    .gsc-st .stl { font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.07em; margin-bottom:4px; }
+    .gsc-st .stv { font-size:20px; font-weight:700; font-variant-numeric:tabular-nums; line-height:1; }
+    .gsc-st .sty25 { color:#34d399; }
+    .gsc-st .sty26 { color:#34d399; }
+    .gsc-st .stim { color:#818cf8; }
+    .gsc-st .stct { color:#f59e0b; }
+    .gsc-st .std { font-size:11px; font-weight:600; margin-top:3px; }
+    .gsc-st .std.dn { color:#f87171; }
+    .gsc-st .std.up { color:#34d399; }
+    .gsc-st .stsub { font-size:10px; color:var(--muted); margin-top:2px; }
+    .gsc-insight-box { margin:0 20px 16px; background:rgba(99,102,241,.08); border:1px solid rgba(99,102,241,.3); border-radius:8px; padding:12px 14px; font-size:12px; line-height:1.65; }
+    .gsc-insight-box strong { color:#818cf8; }
+    .gsc-insight-box em { font-style:normal; color:#34d399; }
+    .gsc-month-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(88px,1fr)); gap:6px; padding:0 20px 20px; }
+    .gsc-mcell { background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:7px 9px; }
+    .gsc-mcell.ver25 { background:rgba(24,119,242,.08); border-color:rgba(24,119,242,.3); }
+    .gsc-mcell.ver26 { background:rgba(34,197,94,.08); border-color:rgba(34,197,94,.3); }
+    .gsc-ml { font-size:10px; font-weight:600; color:var(--muted); margin-bottom:3px; }
+    .gsc-mc { font-size:13px; font-weight:700; font-variant-numeric:tabular-nums; }
+    .gsc-mi { font-size:10px; color:var(--muted); font-variant-numeric:tabular-nums; }
+    .gsc-mctr { font-size:10px; color:var(--accent); }
+    </style>
+
+    <!-- Tiles comparativa verano -->
+    <div class="gsc-sum-tiles">
+      <div class="gsc-st">
+        <div class="stl">Clicks verano 2025</div>
+        <div class="stv sty25">1,74M</div>
+        <div class="stsub">Jun–Ago 2025</div>
+      </div>
+      <div class="gsc-st">
+        <div class="stl">Clicks verano 2026</div>
+        <div class="stv sty26">919K</div>
+        <div class="std dn">−47% interanual</div>
+        <div class="stsub">Jun–Ago 2026</div>
+      </div>
+      <div class="gsc-st">
+        <div class="stl">Impresiones 2025</div>
+        <div class="stv stim">35,6M</div>
+        <div class="stsub">Jun–Ago 2025</div>
+      </div>
+      <div class="gsc-st">
+        <div class="stl">Impresiones 2026</div>
+        <div class="stv stim">13,6M</div>
+        <div class="std dn">−62% interanual</div>
+        <div class="stsub">Jun–Ago 2026</div>
+      </div>
+      <div class="gsc-st">
+        <div class="stl">CTR verano 2025</div>
+        <div class="stv stct">4,9%</div>
+        <div class="stsub">Jun–Ago 2025</div>
+      </div>
+      <div class="gsc-st">
+        <div class="stl">CTR verano 2026</div>
+        <div class="stv stct">6,7%</div>
+        <div class="std up">+1,8 pp interanual</div>
+        <div class="stsub">Jun–Ago 2026</div>
+      </div>
+    </div>
+
+    <!-- Insight AI Overviews -->
+    <div class="gsc-insight-box">
+      <strong>Diagnóstico: AI Overviews de Google canibaliza las impresiones.</strong>
+      Impresiones −62% vs clicks −47% — y el CTR <em>subió +1,8 pp</em>.
+      Si fuera pérdida de posicionamiento, el CTR bajaría. Google ya no muestra la web para queries informacionales
+      ("que ver en X", "que hacer en X") porque el AI Overview las responde directamente.
+      Las queries transaccionales (camping las arenas CTR 25%, camping faro de trafalgar CTR 39%) sobreviven.
+    </div>
+
+    <!-- Grid mensual compacto -->
+    <div style="padding:0 20px 8px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">
+      Evolución mensual
+      <span style="margin-left:12px;font-weight:400;color:rgba(24,119,242,.8)">■ verano 2025</span>
+      <span style="margin-left:8px;font-weight:400;color:rgba(34,197,94,.8)">■ verano 2026</span>
+    </div>
+    <div class="gsc-month-grid" id="gsc-month-grid-main"></div>
+  </div>
+
 </div><!-- /view-general -->
+
+<script>
+(function(){
+  var GSC_M = [
+    {m:'May 25',clicks:169129,imp:3625568,v25:false,v26:false},
+    {m:'Jun 25',clicks:438059,imp:9665585,v25:true,v26:false},
+    {m:'Jul 25',clicks:662897,imp:12725616,v25:true,v26:false},
+    {m:'Ago 25',clicks:639293,imp:13166007,v25:true,v26:false},
+    {m:'Sep 25',clicks:256549,imp:6591462,v25:false,v26:false},
+    {m:'Oct 25',clicks:158250,imp:4311936,v25:false,v26:false},
+    {m:'Nov 25',clicks:104736,imp:4229916,v25:false,v26:false},
+    {m:'Dic 25',clicks:118461,imp:5299205,v25:false,v26:false},
+    {m:'Ene 26',clicks:127960,imp:4616484,v25:false,v26:false},
+    {m:'Feb 26',clicks:88779,imp:2455287,v25:false,v26:false},
+    {m:'Mar 26',clicks:129584,imp:2752714,v25:false,v26:false},
+    {m:'Abr 26',clicks:147552,imp:2954627,v25:false,v26:false},
+    {m:'May 26',clicks:198302,imp:3137712,v25:false,v26:false},
+    {m:'Jun 26',clicks:294673,imp:4218349,v25:false,v26:true},
+    {m:'Jul 26',clicks:352886,imp:4795433,v25:false,v26:true},
+    {m:'Ago 26',clicks:271764,imp:4630403,v25:false,v26:true},
+    {m:'Sep 26',clicks:53026,imp:1181728,v25:false,v26:false},
+  ];
+  var maxC = Math.max.apply(null, GSC_M.map(function(r){return r.clicks;}));
+  var fmt = function(n){ return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?Math.round(n/1e3)+'k':String(n); };
+  var grid = document.getElementById('gsc-month-grid-main');
+  if (!grid) return;
+  grid.innerHTML = GSC_M.map(function(r){
+    var ctr = (r.clicks/r.imp*100).toFixed(1);
+    var cls = r.v25 ? ' ver25' : r.v26 ? ' ver26' : '';
+    return '<div class="gsc-mcell'+cls+'">'
+      +'<div class="gsc-ml">'+r.m+'</div>'
+      +'<div class="gsc-mc">'+fmt(r.clicks)+'</div>'
+      +'<div class="gsc-mi">'+fmt(r.imp)+' imp</div>'
+      +'<div class="gsc-mctr">'+ctr+'% CTR</div>'
+      +'</div>';
+  }).join('');
+})();
+</script>
 
 <div id="view-campaigns" style="display:none">
   <div class="camp-wrap">

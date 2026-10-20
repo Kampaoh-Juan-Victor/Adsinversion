@@ -1,0 +1,191 @@
+{
+  "byMonth": {
+    "202605": {
+      "Organic Search": 39074,
+      "Google Ads (SEM)": 19251,
+      "Direct": 15981,
+      "Meta Ads": 19739,
+      "Google My Business": 9167,
+      "Cross-network (PMax)": 5214,
+      "TikTok Ads": 2956,
+      "Referral": 4494,
+      "Email": 1732,
+      "Unassigned": 2086,
+      "Paid Other": 590,
+      "Organic Social": 104,
+      "Organic Video": 3,
+      "Organic Shopping": 3
+    },
+    "202606": {
+      "Organic Search": 148857,
+      "Google Ads (SEM)": 91241,
+      "Direct": 60802,
+      "Meta Ads": 90793,
+      "Google My Business": 29685,
+      "Cross-network (PMax)": 16898,
+      "Referral": 16671,
+      "TikTok Ads": 7714,
+      "Unassigned": 6354,
+      "Email": 4596,
+      "Paid Other": 1233,
+      "Organic Social": 807,
+      "AI Assistant": 328,
+      "Organic Video": 27,
+      "Paid Video": 7,
+      "Organic Shopping": 7
+    },
+    "202607": {
+      "Organic Search": 177819,
+      "Google Ads (SEM)": 119051,
+      "Direct": 63046,
+      "Meta Ads": 111711,
+      "Google My Business": 43691,
+      "Cross-network (PMax)": 21891,
+      "Referral": 19783,
+      "TikTok Ads": 8802,
+      "Unassigned": 7141,
+      "Email": 4834,
+      "Organic Social": 1231,
+      "Paid Other": 1686,
+      "AI Assistant": 930,
+      "Organic Video": 30,
+      "Organic Shopping": 9,
+      "Paid Video": 6
+    },
+    "202608": {
+      "Organic Search": 120333,
+      "Google Ads (SEM)": 104848,
+      "Google My Business": 38266,
+      "Direct": 35273,
+      "Meta Ads": 65477,
+      "Cross-network (PMax)": 13739,
+      "TikTok Ads": 7182,
+      "Referral": 12746,
+      "Email": 3308,
+      "Unassigned": 4680,
+      "AI Assistant": 1001,
+      "Paid Other": 1195,
+      "Organic Social": 300,
+      "Organic Shopping": 5,
+      "Organic Video": 1
+    },
+    "202609": {
+      "Organic Search": 34293,
+      "Google Ads (SEM)": 25321,
+      "Direct": 12612,
+      "Google My Business": 11725,
+      "Cross-network (PMax)": 5498,
+      "Meta Ads": 10376,
+      "Unassigned": 4594,
+      "Email": 1607,
+      "Referral": 4183,
+      "TikTok Ads": 1120,
+      "AI Assistant": 349,
+      "Paid Other": 328,
+      "Organic Social": 82,
+      "Organic Shopping": 3
+    }
+  },
+  "totals": {
+    "Organic Search": 520376,
+    "Google Ads (SEM)": 359712,
+    "Direct": 187714,
+    "Meta Ads": 298096,
+    "Google My Business": 132534,
+    "Cross-network (PMax)": 63240,
+    "TikTok Ads": 27774,
+    "Referral": 57877,
+    "Email": 16077,
+    "Unassigned": 24855,
+    "Paid Other": 5032,
+    "Organic Social": 2524,
+    "Organic Video": 61,
+    "Organic Shopping": 27,
+    "AI Assistant": 2608,
+    "Paid Video": 13
+  },
+  "fy2425Monthly": {},
+  "fy2526Monthly": {
+    "202605": 120394,
+    "202606": 476020,
+    "202607": 581661,
+    "202608": 408354,
+    "202609": 112091
+  },
+  "byLang": {
+    "fy2425": {
+      "es": {
+        "total": 0,
+        "byMonth": {}
+      },
+      "fr": {
+        "total": 0,
+        "byMonth": {}
+      },
+      "en": {
+        "total": 0,
+        "byMonth": {}
+      },
+      "pt": {
+        "total": 0,
+        "byMonth": {}
+      },
+      "it": {
+        "total": 0,
+        "byMonth": {}
+      }
+    },
+    "fy2526": {
+      "es": {
+        "total": 1521352,
+        "byMonth": {
+          "202605": 113289,
+          "202606": 430164,
+          "202607": 524482,
+          "202608": 360051,
+          "202609": 93366
+        }
+      },
+      "fr": {
+        "total": 28027,
+        "byMonth": {
+          "202605": 2471,
+          "202606": 7444,
+          "202607": 8826,
+          "202608": 7705,
+          "202609": 1581
+        }
+      },
+      "en": {
+        "total": 74673,
+        "byMonth": {
+          "202605": 6416,
+          "202606": 23085,
+          "202607": 23499,
+          "202608": 14766,
+          "202609": 6907
+        }
+      },
+      "pt": {
+        "total": 123604,
+        "byMonth": {
+          "202605": 4313,
+          "202606": 19631,
+          "202607": 52447,
+          "202608": 35717,
+          "202609": 11496
+        }
+      },
+      "it": {
+        "total": 276,
+        "byMonth": {
+          "202605": 31,
+          "202606": 92,
+          "202607": 46,
+          "202608": 92,
+          "202609": 15
+        }
+      }
+    }
+  }
+}

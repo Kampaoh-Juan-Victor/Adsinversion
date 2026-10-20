@@ -8,7 +8,7 @@ const DESTINOS = [
   "ria-de-arousa-playa", "ria-de-arousa-rural",
   "praia-de-angeiras",
   "bufones-de-pria",
-  "picos-de-urbion", "picos-urbion",
+  "picos-de-urbion",
   "playa-de-levante", "playa-de-sueca", "playa-troenzo",
   "sierra-de-urbasa", "sierra-nevada",
   "costa-del-sol", "costa-blanca", "costa-dorada", "costa-brava",
@@ -74,9 +74,6 @@ const DESTINOS = [
   "neptuno",
   "cambrils",
   "kikopark",
-  "canos",
-  "palmar",
-  "picos",
   // Portugal
   "sao-martinho",
   "ancora",
@@ -92,6 +89,9 @@ const DESTINOS = [
   "porto",
   "lagoa",
   "pedroso",
+  // Internacional
+  "flumendosa",
+  "o-pedrouzo",
 ];
 
 // Aliases: variante normalizada → slug canónico almacenado en los JSONs
@@ -112,19 +112,39 @@ const DESTINO_ALIASES = {
   // Destinos donde el slug usa "el-/los-" pero los ad names van sin artículo
   "rocio":             "el-rocio",
   "escullos":          "los-escullos",
+  "canos":             "los-canos",
+  // El Palmar — con y sin artículo, y variantes hostel
+  "hostel-el-palmar":  "el-palmar",
+  "hostel-palmar":     "el-palmar",
+  "palmar":            "el-palmar",
+  // Trafalgar — variante hostel
+  "hostel-trafalgar":  "trafalgar",
+  // Roquetas — con y sin "de Mar"
+  "roquetas-de-mar":   "roquetas",
+  // Picos de Urbión — variantes cortas
+  "picos-urbion":      "picos-de-urbion",
+  "picos":             "picos-de-urbion",
   // Variantes de largo por palabra "de/del"
   "delta-del-ebro":    "delta-ebro",
   "playa-de-troenzo":  "playa-troenzo",
   "urbasa":            "sierra-de-urbasa",
-  // São Martinho do Porto
+  // São Martinho do Porto — dos formas habituales
+  "martinho-do-porto": "sao-martinho",
   "martinho":          "sao-martinho",
   // Sao Pedro de Moel — grafía portuguesa vs. slug con "san"
   "sao-pedro-de-moel": "san-pedro-moel",
   "sao-pedro":         "san-pedro-moel",
   "pedro-de-moel":     "san-pedro-moel",
   "moel":              "san-pedro-moel",
+  // Valdevaqueros — typo histórico sin la "e"
+  "valdevaqueros":     "valdvaqueros",
   // La Masia → Blanes
   "la-masia":          "blanes",
+  // Playa Troenzo — slug sin "playa-" delante
+  "troenzo":           "playa-troenzo",
+  // O Pedrouzo — grafía sin artículo gallego
+  "opedrouzo":         "o-pedrouzo",
+  "pedrouzo":          "o-pedrouzo",
 };
 
 // Normaliza un string: elimina tildes, minúsculas, espacios→guiones, solo [a-z0-9-]

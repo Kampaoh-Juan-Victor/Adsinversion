@@ -11,6 +11,10 @@ var activeDays     = 7;
 var customFrom     = null, customTo = null;
 var sparkCharts    = [];
 var EVENT_FIRST    = {}; // { eventKey: 'YYYY-MM-DD' }
+// Fechas de fiabilidad manual — para eventos que existían antes pero tenían datos incorrectos
+var RELIABILITY_CUTOFF = {
+  'view_checkout_step3': '2026-09-21'
+};
 
 var STEP_COLORS = [
   '#6366f1','#8b5cf6','#a855f7','#ec4899',
@@ -34,7 +38,9 @@ function computeEventFirstDates() {
   var dates = Object.keys(FULL_DATA.byDate).sort();
   FULL_DATA.steps.forEach(function(s) {
     var first = dates.find(function(d) { return (FULL_DATA.byDate[d][s.key] || 0) > 0; });
-    EVENT_FIRST[s.key] = first || null;
+    var cutoff = RELIABILITY_CUTOFF[s.key] || null;
+    // Usa el cutoff si es posterior al primer dato real (evento existía pero era incorrecto)
+    EVENT_FIRST[s.key] = (cutoff && (!first || cutoff > first)) ? cutoff : (first || null);
   });
 }
 
@@ -137,9 +143,12 @@ function renderAll() {
         ? '<span class="step-drop">−'+n(drop)+'</span>'
         : '<span class="step-drop" style="color:var(--green)">+'+n(-drop)+'</span>';
 
+    var cutoffNote = RELIABILITY_CUTOFF[s.key]
+      ? '<div class="step-cutoff">✓ fiable desde ' + RELIABILITY_CUTOFF[s.key].slice(5).replace('-','/') + '</div>'
+      : '';
     html += '<div class="funnel-step">' +
       '<div><div class="step-label">'+(i+1)+'. '+s.label+'</div>' +
-      '<div class="step-num">'+s.key+'</div></div>' +
+      '<div class="step-num">'+s.key+'</div>' + cutoffNote + '</div>' +
       '<div class="bar-wrap"><div class="bar-fill" style="width:'+barW+'%;background:'+color+'"><span class="bar-label">'+fmt(count)+'</span></div></div>' +
       '<div class="step-count">'+n(count)+'</div>' +
       rateHtml +
@@ -495,6 +504,7 @@ input[type="date"] { padding: 5px 10px; font-size: 12px; border: 1px solid var(-
 .funnel-step:last-child { border-bottom: none; }
 .step-label { font-size: 12px; font-weight: 600; color: var(--text); }
 .step-num { font-size: 10px; color: var(--muted); }
+.step-cutoff { font-size: 10px; color: #16a34a; margin-top: 2px; }
 .bar-wrap { background: var(--surface2); border-radius: 4px; height: 26px; overflow: hidden; }
 .bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; transition: width .3s; min-width: 2px; }
 .bar-label { font-size: 11px; font-weight: 700; color: #fff; padding: 0 8px; white-space: nowrap; }

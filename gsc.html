@@ -172,8 +172,9 @@ nav { background: var(--surface2); border-bottom: 1px solid var(--border); paddi
 </div>
 
 <div class="inner-nav">
-  <button class="inner-tab active" id="tab-general"  onclick="switchView('general')">Vista general</button>
-  <button class="inner-tab"        id="tab-keywords" onclick="switchView('keywords')">Keywords principales</button>
+  <button class="inner-tab active" id="tab-general"    onclick="switchView('general')">Vista general</button>
+  <button class="inner-tab"        id="tab-keywords"   onclick="switchView('keywords')">Keywords principales</button>
+  <button class="inner-tab"        id="tab-interanual" onclick="switchView('interanual')">Análisis interanual</button>
 </div>
 
 <div class="main" id="view-general">
@@ -251,6 +252,192 @@ nav { background: var(--surface2); border-bottom: 1px solid var(--border); paddi
       </div>
     </div>
   </div>
+</div>
+
+<div class="main" id="view-interanual" style="display:none">
+
+<style>
+.ia-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+@media(max-width:700px) { .ia-tiles { grid-template-columns: repeat(2, 1fr); } }
+.ia-tile { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+.ia-tile .tl { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; }
+.ia-tile .tv { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+.ia-tile .tb { font-size: 12px; font-weight: 600; margin-top: 3px; }
+.ia-tile .td { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.ia-tile .tv.cl { color: #34d399; }
+.ia-tile .tv.im { color: #818cf8; }
+.ia-tile .tv.ct { color: #f59e0b; }
+.tb.dn { color: #f87171; }
+.tb.up { color: #34d399; }
+
+.ia-insight { background: rgba(99,102,241,.08); border: 1px solid rgba(99,102,241,.3); border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; font-size: 12.5px; line-height: 1.65; }
+.ia-insight strong { color: #818cf8; }
+.ia-insight em { font-style: normal; color: #34d399; }
+
+.ia-section-title { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin: 0 0 12px; }
+
+.ia-tbl-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
+.ia-tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
+.ia-tbl thead th { background: #1a1d27; color: var(--muted); font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; padding: 8px 12px; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }
+.ia-tbl thead th:first-child { text-align: left; }
+.ia-tbl tbody td { padding: 7px 12px; border-bottom: 1px solid rgba(46,49,73,.5); text-align: right; font-variant-numeric: tabular-nums; }
+.ia-tbl tbody td:first-child { text-align: left; font-weight: 500; }
+.ia-tbl tbody tr:last-child td { border-bottom: none; }
+.ia-tbl tbody tr:hover td { background: rgba(99,102,241,.04); }
+.ia-tbl tbody tr.ver-25 td { background: rgba(24,119,242,.06); }
+.ia-tbl tbody tr.ver-26 td { background: rgba(34,197,94,.06); }
+.ia-tbl .ctr-bar { display: inline-block; height: 5px; background: var(--accent); border-radius: 3px; vertical-align: middle; margin-right: 4px; opacity: .35; }
+
+.ia-cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media(max-width:700px){ .ia-cols2 { grid-template-columns: 1fr; } }
+</style>
+
+<!-- Tiles comparativa -->
+<div class="ia-tiles">
+  <div class="ia-tile">
+    <div class="tl">Clicks verano 2025</div>
+    <div class="tv cl">1,74M</div>
+    <div class="td">Jun–Ago 2025</div>
+  </div>
+  <div class="ia-tile">
+    <div class="tl">Clicks verano 2026</div>
+    <div class="tv cl">919K</div>
+    <div class="tb dn">−47% vs año anterior</div>
+    <div class="td">Jun–Ago 2026</div>
+  </div>
+  <div class="ia-tile">
+    <div class="tl">Impresiones verano 2025</div>
+    <div class="tv im">35,6M</div>
+    <div class="td">Jun–Ago 2025</div>
+  </div>
+  <div class="ia-tile">
+    <div class="tl">Impresiones verano 2026</div>
+    <div class="tv im">13,6M</div>
+    <div class="tb dn">−62% vs año anterior</div>
+    <div class="td">Jun–Ago 2026</div>
+  </div>
+  <div class="ia-tile">
+    <div class="tl">CTR verano 2025</div>
+    <div class="tv ct">4,9%</div>
+    <div class="td">Jun–Ago 2025</div>
+  </div>
+  <div class="ia-tile">
+    <div class="tl">CTR verano 2026</div>
+    <div class="tv ct">6,7%</div>
+    <div class="tb up">+1,8 pp vs año anterior</div>
+    <div class="td">Jun–Ago 2026</div>
+  </div>
+</div>
+
+<!-- Insight diagnóstico -->
+<div class="ia-insight">
+  <strong>Diagnóstico: AI Overviews de Google canibaliza las impresiones.</strong>
+  Las impresiones cayeron un <strong>−62%</strong> frente a solo <strong>−47%</strong> en clicks — y el CTR <em>subió +1,8 pp</em>. Si fuera un problema de posicionamiento, el CTR bajaría. Que suba confirma que Kampaoh sigue siendo relevante para quien llega a verlo, pero Google ya no muestra la web en queries informacionales
+  ("que ver en X", "que hacer en X") porque el AI Overview las responde directamente.
+  Las queries transaccionales (camping las arenas CTR 25%, camping faro de trafalgar CTR 39%) sobreviven porque la IA no puede sustituir la reserva.
+</div>
+
+<!-- Tabla mensual histórica -->
+<div class="ia-section-title">Evolución mensual completa</div>
+<div class="ia-tbl-wrap">
+<table class="ia-tbl">
+  <thead><tr>
+    <th>Mes</th><th>Clicks</th><th>Impresiones</th><th>CTR</th>
+  </tr></thead>
+  <tbody id="ia-monthly-tbody"></tbody>
+</table>
+</div>
+
+<!-- Queries 90d: no marca vs marca -->
+<div class="ia-cols2">
+  <div>
+    <div class="ia-section-title">Top queries NO marca (90d)</div>
+    <div class="ia-tbl-wrap">
+    <table class="ia-tbl">
+      <thead><tr><th>Query</th><th>Clicks</th><th>CTR</th><th>Pos.</th></tr></thead>
+      <tbody id="ia-nonbrand-tbody"></tbody>
+    </table>
+    </div>
+  </div>
+  <div>
+    <div class="ia-section-title">Top queries MARCA (90d)</div>
+    <div class="ia-tbl-wrap">
+    <table class="ia-tbl">
+      <thead><tr><th>Query</th><th>Clicks</th><th>CTR</th><th>Pos.</th></tr></thead>
+      <tbody id="ia-brand-tbody"></tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+var IA_MONTHLY = [
+  {m:'May 25', clicks:169129, imp:3625568},
+  {m:'Jun 25', clicks:438059, imp:9665585},
+  {m:'Jul 25', clicks:662897, imp:12725616},
+  {m:'Ago 25', clicks:639293, imp:13166007},
+  {m:'Sep 25', clicks:256549, imp:6591462},
+  {m:'Oct 25', clicks:158250, imp:4311936},
+  {m:'Nov 25', clicks:104736, imp:4229916},
+  {m:'Dic 25', clicks:118461, imp:5299205},
+  {m:'Ene 26', clicks:127960, imp:4616484},
+  {m:'Feb 26', clicks:88779,  imp:2455287},
+  {m:'Mar 26', clicks:129584, imp:2752714},
+  {m:'Abr 26', clicks:147552, imp:2954627},
+  {m:'May 26', clicks:198302, imp:3137712},
+  {m:'Jun 26', clicks:294673, imp:4218349},
+  {m:'Jul 26', clicks:352886, imp:4795433},
+  {m:'Ago 26', clicks:271764, imp:4630403},
+  {m:'Sep 26', clicks:53026,  imp:1181728},
+];
+var VER25 = ['Jun 25','Jul 25','Ago 25'], VER26 = ['Jun 26','Jul 26','Ago 26'];
+var fmt = function(n){ return n.toLocaleString('es'); };
+var maxCtr = 0;
+IA_MONTHLY.forEach(function(r){ var c = r.clicks/r.imp*100; if(c>maxCtr) maxCtr=c; });
+document.getElementById('ia-monthly-tbody').innerHTML = IA_MONTHLY.map(function(r){
+  var ctr = (r.clicks/r.imp*100).toFixed(1);
+  var barW = Math.round(parseFloat(ctr)/maxCtr*36);
+  var cls  = VER25.includes(r.m) ? ' class="ver-25"' : VER26.includes(r.m) ? ' class="ver-26"' : '';
+  return '<tr'+cls+'><td>'+r.m+'</td><td>'+fmt(r.clicks)+'</td><td>'+fmt(r.imp)+'</td><td><span class="ctr-bar" style="width:'+barW+'px"></span>'+ctr+'%</td></tr>';
+}).join('');
+
+var NB = [
+  {q:'que ver en santander',              clicks:4446, ctr:12.2, pos:4.4},
+  {q:'camping las arenas',                clicks:3556, ctr:25.0, pos:1.6},
+  {q:'camping faro de trafalgar',         clicks:3228, ctr:38.8, pos:1.3},
+  {q:'camping el palmar',                 clicks:2281, ctr:11.1, pos:3.3},
+  {q:'que ver en zahara de los atunes',   clicks:2251, ctr:30.1, pos:2.7},
+  {q:'que ver en santander en un dia',    clicks:2063, ctr:28.8, pos:3.2},
+  {q:'que hacer en santander',            clicks:1490, ctr:22.0, pos:3.4},
+  {q:'que ver en santillana del mar',     clicks:1419, ctr:10.1, pos:6.9},
+  {q:'que ver en chiclana de la frontera',clicks:1078, ctr:16.3, pos:5.9},
+  {q:'camping menorca',                   clicks:1033, ctr:6.5,  pos:3.6},
+  {q:'que ver en noja',                   clicks:961,  ctr:20.5, pos:6.2},
+  {q:'pueblos de valencia con playa',     clicks:830,  ctr:24.3, pos:1.2},
+  {q:'que ver en laredo',                 clicks:815,  ctr:10.6, pos:6.1},
+  {q:'que ver en punta umbria',           clicks:803,  ctr:25.3, pos:3.1},
+  {q:'que ver en barbate',                clicks:771,  ctr:11.9, pos:4.1},
+];
+var BR = [
+  {q:'kampaoh',               clicks:48753, ctr:69.6, pos:1.3},
+  {q:'kampoah',               clicks:4317,  ctr:58.6, pos:2.1},
+  {q:'kampao',                clicks:2810,  ctr:68.1, pos:1.2},
+  {q:'kampaoh cantabria',     clicks:1920,  ctr:38.0, pos:1.5},
+  {q:'kampaoh las arenas',    clicks:1540,  ctr:12.2, pos:1.3},
+  {q:'campao',                clicks:1025,  ctr:27.0, pos:2.2},
+  {q:'kampaoh isla cristina', clicks:910,   ctr:15.0, pos:1.4},
+  {q:'kampaoh el palmar',     clicks:870,   ctr:18.0, pos:1.2},
+  {q:'kampaoh menorca',       clicks:760,   ctr:22.0, pos:1.5},
+  {q:'kampaho',               clicks:510,   ctr:74.5, pos:1.1},
+];
+function posC(p){ return p<=3?'pos-top':p<=10?'pos-mid':'pos-low'; }
+function qRow(r){ return '<tr><td>'+r.q+'</td><td>'+fmt(r.clicks)+'</td><td>'+r.ctr+'%</td><td class="'+posC(r.pos)+'">'+r.pos+'</td></tr>'; }
+document.getElementById('ia-nonbrand-tbody').innerHTML = NB.map(qRow).join('');
+document.getElementById('ia-brand-tbody').innerHTML    = BR.map(qRow).join('');
+})();
+</script>
+
 </div>
 
 <div class="main" id="view-keywords" style="display:none">
@@ -503,10 +690,12 @@ function renderAll() { renderKPIs(); renderTrend(); renderQueries(); renderPages
 
 // ── Inner tab switch ──────────────────────────────────────────────────────
 function switchView(view) {
-  document.getElementById('view-general').style.display  = view === 'general'  ? '' : 'none';
-  document.getElementById('view-keywords').style.display = view === 'keywords' ? '' : 'none';
-  document.getElementById('tab-general').classList.toggle('active',  view === 'general');
-  document.getElementById('tab-keywords').classList.toggle('active', view === 'keywords');
+  document.getElementById('view-general').style.display     = view === 'general'     ? '' : 'none';
+  document.getElementById('view-keywords').style.display    = view === 'keywords'    ? '' : 'none';
+  document.getElementById('view-interanual').style.display  = view === 'interanual'  ? '' : 'none';
+  document.getElementById('tab-general').classList.toggle('active',     view === 'general');
+  document.getElementById('tab-keywords').classList.toggle('active',    view === 'keywords');
+  document.getElementById('tab-interanual').classList.toggle('active',  view === 'interanual');
   if (view === 'keywords') {
     if (!kwTargets.length) {
       fetch('keyword-targets.json?t=' + Date.now())

@@ -1,0 +1,195 @@
+{
+  "bySource": {
+    "chatgpt.com": {
+      "202604": {
+        "sessions": 795,
+        "users": 643,
+        "purchases": 10,
+        "revenue": 2479.68
+      },
+      "202605": {
+        "sessions": 1699,
+        "users": 1341,
+        "purchases": 26,
+        "revenue": 6169.27
+      },
+      "202606": {
+        "sessions": 1907,
+        "users": 1570,
+        "purchases": 35,
+        "revenue": 8843.119999999999
+      },
+      "202607": {
+        "sessions": 3165,
+        "users": 2572,
+        "purchases": 67,
+        "revenue": 18949.98
+      },
+      "202608": {
+        "sessions": 3667,
+        "users": 2921,
+        "purchases": 55,
+        "revenue": 11303.88
+      },
+      "202609": {
+        "sessions": 1213,
+        "users": 968,
+        "purchases": 25,
+        "revenue": 2831.77
+      }
+    },
+    "gemini.google.com": {
+      "202604": {
+        "sessions": 22,
+        "users": 16,
+        "purchases": 1,
+        "revenue": 64.6
+      },
+      "202605": {
+        "sessions": 13,
+        "users": 9,
+        "purchases": 1,
+        "revenue": 135
+      },
+      "202606": {
+        "sessions": 15,
+        "users": 12,
+        "purchases": 1,
+        "revenue": 201.06
+      },
+      "202607": {
+        "sessions": 50,
+        "users": 38,
+        "purchases": 3,
+        "revenue": 1417.8899999999999
+      },
+      "202608": {
+        "sessions": 37,
+        "users": 30,
+        "purchases": 1,
+        "revenue": 180
+      },
+      "202609": {
+        "sessions": 17,
+        "users": 11,
+        "purchases": 0,
+        "revenue": 0
+      }
+    },
+    "claude.ai": {
+      "202604": {
+        "sessions": 8,
+        "users": 4,
+        "purchases": 0,
+        "revenue": 0
+      },
+      "202605": {
+        "sessions": 17,
+        "users": 8,
+        "purchases": 0,
+        "revenue": 0
+      },
+      "202606": {
+        "sessions": 3,
+        "users": 3,
+        "purchases": 0,
+        "revenue": 0
+      },
+      "202607": {
+        "sessions": 2,
+        "users": 1,
+        "purchases": 0,
+        "revenue": 0
+      },
+      "202608": {
+        "sessions": 2,
+        "users": 1,
+        "purchases": 0,
+        "revenue": 0
+      }
+    },
+    "perplexity.ai": {
+      "202604": {
+        "sessions": 6,
+        "users": 5,
+        "purchases": 0,
+        "revenue": 0
+      },
+      "202605": {
+        "sessions": 3,
+        "users": 2,
+        "purchases": 0,
+        "revenue": 0
+      },
+      "202606": {
+        "sessions": 7,
+        "users": 4,
+        "purchases": 0,
+        "revenue": 0
+      },
+      "202607": {
+        "sessions": 3,
+        "users": 3,
+        "purchases": 0,
+        "revenue": 0
+      },
+      "202608": {
+        "sessions": 4,
+        "users": 3,
+        "purchases": 0,
+        "revenue": 0
+      },
+      "202609": {
+        "sessions": 1,
+        "users": 1,
+        "purchases": 0,
+        "revenue": 0
+      }
+    }
+  },
+  "byMonth": {
+    "202604": {
+      "sessions": 831,
+      "users": 668,
+      "purchases": 11,
+      "revenue": 2544.2799999999997
+    },
+    "202605": {
+      "sessions": 1732,
+      "users": 1360,
+      "purchases": 27,
+      "revenue": 6304.27
+    },
+    "202606": {
+      "sessions": 1932,
+      "users": 1589,
+      "purchases": 36,
+      "revenue": 9044.179999999998
+    },
+    "202607": {
+      "sessions": 3220,
+      "users": 2614,
+      "purchases": 70,
+      "revenue": 20367.87
+    },
+    "202608": {
+      "sessions": 3710,
+      "users": 2955,
+      "purchases": 56,
+      "revenue": 11483.88
+    },
+    "202609": {
+      "sessions": 1231,
+      "users": 980,
+      "purchases": 25,
+      "revenue": 2831.77
+    }
+  },
+  "totals": {
+    "sessions": 12656,
+    "users": 10166,
+    "purchases": 225,
+    "revenue": 52576.25
+  },
+  "updated": "2026-09-29"
+}

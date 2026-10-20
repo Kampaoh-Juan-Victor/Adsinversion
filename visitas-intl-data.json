@@ -1,0 +1,1099 @@
+{
+  "fr": {
+    "byMonth": {
+      "202410": {
+        "Organic Search": 1114,
+        "Unassigned": 745,
+        "Direct": 133,
+        "Meta Ads": 46,
+        "Google Ads (SEM)": 11,
+        "Referral": 28,
+        "Display": 2,
+        "TikTok Ads": 2
+      },
+      "202411": {
+        "Organic Search": 766,
+        "Unassigned": 491,
+        "Direct": 356,
+        "Meta Ads": 14,
+        "Google Ads (SEM)": 6,
+        "Referral": 14
+      },
+      "202412": {
+        "Organic Search": 966,
+        "Unassigned": 524,
+        "Direct": 349,
+        "Google Ads (SEM)": 15,
+        "Referral": 13,
+        "Email": 2,
+        "Meta Ads": 4,
+        "Organic Social": 2
+      },
+      "202501": {
+        "Organic Search": 1783,
+        "Unassigned": 1515,
+        "Direct": 454,
+        "Meta Ads": 511,
+        "Google Ads (SEM)": 119,
+        "Cross-network (PMax)": 36,
+        "Referral": 22,
+        "Organic Social": 2,
+        "Email": 1
+      },
+      "202502": {
+        "Organic Search": 2322,
+        "Unassigned": 1593,
+        "Google Ads (SEM)": 1119,
+        "Direct": 588,
+        "Meta Ads": 969,
+        "Cross-network (PMax)": 258,
+        "Referral": 31,
+        "Email": 1
+      },
+      "202503": {
+        "Organic Search": 3591,
+        "Unassigned": 1991,
+        "Google Ads (SEM)": 683,
+        "Meta Ads": 688,
+        "Direct": 353,
+        "Cross-network (PMax)": 152,
+        "Referral": 59,
+        "TikTok Ads": 3,
+        "Email": 2
+      },
+      "202504": {
+        "Organic Search": 5955,
+        "Unassigned": 1633,
+        "Direct": 791,
+        "Google Ads (SEM)": 208,
+        "Cross-network (PMax)": 72,
+        "Referral": 94,
+        "Meta Ads": 30,
+        "Organic Social": 1
+      },
+      "202505": {
+        "Organic Search": 6952,
+        "Unassigned": 1660,
+        "Direct": 452,
+        "Google Ads (SEM)": 210,
+        "Cross-network (PMax)": 102,
+        "Referral": 85,
+        "Meta Ads": 19,
+        "Email": 4
+      },
+      "202506": {
+        "Organic Search": 8092,
+        "Unassigned": 1871,
+        "Direct": 609,
+        "Google Ads (SEM)": 122,
+        "Cross-network (PMax)": 34,
+        "Referral": 70,
+        "Email": 8,
+        "Meta Ads": 20
+      },
+      "202507": {
+        "Organic Search": 14642,
+        "Unassigned": 2683,
+        "Direct": 960,
+        "Google Ads (SEM)": 174,
+        "Cross-network (PMax)": 85,
+        "Meta Ads": 57,
+        "Referral": 136,
+        "Email": 22,
+        "Organic Social": 1
+      },
+      "202508": {
+        "Organic Search": 17380,
+        "Unassigned": 2319,
+        "Direct": 1030,
+        "Cross-network (PMax)": 115,
+        "Google Ads (SEM)": 77,
+        "Meta Ads": 70,
+        "Referral": 71,
+        "Email": 12,
+        "TikTok Ads": 3,
+        "Organic Shopping": 2
+      },
+      "202509": {
+        "Organic Search": 4826,
+        "Unassigned": 871,
+        "Direct": 325,
+        "Cross-network (PMax)": 291,
+        "Google Ads (SEM)": 26,
+        "Meta Ads": 50,
+        "Referral": 41,
+        "Email": 5
+      },
+      "202510": {
+        "Organic Search": 3417,
+        "Unassigned": 675,
+        "Direct": 210,
+        "Referral": 27,
+        "Google Ads (SEM)": 5,
+        "Meta Ads": 10,
+        "Cross-network (PMax)": 2,
+        "Email": 1,
+        "Organic Social": 1
+      },
+      "202511": {
+        "Organic Search": 1966,
+        "Unassigned": 567,
+        "Direct": 96,
+        "Google Ads (SEM)": 7,
+        "Email": 5,
+        "Referral": 19,
+        "Meta Ads": 7
+      },
+      "202512": {
+        "Organic Search": 1926,
+        "Unassigned": 455,
+        "Direct": 122,
+        "Google Ads (SEM)": 9,
+        "Meta Ads": 4,
+        "Referral": 19,
+        "Email": 3,
+        "Cross-network (PMax)": 1
+      },
+      "202601": {
+        "Organic Search": 2883,
+        "Unassigned": 1066,
+        "Direct": 203,
+        "Referral": 36,
+        "Email": 7,
+        "Google Ads (SEM)": 7,
+        "Meta Ads": 10,
+        "Cross-network (PMax)": 1
+      },
+      "202602": {
+        "Organic Search": 2082,
+        "Unassigned": 866,
+        "Direct": 170,
+        "Google Ads (SEM)": 17,
+        "Referral": 43,
+        "Email": 3,
+        "Meta Ads": 5,
+        "Cross-network (PMax)": 1
+      },
+      "202603": {
+        "Organic Search": 2586,
+        "Unassigned": 1032,
+        "Direct": 214,
+        "Google Ads (SEM)": 16,
+        "Referral": 35,
+        "Email": 4,
+        "Meta Ads": 5,
+        "Cross-network (PMax)": 2
+      },
+      "202604": {
+        "Organic Search": 4001,
+        "Unassigned": 1065,
+        "Direct": 286,
+        "Google Ads (SEM)": 54,
+        "Referral": 49,
+        "Meta Ads": 25,
+        "Cross-network (PMax)": 6,
+        "Email": 6
+      },
+      "202605": {
+        "Organic Search": 4351,
+        "Unassigned": 1194,
+        "Direct": 328,
+        "Google Ads (SEM)": 52,
+        "Referral": 47,
+        "Cross-network (PMax)": 6,
+        "Email": 5,
+        "Meta Ads": 15,
+        "Organic Social": 1
+      },
+      "202606": {
+        "Organic Search": 4597,
+        "Unassigned": 1154,
+        "Direct": 327,
+        "Google Ads (SEM)": 58,
+        "AI Assistant": 19,
+        "Referral": 34,
+        "Cross-network (PMax)": 7,
+        "Meta Ads": 9,
+        "Email": 1
+      },
+      "202607": {
+        "Organic Search": 7574,
+        "Unassigned": 1830,
+        "Direct": 524,
+        "Google Ads (SEM)": 97,
+        "AI Assistant": 28,
+        "Referral": 48,
+        "Cross-network (PMax)": 22,
+        "Email": 7,
+        "Meta Ads": 13,
+        "Organic Social": 1,
+        "TikTok Ads": 1
+      },
+      "202608": {
+        "Organic Search": 7131,
+        "Unassigned": 1550,
+        "Direct": 550,
+        "Google Ads (SEM)": 93,
+        "AI Assistant": 37,
+        "Cross-network (PMax)": 16,
+        "Referral": 43,
+        "Meta Ads": 20,
+        "Email": 2
+      },
+      "202609": {
+        "Organic Search": 1708,
+        "Unassigned": 421,
+        "Direct": 161,
+        "Cross-network (PMax)": 26,
+        "Google Ads (SEM)": 15,
+        "AI Assistant": 8,
+        "Meta Ads": 5,
+        "Referral": 9
+      }
+    },
+    "totals": {
+      "Organic Search": 112611,
+      "Unassigned": 29771,
+      "Direct": 9591,
+      "Meta Ads": 2606,
+      "Google Ads (SEM)": 3200,
+      "Referral": 1073,
+      "Display": 2,
+      "TikTok Ads": 9,
+      "Email": 101,
+      "Organic Social": 9,
+      "Cross-network (PMax)": 1235,
+      "Organic Shopping": 2,
+      "AI Assistant": 92
+    }
+  },
+  "en": {
+    "byMonth": {
+      "202410": {
+        "Unassigned": 2110,
+        "Organic Search": 1421,
+        "Direct": 408,
+        "Google Ads (SEM)": 61,
+        "Meta Ads": 23,
+        "Referral": 74,
+        "Cross-network (PMax)": 3,
+        "Paid Other": 2,
+        "Display": 1
+      },
+      "202411": {
+        "Unassigned": 1377,
+        "Organic Search": 1075,
+        "Direct": 541,
+        "Google Ads (SEM)": 39,
+        "Meta Ads": 25,
+        "Referral": 36,
+        "Email": 2
+      },
+      "202412": {
+        "Unassigned": 1565,
+        "Organic Search": 1485,
+        "Direct": 456,
+        "Google Ads (SEM)": 53,
+        "Meta Ads": 42,
+        "Referral": 49,
+        "Email": 4
+      },
+      "202501": {
+        "Organic Search": 3105,
+        "Unassigned": 2646,
+        "Direct": 824,
+        "Google Ads (SEM)": 156,
+        "Meta Ads": 77,
+        "Referral": 82,
+        "Organic Social": 2
+      },
+      "202502": {
+        "Organic Search": 3069,
+        "Unassigned": 2102,
+        "Direct": 737,
+        "Google Ads (SEM)": 153,
+        "Referral": 93,
+        "Cross-network (PMax)": 14,
+        "Meta Ads": 31,
+        "Email": 4
+      },
+      "202503": {
+        "Organic Search": 3931,
+        "Unassigned": 2234,
+        "Direct": 748,
+        "Google Ads (SEM)": 744,
+        "Cross-network (PMax)": 253,
+        "Meta Ads": 44,
+        "Referral": 72,
+        "Email": 5,
+        "TikTok Ads": 2
+      },
+      "202504": {
+        "Organic Search": 4025,
+        "Google Ads (SEM)": 2270,
+        "Unassigned": 1840,
+        "Cross-network (PMax)": 926,
+        "Direct": 857,
+        "Meta Ads": 55,
+        "Referral": 103,
+        "TikTok Ads": 2,
+        "Email": 1
+      },
+      "202505": {
+        "Organic Search": 5530,
+        "Google Ads (SEM)": 2839,
+        "Unassigned": 2009,
+        "Direct": 1144,
+        "Cross-network (PMax)": 1180,
+        "Meta Ads": 52,
+        "Referral": 126,
+        "Email": 10
+      },
+      "202506": {
+        "Organic Search": 7022,
+        "Google Ads (SEM)": 4096,
+        "Unassigned": 2213,
+        "Direct": 1257,
+        "Cross-network (PMax)": 814,
+        "Referral": 171,
+        "Meta Ads": 81,
+        "Email": 7,
+        "TikTok Ads": 2
+      },
+      "202507": {
+        "Organic Search": 9050,
+        "Google Ads (SEM)": 5297,
+        "Unassigned": 2828,
+        "Cross-network (PMax)": 1684,
+        "Direct": 1416,
+        "Referral": 232,
+        "Meta Ads": 148,
+        "Email": 22,
+        "TikTok Ads": 2,
+        "Organic Social": 3
+      },
+      "202508": {
+        "Organic Search": 6927,
+        "Google Ads (SEM)": 4001,
+        "Unassigned": 2459,
+        "Cross-network (PMax)": 1373,
+        "Direct": 1306,
+        "Meta Ads": 1024,
+        "Referral": 198,
+        "Email": 24,
+        "TikTok Ads": 2
+      },
+      "202509": {
+        "Organic Search": 5570,
+        "Unassigned": 1921,
+        "Google Ads (SEM)": 1411,
+        "Direct": 1368,
+        "Referral": 948,
+        "Cross-network (PMax)": 40,
+        "Meta Ads": 29,
+        "Email": 7,
+        "Organic Social": 2,
+        "TikTok Ads": 1
+      },
+      "202510": {
+        "Organic Search": 2669,
+        "Unassigned": 1412,
+        "Direct": 462,
+        "Google Ads (SEM)": 53,
+        "Referral": 75,
+        "Meta Ads": 11,
+        "Email": 5,
+        "Cross-network (PMax)": 2,
+        "Organic Social": 1
+      },
+      "202511": {
+        "Organic Search": 1662,
+        "Unassigned": 976,
+        "Direct": 274,
+        "Google Ads (SEM)": 39,
+        "Referral": 51,
+        "Cross-network (PMax)": 12,
+        "Meta Ads": 20,
+        "Email": 5,
+        "Organic Social": 1
+      },
+      "202512": {
+        "Organic Search": 1727,
+        "Unassigned": 953,
+        "Direct": 265,
+        "Google Ads (SEM)": 36,
+        "Referral": 37,
+        "Meta Ads": 12,
+        "Email": 5,
+        "Cross-network (PMax)": 2,
+        "Organic Social": 3
+      },
+      "202601": {
+        "Organic Search": 3370,
+        "Unassigned": 1567,
+        "Direct": 680,
+        "Google Ads (SEM)": 63,
+        "Referral": 89,
+        "Email": 18,
+        "Meta Ads": 17,
+        "Cross-network (PMax)": 6,
+        "Organic Shopping": 1,
+        "Organic Social": 1
+      },
+      "202602": {
+        "Organic Search": 2632,
+        "Unassigned": 1250,
+        "Direct": 431,
+        "Google Ads (SEM)": 60,
+        "Referral": 67,
+        "Cross-network (PMax)": 6,
+        "Meta Ads": 13,
+        "Email": 4
+      },
+      "202603": {
+        "Organic Search": 2784,
+        "Unassigned": 1248,
+        "Direct": 480,
+        "Google Ads (SEM)": 97,
+        "Meta Ads": 51,
+        "Referral": 69,
+        "Cross-network (PMax)": 12,
+        "Email": 5,
+        "Organic Social": 2,
+        "TikTok Ads": 1
+      },
+      "202604": {
+        "Organic Search": 3200,
+        "Unassigned": 1315,
+        "Direct": 578,
+        "Google Ads (SEM)": 164,
+        "Cross-network (PMax)": 31,
+        "Referral": 113,
+        "Meta Ads": 24,
+        "Email": 8,
+        "TikTok Ads": 2
+      },
+      "202605": {
+        "Organic Search": 2822,
+        "Unassigned": 1389,
+        "Direct": 620,
+        "Google Ads (SEM)": 191,
+        "Cross-network (PMax)": 34,
+        "Referral": 81,
+        "Meta Ads": 32,
+        "Email": 5,
+        "TikTok Ads": 1
+      },
+      "202606": {
+        "Organic Search": 1701,
+        "Direct": 728,
+        "Unassigned": 646,
+        "Google Ads (SEM)": 107,
+        "AI Assistant": 27,
+        "Cross-network (PMax)": 12,
+        "Referral": 39,
+        "Email": 5,
+        "Meta Ads": 8,
+        "Organic Social": 1,
+        "Organic Video": 1
+      },
+      "202607": {
+        "Organic Search": 5980,
+        "Unassigned": 1697,
+        "Direct": 919,
+        "Google Ads (SEM)": 307,
+        "AI Assistant": 146,
+        "Cross-network (PMax)": 59,
+        "Email": 11,
+        "Referral": 93,
+        "Meta Ads": 31,
+        "Organic Social": 5,
+        "Organic Video": 2,
+        "Paid Other": 2,
+        "TikTok Ads": 1
+      },
+      "202608": {
+        "Organic Search": 4461,
+        "Unassigned": 1483,
+        "Direct": 652,
+        "Google Ads (SEM)": 224,
+        "AI Assistant": 120,
+        "Cross-network (PMax)": 48,
+        "Referral": 87,
+        "Meta Ads": 17,
+        "Email": 4,
+        "Organic Social": 2
+      },
+      "202609": {
+        "Organic Search": 1934,
+        "Unassigned": 973,
+        "Direct": 353,
+        "Google Ads (SEM)": 110,
+        "AI Assistant": 38,
+        "Cross-network (PMax)": 55,
+        "Referral": 48,
+        "Meta Ads": 12,
+        "Email": 1,
+        "Organic Video": 1
+      }
+    },
+    "totals": {
+      "Unassigned": 40213,
+      "Organic Search": 87152,
+      "Direct": 17504,
+      "Google Ads (SEM)": 22571,
+      "Meta Ads": 1879,
+      "Referral": 3033,
+      "Cross-network (PMax)": 6566,
+      "Paid Other": 4,
+      "Display": 1,
+      "Email": 162,
+      "Organic Social": 23,
+      "TikTok Ads": 16,
+      "Organic Shopping": 1,
+      "AI Assistant": 331,
+      "Organic Video": 4
+    }
+  },
+  "pt": {
+    "byMonth": {
+      "202410": {
+        "Organic Search": 1193,
+        "Unassigned": 790,
+        "Direct": 317,
+        "Meta Ads": 78,
+        "Google Ads (SEM)": 35,
+        "Referral": 12
+      },
+      "202411": {
+        "Organic Search": 810,
+        "Unassigned": 518,
+        "Direct": 272,
+        "Meta Ads": 42,
+        "Google Ads (SEM)": 8,
+        "Email": 3,
+        "Referral": 6
+      },
+      "202412": {
+        "Organic Search": 831,
+        "Unassigned": 529,
+        "Direct": 251,
+        "Meta Ads": 33,
+        "Google Ads (SEM)": 8,
+        "Email": 6,
+        "Referral": 2
+      },
+      "202501": {
+        "Organic Search": 2424,
+        "Meta Ads": 2875,
+        "Unassigned": 1086,
+        "Direct": 509,
+        "Google Ads (SEM)": 11,
+        "Referral": 21,
+        "Paid Other": 1
+      },
+      "202502": {
+        "Organic Search": 1918,
+        "Google Ads (SEM)": 1441,
+        "Meta Ads": 2307,
+        "Unassigned": 918,
+        "Cross-network (PMax)": 799,
+        "Direct": 350,
+        "Display": 173,
+        "Referral": 16,
+        "Email": 3,
+        "Paid Video": 3,
+        "Paid Other": 1
+      },
+      "202503": {
+        "Organic Search": 2599,
+        "Meta Ads": 3228,
+        "Google Ads (SEM)": 1518,
+        "Cross-network (PMax)": 1170,
+        "Unassigned": 1193,
+        "Direct": 481,
+        "Display": 89,
+        "Email": 15,
+        "Referral": 34,
+        "Paid Video": 3,
+        "Organic Shopping": 1,
+        "Organic Video": 1,
+        "Paid Other": 1
+      },
+      "202504": {
+        "Organic Search": 3426,
+        "Meta Ads": 3513,
+        "Unassigned": 1554,
+        "Google Ads (SEM)": 1459,
+        "Cross-network (PMax)": 1412,
+        "Direct": 597,
+        "Referral": 47
+      },
+      "202505": {
+        "Organic Search": 5601,
+        "Google Ads (SEM)": 2211,
+        "Cross-network (PMax)": 2191,
+        "Unassigned": 2219,
+        "Meta Ads": 3195,
+        "Direct": 822,
+        "Referral": 57,
+        "Email": 9,
+        "TikTok Ads": 1
+      },
+      "202506": {
+        "Organic Search": 14679,
+        "Meta Ads": 7947,
+        "Unassigned": 3472,
+        "Cross-network (PMax)": 2668,
+        "Google Ads (SEM)": 2247,
+        "Direct": 1538,
+        "Referral": 87,
+        "Organic Social": 13,
+        "Email": 8,
+        "Paid Other": 2
+      },
+      "202507": {
+        "Organic Search": 24496,
+        "Meta Ads": 18894,
+        "Cross-network (PMax)": 7999,
+        "Unassigned": 6470,
+        "Direct": 2851,
+        "Google Ads (SEM)": 2792,
+        "TikTok Ads": 441,
+        "Email": 60,
+        "Referral": 150,
+        "Organic Social": 16,
+        "Paid Other": 4,
+        "Organic Video": 1
+      },
+      "202508": {
+        "Organic Search": 21830,
+        "Cross-network (PMax)": 5776,
+        "Meta Ads": 9524,
+        "Unassigned": 5647,
+        "Direct": 2124,
+        "TikTok Ads": 925,
+        "Google Ads (SEM)": 584,
+        "Organic Social": 40,
+        "Email": 38,
+        "Referral": 164,
+        "Organic Video": 1,
+        "Paid Other": 1
+      },
+      "202509": {
+        "Organic Search": 4298,
+        "Meta Ads": 2123,
+        "Unassigned": 1860,
+        "Cross-network (PMax)": 629,
+        "Direct": 530,
+        "Google Ads (SEM)": 132,
+        "TikTok Ads": 106,
+        "Referral": 39,
+        "Organic Social": 6,
+        "Email": 5
+      },
+      "202510": {
+        "Organic Search": 1349,
+        "Unassigned": 913,
+        "Direct": 172,
+        "Meta Ads": 118,
+        "Google Ads (SEM)": 10,
+        "Email": 9,
+        "Referral": 7
+      },
+      "202511": {
+        "Organic Search": 961,
+        "Unassigned": 382,
+        "Direct": 84,
+        "Meta Ads": 42,
+        "Email": 6,
+        "Referral": 12,
+        "Cross-network (PMax)": 3,
+        "Google Ads (SEM)": 2
+      },
+      "202512": {
+        "Organic Search": 910,
+        "Unassigned": 461,
+        "Direct": 71,
+        "Meta Ads": 24,
+        "Referral": 8,
+        "Google Ads (SEM)": 5,
+        "Cross-network (PMax)": 4,
+        "Email": 2
+      },
+      "202601": {
+        "Organic Search": 2268,
+        "Unassigned": 862,
+        "Direct": 211,
+        "Email": 40,
+        "Meta Ads": 51,
+        "Google Ads (SEM)": 6,
+        "Referral": 21,
+        "Cross-network (PMax)": 4,
+        "Organic Shopping": 1,
+        "Organic Social": 1
+      },
+      "202602": {
+        "Organic Search": 2536,
+        "Unassigned": 844,
+        "Direct": 209,
+        "Meta Ads": 47,
+        "Google Ads (SEM)": 12,
+        "Email": 9,
+        "Referral": 14,
+        "Cross-network (PMax)": 4,
+        "Organic Social": 1
+      },
+      "202603": {
+        "Organic Search": 3442,
+        "Unassigned": 1155,
+        "Direct": 283,
+        "Meta Ads": 95,
+        "Google Ads (SEM)": 19,
+        "Email": 11,
+        "Referral": 23,
+        "Organic Social": 2,
+        "Cross-network (PMax)": 1,
+        "Organic Shopping": 1,
+        "TikTok Ads": 1
+      },
+      "202604": {
+        "Organic Search": 4666,
+        "Unassigned": 1538,
+        "Direct": 386,
+        "Meta Ads": 218,
+        "Google Ads (SEM)": 63,
+        "Email": 20,
+        "Organic Social": 6,
+        "Referral": 22,
+        "Cross-network (PMax)": 3
+      },
+      "202605": {
+        "Organic Search": 6388,
+        "Unassigned": 2034,
+        "Direct": 659,
+        "Meta Ads": 393,
+        "Google Ads (SEM)": 53,
+        "Email": 28,
+        "Cross-network (PMax)": 9,
+        "Referral": 49,
+        "Organic Social": 7,
+        "TikTok Ads": 1
+      },
+      "202606": {
+        "Organic Search": 12761,
+        "Unassigned": 3251,
+        "Direct": 1053,
+        "Meta Ads": 819,
+        "Google Ads (SEM)": 87,
+        "Organic Social": 45,
+        "AI Assistant": 20,
+        "Referral": 71,
+        "Email": 18,
+        "Cross-network (PMax)": 17,
+        "TikTok Ads": 1
+      },
+      "202607": {
+        "Organic Search": 20236,
+        "Google Ads (SEM)": 6782,
+        "Unassigned": 4593,
+        "Direct": 1717,
+        "Meta Ads": 2302,
+        "Cross-network (PMax)": 946,
+        "Organic Social": 211,
+        "AI Assistant": 80,
+        "Referral": 111,
+        "Email": 13,
+        "Paid Other": 6,
+        "TikTok Ads": 2,
+        "Organic Video": 1
+      },
+      "202608": {
+        "Organic Search": 17111,
+        "Google Ads (SEM)": 7305,
+        "Unassigned": 3812,
+        "Direct": 1568,
+        "Meta Ads": 1619,
+        "Cross-network (PMax)": 915,
+        "Organic Social": 186,
+        "AI Assistant": 136,
+        "Referral": 120,
+        "Email": 19,
+        "TikTok Ads": 2,
+        "Paid Other": 1
+      },
+      "202609": {
+        "Organic Search": 5718,
+        "Unassigned": 1606,
+        "Google Ads (SEM)": 695,
+        "Direct": 591,
+        "Meta Ads": 336,
+        "Cross-network (PMax)": 153,
+        "Organic Social": 51,
+        "AI Assistant": 32,
+        "Referral": 32,
+        "Paid Other": 1
+      }
+    },
+    "totals": {
+      "Organic Search": 162451,
+      "Unassigned": 47707,
+      "Direct": 17646,
+      "Meta Ads": 59823,
+      "Google Ads (SEM)": 27485,
+      "Referral": 1125,
+      "Email": 322,
+      "Paid Other": 18,
+      "Cross-network (PMax)": 24703,
+      "Display": 262,
+      "Paid Video": 6,
+      "Organic Shopping": 3,
+      "Organic Video": 4,
+      "TikTok Ads": 1480,
+      "Organic Social": 585,
+      "AI Assistant": 268
+    }
+  },
+  "it": {
+    "byMonth": {
+      "202410": {
+        "Organic Search": 353,
+        "Unassigned": 182,
+        "Direct": 84,
+        "Meta Ads": 49,
+        "Referral": 9,
+        "Google Ads (SEM)": 4
+      },
+      "202411": {
+        "Organic Search": 203,
+        "Unassigned": 93,
+        "Direct": 88,
+        "Meta Ads": 17,
+        "Google Ads (SEM)": 4,
+        "Referral": 7
+      },
+      "202412": {
+        "Organic Search": 159,
+        "Unassigned": 136,
+        "Direct": 103,
+        "Meta Ads": 13,
+        "Google Ads (SEM)": 7,
+        "Email": 2,
+        "Referral": 2
+      },
+      "202501": {
+        "Organic Search": 662,
+        "Unassigned": 373,
+        "Direct": 160,
+        "Meta Ads": 24,
+        "Google Ads (SEM)": 14,
+        "Referral": 11
+      },
+      "202502": {
+        "Organic Search": 659,
+        "Unassigned": 332,
+        "Direct": 169,
+        "Meta Ads": 22,
+        "Google Ads (SEM)": 15,
+        "Referral": 9,
+        "Cross-network (PMax)": 2,
+        "Email": 2,
+        "TikTok Ads": 2
+      },
+      "202503": {
+        "Organic Search": 1017,
+        "Unassigned": 481,
+        "Direct": 94,
+        "Meta Ads": 36,
+        "Google Ads (SEM)": 12,
+        "Cross-network (PMax)": 4,
+        "Email": 3,
+        "Referral": 11
+      },
+      "202504": {
+        "Organic Search": 997,
+        "Unassigned": 423,
+        "Direct": 97,
+        "Google Ads (SEM)": 49,
+        "Meta Ads": 29,
+        "Cross-network (PMax)": 26,
+        "Referral": 12
+      },
+      "202505": {
+        "Organic Search": 1317,
+        "Unassigned": 610,
+        "Direct": 161,
+        "Google Ads (SEM)": 45,
+        "Meta Ads": 50,
+        "Cross-network (PMax)": 30,
+        "Referral": 16
+      },
+      "202506": {
+        "Organic Search": 2942,
+        "Unassigned": 708,
+        "Direct": 310,
+        "Meta Ads": 71,
+        "Google Ads (SEM)": 51,
+        "Referral": 17,
+        "Cross-network (PMax)": 5,
+        "Email": 1,
+        "TikTok Ads": 1
+      },
+      "202507": {
+        "Organic Search": 4717,
+        "Unassigned": 1121,
+        "Google Ads (SEM)": 601,
+        "Direct": 537,
+        "Meta Ads": 819,
+        "Cross-network (PMax)": 38,
+        "Referral": 21,
+        "Email": 5
+      },
+      "202508": {
+        "Organic Search": 5738,
+        "Google Ads (SEM)": 1119,
+        "Unassigned": 672,
+        "Meta Ads": 1153,
+        "Direct": 523,
+        "Cross-network (PMax)": 59,
+        "Referral": 24,
+        "TikTok Ads": 3,
+        "Email": 1
+      },
+      "202509": {
+        "Organic Search": 2143,
+        "Unassigned": 394,
+        "Direct": 203,
+        "Google Ads (SEM)": 171,
+        "Meta Ads": 69,
+        "Referral": 20,
+        "Cross-network (PMax)": 2,
+        "Email": 1
+      },
+      "202510": {
+        "Organic Search": 479,
+        "Unassigned": 185,
+        "Direct": 57,
+        "Meta Ads": 19,
+        "Google Ads (SEM)": 4,
+        "Cross-network (PMax)": 1,
+        "Email": 1,
+        "Referral": 2
+      },
+      "202511": {
+        "Organic Search": 246,
+        "Unassigned": 147,
+        "Direct": 28,
+        "Meta Ads": 4,
+        "Email": 2,
+        "Google Ads (SEM)": 1,
+        "Referral": 2
+      },
+      "202512": {
+        "Organic Search": 278,
+        "Unassigned": 84,
+        "Direct": 17,
+        "Meta Ads": 8,
+        "Google Ads (SEM)": 4,
+        "Organic Video": 2,
+        "Email": 1
+      },
+      "202601": {
+        "Organic Search": 644,
+        "Unassigned": 240,
+        "Direct": 66,
+        "Meta Ads": 7,
+        "Google Ads (SEM)": 4,
+        "Email": 2,
+        "Referral": 9,
+        "TikTok Ads": 1
+      },
+      "202602": {
+        "Organic Search": 381,
+        "Unassigned": 182,
+        "Direct": 42,
+        "Meta Ads": 8,
+        "Google Ads (SEM)": 4,
+        "Referral": 6,
+        "Cross-network (PMax)": 1
+      },
+      "202603": {
+        "Organic Search": 2,
+        "Referral": 1
+      },
+      "202604": {
+        "Organic Search": 402,
+        "Unassigned": 222,
+        "Direct": 49,
+        "Meta Ads": 22,
+        "Google Ads (SEM)": 5,
+        "Email": 2,
+        "Referral": 2,
+        "Cross-network (PMax)": 1
+      },
+      "202605": {
+        "Organic Search": 1144,
+        "Unassigned": 343,
+        "Direct": 118,
+        "Meta Ads": 41,
+        "Google Ads (SEM)": 13,
+        "Referral": 7
+      },
+      "202606": {
+        "Organic Search": 2821,
+        "Unassigned": 407,
+        "Direct": 236,
+        "Meta Ads": 24,
+        "Google Ads (SEM)": 10,
+        "Email": 4,
+        "AI Assistant": 3,
+        "Referral": 10,
+        "Cross-network (PMax)": 1
+      },
+      "202607": {
+        "Organic Search": 3286,
+        "Unassigned": 486,
+        "Direct": 241,
+        "Meta Ads": 33,
+        "Google Ads (SEM)": 20,
+        "Cross-network (PMax)": 7,
+        "AI Assistant": 6,
+        "Referral": 7
+      },
+      "202608": {
+        "Organic Search": 2694,
+        "Unassigned": 415,
+        "Direct": 250,
+        "Meta Ads": 38,
+        "Google Ads (SEM)": 13,
+        "AI Assistant": 8,
+        "Cross-network (PMax)": 4,
+        "Referral": 6,
+        "Email": 1
+      },
+      "202609": {
+        "Organic Search": 653,
+        "Unassigned": 169,
+        "Direct": 47,
+        "Cross-network (PMax)": 12,
+        "Meta Ads": 8,
+        "Google Ads (SEM)": 7,
+        "Referral": 7,
+        "AI Assistant": 1
+      }
+    },
+    "totals": {
+      "Organic Search": 33937,
+      "Unassigned": 8405,
+      "Direct": 3680,
+      "Meta Ads": 2564,
+      "Referral": 218,
+      "Google Ads (SEM)": 2177,
+      "Email": 28,
+      "Cross-network (PMax)": 193,
+      "TikTok Ads": 7,
+      "Organic Video": 2,
+      "AI Assistant": 18
+    }
+  }
+}

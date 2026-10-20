@@ -23,6 +23,12 @@ const GOOGLE_ADGROUPS_PATH   = path.join(__dirname, "google-adgroups-data.json")
 
 const { extractDestination, normalize } = require("./destinos-config");
 
+// Excepciones: campañas PMax (sin adgroups con slug) que sí tienen destino conocido
+// Clave = nombre exacto de la campaña en Google Ads, Valor = slug canónico del destino
+const CAMPAIGN_DEST_EXCEPTIONS = {
+  "FR_Conversiones_PMAX_Alquezar": "alquezar",
+};
+
 function extractDestinationFromAdGroup(name) {
   // 1. Patrón: Search_[Tipo]_DESTINO (e.g. Search_No-Marca_las-arenas, Search_Marca_tarifa)
   //    Usa nombre normalizado para manejar tildes (doñana, los-caños, etc.)
@@ -107,7 +113,7 @@ async function queryGoogleAds(accessToken, query) {
 
     const res = await post(
       "googleads.googleapis.com",
-      `/v22/customers/${CLIENT_ID_CID}/googleAds:search`,
+      `/v23/customers/${CLIENT_ID_CID}/googleAds:search`,
       {
         "Authorization": `Bearer ${accessToken}`,
         "developer-token": DEVELOPER_TOKEN,
@@ -292,6 +298,15 @@ async function refreshGoogleAds(dateFrom, dateTo) {
       delete dataFile.days[dateStr].g_gen;
     }
   });
+  // Aplicar excepciones de campaña → destino (PMax con destino conocido)
+  campRows.forEach(r => {
+    const dest = CAMPAIGN_DEST_EXCEPTIONS[r.campaign_name];
+    if (!dest) return;
+    const date = String(r.date).replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3");
+    if (!destByDate[date]) destByDate[date] = {};
+    destByDate[date][dest] = (destByDate[date][dest] || 0) + r.spend;
+  });
+
   // Merge: iterar por totalByDate (incluye PMax/campañas sin adgroups) no por destByDate
   const allDates = new Set([...Object.keys(destByDate), ...Object.keys(totalByDate)]);
   allDates.forEach(date => {
